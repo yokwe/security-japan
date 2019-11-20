@@ -12,12 +12,6 @@ public class ListedIssue extends Sheet implements Comparable<ListedIssue> {
 	public static final String PATH_DOWNLOAD = "tmp/download/ListedIssue.xls";
 	public static final String PATH_DATA     = "tmp/data/listedIssue.csv";
 
-	// 日付	コード	銘柄名	市場・商品区分	33業種コード	33業種区分	17業種コード	17業種区分	規模コード	規模区分
-	// 20191031	1301	極洋	市場第一部（内国株）	50	水産・農林業	1	食品 	7	TOPIX Small 2
-	// 20191031	1305	ダイワ上場投信－トピックス	ETF・ETN	-	-	-	-	-	-
-	// 20191031	1377	サカタのタネ	市場第一部（内国株）	50	水産・農林業	1	食品 	6	TOPIX Small 1
-	// 20191031	7177	ＧＭＯフィナンシャルホールディングス	JASDAQ(スタンダード・内国株）	7100	証券、商品先物取引業	16	金融（除く銀行） 	-	-
-	
 	@ColumnName("日付")
 	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	public String date;
