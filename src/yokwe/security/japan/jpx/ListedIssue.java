@@ -18,7 +18,7 @@ public class ListedIssue extends Sheet implements Comparable<ListedIssue> {
 	
 	@ColumnName("コード")
 	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
-	public String code;
+	public String stockCode;
 	
 	@ColumnName("銘柄名")
 	public String name;
@@ -50,16 +50,16 @@ public class ListedIssue extends Sheet implements Comparable<ListedIssue> {
 	@Override
 	public String toString() {
 		if (market.compareTo("ETF・ETN") == 0) {
-			return String.format("%s %s %s %s", date, code, name, market);
+			return String.format("%s %s %s %s", date, stockCode, name, market);
 		} else {
-			return String.format("%s %s %s %s %s %s %s %s %s %s", date, code, name, market, sector33Code, sector33, sector17Code, sector17, scale, scaleCode);
+			return String.format("%s %s %s %s %s %s %s %s %s %s", date, stockCode, name, market, sector33Code, sector33, sector17Code, sector17, scale, scaleCode);
 		}
 	}
 
 	@Override
 	public int compareTo(ListedIssue that) {
 		int ret = this.date.compareTo(that.date);
-		if (ret == 0) ret = this.code.compareTo(that.code);
+		if (ret == 0) ret = this.stockCode.compareTo(that.stockCode);
 		return ret;
 	}
 }
