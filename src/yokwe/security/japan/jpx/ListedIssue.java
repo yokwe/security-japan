@@ -1,5 +1,6 @@
 package yokwe.security.japan.jpx;
 
+import yokwe.util.CSVUtil;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -11,45 +12,57 @@ public class ListedIssue extends Sheet implements Comparable<ListedIssue> {
 	public static final String URL_DOWNLOAD  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	public static final String PATH_DOWNLOAD = "tmp/download/ListedIssue.xls";
 	public static final String PATH_DATA     = "tmp/data/listedIssue.csv";
+	
+	public static final String MARKET_ETF    = "ETF・ETN";
 
-	@ColumnName("日付")
-	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	@Sheet.ColumnName("日付")
+	@CSVUtil.ColumnName("日付")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	public String date;
 	
-	@ColumnName("コード")
-	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	@Sheet.ColumnName("コード")
+	@CSVUtil.ColumnName("コード")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	public String stockCode;
 	
-	@ColumnName("銘柄名")
+	@Sheet.ColumnName("銘柄名")
+	@CSVUtil.ColumnName("銘柄名")
 	public String name;
 	
-	@ColumnName("市場・商品区分")
+	@Sheet.ColumnName("市場・商品区分")
+	@CSVUtil.ColumnName("市場・商品区分")
 	public String market;
 	
-	@ColumnName("33業種コード")
-	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	@Sheet.ColumnName("33業種コード")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	@CSVUtil.ColumnName("33業種コード")
 	public String sector33Code;
 	
-	@ColumnName("33業種区分")
+	@Sheet.ColumnName("33業種区分")
+	@CSVUtil.ColumnName("33業種区分")
 	public String sector33;
 	
-	@ColumnName("17業種コード")
-	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	@Sheet.ColumnName("17業種コード")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	@CSVUtil.ColumnName("17業種コード")
 	public String sector17Code;
 	
-	@ColumnName("17業種区分")
+	@Sheet.ColumnName("17業種区分")
+	@CSVUtil.ColumnName("17業種区分")
 	public String sector17;
 	
-	@ColumnName("規模コード")
-	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	@Sheet.ColumnName("規模コード")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	@CSVUtil.ColumnName("規模コード")
 	public String scaleCode;
 	
-	@ColumnName("規模区分")
+	@Sheet.ColumnName("規模区分")
+	@CSVUtil.ColumnName("規模区分")
 	public String scale;
 	
 	@Override
 	public String toString() {
-		if (market.compareTo("ETF・ETN") == 0) {
+		if (market.compareTo(MARKET_ETF) == 0) {
 			return String.format("%s %s %s %s", date, stockCode, name, market);
 		} else {
 			return String.format("%s %s %s %s %s %s %s %s %s %s", date, stockCode, name, market, sector33Code, sector33, sector17Code, sector17, scale, scaleCode);
