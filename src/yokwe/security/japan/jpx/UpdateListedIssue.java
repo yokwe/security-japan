@@ -40,7 +40,7 @@ public class UpdateListedIssue {
 				ListedIssue newValue = new ListedIssue();
 				
 				newValue.date         = value.date.trim();
-				newValue.code         = value.code.trim();
+				newValue.stockCode    = value.stockCode.trim();
 				newValue.name         = value.name.trim();
 				newValue.market       = value.market.trim();
 				newValue.sector33Code = value.sector33Code.trim();
