@@ -129,11 +129,11 @@ public class UpdateStockPrice {
 
 	private static class StockD {
 		private static final Pattern PAT = Pattern.compile(
-			"(?<yyyy>20[0-9][0-9])/(?<mm>[01][0-9])/(?<dd>[012][0-9])," +
-			"(?<open>[0-9]+\\.[0-9])," +
-			"(?<high>[0-9]+\\.[0-9])," +
-			"(?<low>[0-9]+\\.[0-9])," +
-			"(?<close>[0-9]+\\.[0-9])," +
+			"(?<yyyy>20[0-9][0-9])/(?<mm>[01][0-9])/(?<dd>[0123][0-9])," +
+			"(?<open>([0-9]+\\.[0-9])?)," +
+			"(?<high>([0-9]+\\.[0-9])?)," +
+			"(?<low>([0-9]+\\.[0-9])?)," +
+			"(?<close>([0-9]+\\.[0-9])?)," +
 			"(?<volume>[0-9]+)," +
 			"([0-9]+)?" +
 			"[\\r\\n]+"
@@ -155,7 +155,7 @@ public class UpdateStockPrice {
 		final String volume;
 		
 		StockD(String yyyy, String mm, String dd, String open, String high, String low, String close, String volume) {
-			this.yyyy = yyyy;
+			this.yyyy   = yyyy;
 			this.mm     = mm;
 			this.dd     = dd;
 			this.open   = open;
@@ -173,13 +173,13 @@ public class UpdateStockPrice {
 
 	private static Stock getStock(String stockCode, String page) {
 		StockA stockA = StockA.getInstance(page);
-		logger.info("stockA {}", stockA);
+//		logger.info("stockA {}", stockA);
 		
 		StockB stockB = StockB.getInstance(page);
-		logger.info("stockB {}", stockB);
+//		logger.info("stockB {}", stockB);
 	
 		StockC stockC = StockC.getInstance(page);
-		logger.info("stockC {}", stockC);
+//		logger.info("stockC {}", stockC);
 		
 		if (stockCode.compareTo(stockA.stockCode) != 0) {
 			logger.error("Unexpected stockCode  {}  {}!", stockCode, stockA.stockCode);
@@ -194,18 +194,33 @@ public class UpdateStockPrice {
 	private static Map<String, Price> getPriceMap(String stockCode, String page) {
 		List<StockD> stockDList = StockD.getInstance(page);
 		
+		double lastClose = -1;
 		Map<String, Price> map = new TreeMap<>();
 		for(StockD stockD: stockDList) {
 			String date   = String.format("%s-%s-%s", stockD.yyyy, stockD.mm, stockD.dd);
-			double open   = Double.parseDouble(stockD.open);
-			double low    = Double.parseDouble(stockD.low);
-			double high   = Double.parseDouble(stockD.high);
-			double close  = Double.parseDouble(stockD.close);
+			double open;
+			double low;
+			double high;
+			double close;
 			long   volume = Long.parseLong(stockD.volume);
+			if (volume == 0) {
+				if (lastClose == -1) {
+//					logger.warn("No lastClose {} {}", stockCode, date);
+					continue;
+				} else {
+					open = low = high = close = lastClose;
+				}
+			} else {
+				open   = Double.parseDouble(stockD.open);
+				low    = Double.parseDouble(stockD.low);
+				high   = Double.parseDouble(stockD.high);
+				close  = Double.parseDouble(stockD.close);
+				lastClose = close;
+			}
 			
 			Price price = new Price(date, stockCode, open, low, high, close, volume);
 			if (map.containsKey(date)) {
-				logger.error("duplicate date {}!", date);
+				logger.error("duplicate date {} {}", stockCode, date);
 				logger.error("old {}", map.get(date));
 				logger.error("new {}", price);
 				throw new UnexpectedException("duplicate date");
@@ -232,11 +247,13 @@ public class UpdateStockPrice {
 		int countTotal = list.size();
 		int count = 0;
 		int countNotExist = 0;
+		List<String> listNotExist = new ArrayList<>();
 		for(ListedIssue listedIssue: list) {
-			String stockCode = listedIssue.stockCode;
-			logger.info("stockCode {}", stockCode);
-			logger.info("{}", String.format("%4d / %4d  %s", count, countTotal, stockCode));
 			count++;
+			String stockCode = listedIssue.stockCode;
+			if ((count % 100) == 0) {
+				logger.info("{}", String.format("%4d / %4d  %s", count, countTotal, stockCode));
+			}
 			
 			String path = String.format("tmp/download/page/%s", stockCode);
 			String page;
@@ -258,6 +275,7 @@ public class UpdateStockPrice {
 			
 			if (page.contains("指定された銘柄が見つかりません")) {
 				countNotExist++;
+				listNotExist.add(stockCode);
 				continue;
 			}
 
@@ -280,10 +298,9 @@ public class UpdateStockPrice {
 						// equal
 					} else {
 						// not equal
-						logger.error("not equal price {}!", key);
-						logger.error("old {}", value);
-						logger.error("new {}", newPrice);
-						throw new UnexpectedException("not equal price");
+						logger.warn("not equal price {} {}", stockCode, key);
+						logger.warn("old {}", value);
+						logger.warn("new {}", newPrice);
 					}
 				} else {
 					newPriceMap.put(key, value);
@@ -292,9 +309,11 @@ public class UpdateStockPrice {
 			List<Price> newPriceList = new ArrayList<>(newPriceMap.values());
 			Price.save(newPriceList);
 		}
+		
+		Stock.save(new ArrayList<>(newStockMap.values()));
 
 		logger.info("countTotal    {}", countTotal);
-		logger.info("countNotExist {}", countNotExist);
+		logger.info("countNotExist {}  {}", countNotExist, listNotExist);
 
 		logger.info("STOP");
 	}
