@@ -1,5 +1,6 @@
 package yokwe.security.japan.jpx;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,6 +17,11 @@ public class Stock implements Comparable<Stock> {
 
 	public static List<Stock> load() {
 		return CSVUtil.read(Stock.class).file(PATH_DATA);
+	}
+	public static void save(List<Stock> list) {
+		// Sort before save
+		Collections.sort(list);
+		CSVUtil.write(Stock.class).file(PATH_DATA, list);
 	}
 	public static Map<String, Stock> getStockMap() {
 		List<Stock> stockList = load();
