@@ -1,14 +1,20 @@
 package yokwe.security.japan.fsa;
 
+import java.util.List;
+
 import yokwe.util.CSVUtil;
 import yokwe.util.libreoffice.Sheet;
 
-public class EDINET extends Sheet implements Comparable<EDINET>{
+public class EDINET extends Sheet implements Comparable<EDINET> {
 	public static final String URL_DOWNLOAD     = "https://disclosure.edinet-fsa.go.jp/E01EW/download?uji.verb=W1E62071EdinetCodeDownload&uji.bean=ee.bean.W1E62071.EEW1E62071Bean&TID=W1E62071&PID=W1E62071&SESSIONKEY=9999&downloadFileName=&lgKbn=2&dflg=0&iflg=0&dispKbn=1";
 	public static final String CHARSET_DOWNLOAD = "MS932";
 	
 	public static final String PATH_DOWNLOAD    = "tmp/download/Edinetcode.zip";
 	public static final String PATH_DATA        = "tmp/data/EdinetcodeDlInfo.csv";
+	
+	public static List<EDINET> load() {
+		return CSVUtil.read(EDINET.class).file(PATH_DATA);
+	}
 	
 	@CSVUtil.ColumnName("ＥＤＩＮＥＴコード")
 	public String edinetCode;
@@ -44,7 +50,7 @@ public class EDINET extends Sheet implements Comparable<EDINET>{
 	public String sector;
 	
 	@CSVUtil.ColumnName("証券コード")
-	public String stockCode;
+	public String stockCode; // can be NNNN0 or empty
 	
 	@CSVUtil.ColumnName("提出者法人番号")
 	public String corporateCode;
