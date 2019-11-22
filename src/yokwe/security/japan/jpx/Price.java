@@ -55,7 +55,7 @@ public class Price implements Comparable<Price> {
 	
 
 	public String date;      // YYYY-MM-DD
-	public String stockCode;
+	public String stockCode; // Can be four or five digits
 	public double open;
 	public double high;
 	public double low;
