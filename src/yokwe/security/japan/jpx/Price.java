@@ -77,7 +77,7 @@ public class Price implements Comparable<Price> {
 
 	@Override
 	public String toString() {
-		return String.format("%s %s %.1d %.1d %.1d %d", date, stockCode, open, high, low, close, volume);
+		return String.format("%s %s %.1f %.1f %.1f %.1f %d", date, stockCode, open, high, low, close, volume);
 	}
 	
 	@Override
