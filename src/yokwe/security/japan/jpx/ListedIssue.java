@@ -19,7 +19,7 @@ public class ListedIssue implements Comparable<ListedIssue> {
 	public String date; // YYYY-MM-DD
 	
 	@CSVUtil.ColumnName("コード")
-	public String stockCode; // NNNN - four digits
+	public String stockCode; // Can be four or five digits
 	
 	@CSVUtil.ColumnName("銘柄名")
 	public String name;
