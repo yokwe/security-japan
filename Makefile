@@ -21,3 +21,19 @@ copy-misc-lib-files:
 
 build-misc-lib:
 	pushd ../misc-lib/; ant build ; popd; make copy-misc-lib-files
+
+update-listed-issue:
+	mv tmp/data/listed-issue.csv tmp/data/listed-issue.csv-OLD
+	ant update-listed-issue
+
+clear-download-page:
+	rm -rf tmp/download/page-OLD
+	cp -r  tmp/download/page tmp/download/page-OLD
+
+update-stock-price:
+	rm -rf tmp/data/price-OLD
+	cp -r  tmp/data/price      tmp/data/price-OLD
+	cp     tmp/data/stock.csv  tmp/data/stock.csv-OLD
+	ant update-stock-price
+
+
