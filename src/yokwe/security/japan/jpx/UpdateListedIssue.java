@@ -117,5 +117,6 @@ public class UpdateListedIssue {
 		}
 		
 		logger.info("STOP");
+		System.exit(0);
 	}
 }
