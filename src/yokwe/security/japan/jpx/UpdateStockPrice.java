@@ -2,6 +2,7 @@ package yokwe.security.japan.jpx;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -32,7 +33,7 @@ public class UpdateStockPrice {
 		return ret;
 	}
 	
-	private static class StockA {
+	private static class BasicInfo {
 		private static final Pattern PAT = Pattern.compile(
 				"<tr>\\s+" +
 				"<td .+?><font .+?>コード</font></td>\\s+" +
@@ -47,9 +48,9 @@ public class UpdateStockPrice {
 				"<td .+?><font .+?>(?<category>.+?)<br></font></td>\\s+" +
 				"</tr>"
 		);
-		static final StringUtil.MatcherFunction<StockA> OP = (m -> new StockA(m.group("code"), m.group("isin")));
-		static StockA getInstance(String string) {
-			List<StockA> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
+		static final StringUtil.MatcherFunction<BasicInfo> OP = (m -> new BasicInfo(m.group("code"), m.group("isin")));
+		static BasicInfo getInstance(String string) {
+			List<BasicInfo> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
 			if (list.size() != 1) {
 				logger.error("list.size() != 1  {}", list.size());
 				throw new UnexpectedException("list.size() != 1");
@@ -60,7 +61,7 @@ public class UpdateStockPrice {
 		final String stockCode;
 		final String isinCode;
 		
-		StockA(String stockCode, String isinCode) {
+		BasicInfo(String stockCode, String isinCode) {
 			this.stockCode = stockCode;
 			this.isinCode  = isinCode;
 		}
@@ -71,14 +72,14 @@ public class UpdateStockPrice {
 		}
 	}
 
-	private static class StockB {
+	private static class NumberOfIssued {
 		private static final Pattern PAT = Pattern.compile(
 			"<td .+?><font .+?>発行済株式数</font></td>\\s+" +
 			"<td .+?><font .+?>(?<numberOfIssued>[0-9,]+)<br></font></td>\\s+"
 		);
-		private static final StringUtil.MatcherFunction<StockB> OP = (m -> new StockB(m.group("numberOfIssued")));
-		static StockB getInstance(String string) {
-			List<StockB> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
+		private static final StringUtil.MatcherFunction<NumberOfIssued> OP = (m -> new NumberOfIssued(m.group("numberOfIssued")));
+		static NumberOfIssued getInstance(String string) {
+			List<NumberOfIssued> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
 			if (list.size() != 1) {
 				logger.error("list.size() != 1  {}", list.size());
 				throw new UnexpectedException("list.size() != 1");
@@ -88,7 +89,7 @@ public class UpdateStockPrice {
 		
 		final String numberOfIssued;
 		
-		StockB(String numberOfIssued) {
+		NumberOfIssued(String numberOfIssued) {
 			// remove comma
 			this.numberOfIssued = numberOfIssued.replace(",", "");
 		}
@@ -99,14 +100,14 @@ public class UpdateStockPrice {
 		}
 	}
 	
-	private static class StockC {
+	private static class TradeUnit {
 		private static final Pattern PAT = Pattern.compile(
 			"<td .+?><font .+?>売買単位</font></td>\\s+" +
 			"<td .+?><font .+?>(?<tradeUnit>[0-9,]+)株<br></font></td>\\s+"
 		);
-		private static final StringUtil.MatcherFunction<StockC> OP = (m -> new StockC(m.group("tradeUnit")));
-		static StockC getInstance(String string) {
-			List<StockC> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
+		private static final StringUtil.MatcherFunction<TradeUnit> OP = (m -> new TradeUnit(m.group("tradeUnit")));
+		static TradeUnit getInstance(String string) {
+			List<TradeUnit> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
 			if (list.size() != 1) {
 				logger.error("list.size() != 1  {}", list.size());
 				throw new UnexpectedException("list.size() != 1");
@@ -116,7 +117,7 @@ public class UpdateStockPrice {
 		
 		final String tradeUnit;
 		
-		StockC(String tradeUnit) {
+		TradeUnit(String tradeUnit) {
 			// remove comma
 			this.tradeUnit = tradeUnit.replace(",", "");
 		}
@@ -127,7 +128,7 @@ public class UpdateStockPrice {
 		}
 	}
 
-	private static class StockD {
+	private static class PriceVolume {
 		private static final Pattern PAT = Pattern.compile(
 			"(?<yyyy>20[0-9][0-9])/(?<mm>[01][0-9])/(?<dd>[0123][0-9])," +
 			"(?<open>([0-9]+\\.[0-9])?)," +
@@ -138,10 +139,10 @@ public class UpdateStockPrice {
 			"([0-9]+)?" +
 			"[\\r\\n]+"
 		);
-		private static final StringUtil.MatcherFunction<StockD> OP =
-			(m -> new StockD(m.group("yyyy"), m.group("mm"), m.group("dd"), m.group("open"), m.group("high"), m.group("low"), m.group("close"), m.group("volume")));
-		static List<StockD> getInstance(String string) {
-			List<StockD> ret = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
+		private static final StringUtil.MatcherFunction<PriceVolume> OP =
+			(m -> new PriceVolume(m.group("yyyy"), m.group("mm"), m.group("dd"), m.group("open"), m.group("high"), m.group("low"), m.group("close"), m.group("volume")));
+		static List<PriceVolume> getInstance(String string) {
+			List<PriceVolume> ret = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
 			return ret;
 		}
 		
@@ -154,7 +155,7 @@ public class UpdateStockPrice {
 		final String close;
 		final String volume;
 		
-		StockD(String yyyy, String mm, String dd, String open, String high, String low, String close, String volume) {
+		PriceVolume(String yyyy, String mm, String dd, String open, String high, String low, String close, String volume) {
 			this.yyyy   = yyyy;
 			this.mm     = mm;
 			this.dd     = dd;
@@ -172,37 +173,33 @@ public class UpdateStockPrice {
 	}
 
 	private static Stock getStock(String stockCode, String page) {
-		StockA stockA = StockA.getInstance(page);
-//		logger.info("stockA {}", stockA);
+		BasicInfo      basicInfo           = BasicInfo.getInstance(page);
+		NumberOfIssued numerOfIssuedString = NumberOfIssued.getInstance(page);	
+		TradeUnit      tradeUnitString     = TradeUnit.getInstance(page);
 		
-		StockB stockB = StockB.getInstance(page);
-//		logger.info("stockB {}", stockB);
-	
-		StockC stockC = StockC.getInstance(page);
-//		logger.info("stockC {}", stockC);
-		
-		if (stockCode.compareTo(stockA.stockCode) != 0) {
-			logger.error("Unexpected stockCode  {}  {}!", stockCode, stockA.stockCode);
+		if (stockCode.compareTo(basicInfo.stockCode) != 0) {
+			logger.error("Unexpected stockCode  {}  {}!", stockCode, basicInfo.stockCode);
 			throw new UnexpectedException("Unexpected stockCode");
 		}
-		String isinCode       = stockA.isinCode;
-		int    tradeUnit      = Integer.parseInt(stockC.tradeUnit);
-		long   numberOfIssued = Long.parseLong(stockB.numberOfIssued);
+		
+		String isinCode       = basicInfo.isinCode;
+		int    tradeUnit      = Integer.parseInt(tradeUnitString.tradeUnit);
+		long   numberOfIssued = Long.parseLong(numerOfIssuedString.numberOfIssued);
 
 		return new Stock(stockCode, isinCode, tradeUnit, numberOfIssued);
 	}
 	private static Map<String, Price> getPriceMap(String stockCode, String page) {
-		List<StockD> stockDList = StockD.getInstance(page);
+		List<PriceVolume> priceVolumeList = PriceVolume.getInstance(page);
 		
 		double lastClose = -1;
 		Map<String, Price> map = new TreeMap<>();
-		for(StockD stockD: stockDList) {
-			String date   = String.format("%s-%s-%s", stockD.yyyy, stockD.mm, stockD.dd);
+		for(PriceVolume priveVolume: priceVolumeList) {
+			String date   = String.format("%s-%s-%s", priveVolume.yyyy, priveVolume.mm, priveVolume.dd);
 			double open;
 			double low;
 			double high;
 			double close;
-			long   volume = Long.parseLong(stockD.volume);
+			long   volume = Long.parseLong(priveVolume.volume);
 			if (volume == 0) {
 				if (lastClose == -1) {
 //					logger.warn("No lastClose {} {}", stockCode, date);
@@ -211,10 +208,10 @@ public class UpdateStockPrice {
 					open = low = high = close = lastClose;
 				}
 			} else {
-				open   = Double.parseDouble(stockD.open);
-				low    = Double.parseDouble(stockD.low);
-				high   = Double.parseDouble(stockD.high);
-				close  = Double.parseDouble(stockD.close);
+				open   = Double.parseDouble(priveVolume.open);
+				low    = Double.parseDouble(priveVolume.low);
+				high   = Double.parseDouble(priveVolume.high);
+				close  = Double.parseDouble(priveVolume.close);
 				lastClose = close;
 			}
 			
@@ -230,23 +227,54 @@ public class UpdateStockPrice {
 		}
 		return map;
 	}
-	public static void main(String[] args) {
-		logger.info("START");
+	
+	private static String getPagePath(String stockCode) {
+		return String.format("tmp/download/page/%s", stockCode);
+	}
+	
+	private static void downloadPage(List<ListedIssue> list) {
+		// Create parent folder if not exists
+		{
+			String path = getPagePath("0000");
+			File file = new File(path);
+			File parent = file.getParentFile();
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
+		}
+
+		HashSet<String> stockCodeSet = new HashSet<>(list.stream().map(o -> o.stockCode).collect(Collectors.toList()));
 		
-		List<ListedIssue> list = ListedIssue.load();
-		logger.info("list {}", list.size());
-		
+		int count = 0;
+		int countTotal = stockCodeSet.size();
+		for(String stockCode: stockCodeSet) {
+			if ((count % 100) == 0) {
+				logger.info("{}", String.format("%4d / %4d  %s", count, countTotal, stockCode));
+			}
+			count++;
+			
+			String path = getPagePath(stockCode);
+			File   file = new File(path);
+			
+			// Skip if file exists -- for rerun
+			if (file.canRead()) continue;
+			
+			String page = getPage(stockCode);
+			FileUtil.write().file(file, page);
+		}
+	}
+	
+	private static void processPage(List<ListedIssue> list) {
 		Map<String, Stock> oldStockMap = Stock.getStockMap();
 		if (oldStockMap == null) oldStockMap = new TreeMap<>();
 		
-		logger.info("oldStockMap {}", oldStockMap.size());
+		logger.info("oldStockMap   {}", oldStockMap.size());
 		
 		// Build newStockMap
 		Map<String, Stock> newStockMap = new TreeMap<>();
 		
 		int countTotal = list.size();
 		int count = 0;
-		int countNotExist = 0;
 		List<String> listNotExist = new ArrayList<>();
 		for(ListedIssue listedIssue: list) {
 			count++;
@@ -255,26 +283,18 @@ public class UpdateStockPrice {
 				logger.info("{}", String.format("%4d / %4d  %s", count, countTotal, stockCode));
 			}
 			
-			String path = String.format("tmp/download/page/%s", stockCode);
+			String path = getPagePath(stockCode);
 			String page;
 			
 			File file = new File(path);
 			if (file.canRead()) {
 				page = FileUtil.read().file(file);
 			} else {
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					String exceptionName = e.getClass().getSimpleName();
-					logger.error("{} {}", exceptionName, e);
-					throw new UnexpectedException(exceptionName, e);
-				}
-				page = getPage(stockCode);
-				FileUtil.write().file(file, page);
+				logger.error("no page file {}", path);
+				throw new UnexpectedException("no page file");
 			}
 			
 			if (page.contains("指定された銘柄が見つかりません")) {
-				countNotExist++;
 				listNotExist.add(stockCode);
 				continue;
 			}
@@ -312,9 +332,26 @@ public class UpdateStockPrice {
 		
 		Stock.save(new ArrayList<>(newStockMap.values()));
 
+		logger.info("newStockMap   {}", newStockMap.size());
 		logger.info("countTotal    {}", countTotal);
-		logger.info("countNotExist {}  {}", countNotExist, listNotExist);
+		logger.info("countNotExist {}", listNotExist);
 
+	}
+	
+	public static void main(String[] args) {
+		logger.info("START");
+		
+		List<ListedIssue> list = ListedIssue.load();
+		logger.info("list {}", list.size());
+		
+		// downloadPage
+		logger.info("download page");
+		downloadPage(list);
+		
+		logger.info("process page");
+		processPage(list);
+		
 		logger.info("STOP");
+		System.exit(0);
 	}
 }
