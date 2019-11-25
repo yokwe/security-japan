@@ -1,5 +1,8 @@
 package yokwe.security.japan.ufocatch.atom;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
@@ -7,10 +10,19 @@ import javax.xml.bind.annotation.XmlEnumValue;
 public class Link {
 	@XmlEnum
 	public enum Relation {
+		@XmlEnumValue("self")
+		SELF,
+		@XmlEnumValue("first")
+		FIRST,
+		@XmlEnumValue("last")
+		LAST,
+		@XmlEnumValue("next")
+		NEXT,
+		//
 		@XmlEnumValue("alternate")
 		ALT,
 		@XmlEnumValue("related")
-		REL;
+		REL,
 	}
 	
 	@XmlEnum
@@ -34,6 +46,11 @@ public class Link {
 	
 	@Override
 	public String toString() {
-		return String.format("{link %s %s %s}", rel, type, href);
+		List<String> list = new ArrayList<>();
+		if (rel  != null) list.add(rel.toString());
+		if (type != null) list.add(type.toString());
+		if (href != null) list.add(href);
+		
+		return String.format("{link %s}", String.join(" ", list));
 	}
 }
