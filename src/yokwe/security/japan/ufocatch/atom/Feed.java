@@ -8,7 +8,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "feed")
 public class Feed {
 	public String title;
-	public Link   link;
+	
+	@XmlElement(name = "link")
+	public List<Link>   linkList;
+	
 	public String updated;
 	public String id;
 	
@@ -17,6 +20,6 @@ public class Feed {
 	
 	@Override
 	public String toString() {
-		return String.format("{feed %s %s %s %s %s}", title, link, updated, id, entryList);
+		return String.format("{feed %s %s %s %s %s}", title, linkList, updated, id, entryList);
 	}
 }
