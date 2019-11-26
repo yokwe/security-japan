@@ -257,7 +257,8 @@ public class UpdateStockPrice {
 			File   file = new File(path);
 			
 			// Skip if file exists -- for rerun
-			if (file.canRead()) continue;
+			// There is no trouble about download page file. So comment out below line.
+			// if (file.canRead()) continue;
 			
 			String page = getPage(stockCode);
 			FileUtil.write().file(file, page);
