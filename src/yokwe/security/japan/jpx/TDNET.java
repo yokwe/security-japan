@@ -1,13 +1,193 @@
 package yokwe.security.japan.jpx;
 
-public class FileName {
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.slf4j.LoggerFactory;
+
+import yokwe.UnexpectedException;
+import yokwe.util.StringUtil;
+
+public class TDNET {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TDNET.class);
+
 	// 適時開示システム タクソノミ設定規約書
 	//   https://www.jpx.co.jp/equities/listing/xbrl/03.html
 	
+	// 期区分
+	public enum Period {
+		ANNUAL ("a", "通期"),   // 通期
+		HALF   ("s", "中間期"), // 特定事業会社第２四半期／中間期
+		QUATER ("q", "四半期"); // 四半期
+		
+		private static final Period[] VALUES = Period.values();
+		public static Period getInstance(String value) {
+			if (value == null || value.isEmpty()) return null;
+			for(Period period: VALUES) {
+				if (value.equals(period.value)) return period;
+			}
+			logger.error("Unknown value {}!", value);
+			throw new UnexpectedException("Unknown value");
+		}
+		
+		public final String value;
+		public final String message;
+		
+		Period(String value, String message) {
+			this.value   = value;
+			this.message = message;
+		}
+		
+		@Override
+		public String toString() {
+			return message;
+		}
+	}
+	
+	// 連結・非連結区分
+	public enum Consolidate {
+		CONSOLIDATE     ("c", "連結"), // 連結
+		NOT_CONSOLIDATE ("n", "単体"); // 非連結
+		
+		private static final Consolidate[] VALUES = Consolidate.values();
+		public static Consolidate getInstance(String value) {
+			if (value == null || value.isEmpty()) return null;
+			for(Consolidate consolidate: VALUES) {
+				if (value.equals(consolidate.value)) return consolidate;
+			}
+			logger.error("Unknown value {}!", value);
+			throw new UnexpectedException("Unknown value");
+		}
+		
+		public final String value;
+		public final String message;
+				
+		Consolidate(String value, String message) {
+			this.value   = value;
+			this.message = message;
+		}
+		
+		@Override
+		public String toString() {
+			return message;
+		}
+	}
+
+	// 報告区分
+	public enum Category {
+		EDJP   ("edjp", "決算短信（日本基準）"),              // 決算短信（日本基準）
+		EDUS   ("edus", "決算短信（米国基準）"),              // 決算短信（米国基準）
+		EDIF   ("edif", "決算短信（国際会計基準）"),           // 決算短信（国際会計基準）
+		EDIT   ("edit", "決算短信（国際会計基準※IFRS）"),     // 決算短信（国際会計基準） ※IFRSタクソノミを利用する場合
+		
+		REJP   ("rejp", "REIT決算短信（日本基準）"),          // REIT決算短信（日本基準）
+		EFJP   ("efjp", "ETF決算短信（日本基準）"),           // ETF決算短信（日本基準）
+
+		RVDF   ("rvdf", "配当予想修正に関するお知らせ"),        // 配当予想修正に関するお知らせ
+		RVFC   ("rvfc", "業績予想修正に関するお知らせ"),        // 業績予想修正に関するお知らせ
+		RRDF   ("rrdf", "分配予想の修正に関するお知らせ"),      // 分配予想の修正に関するお知らせ
+		RRFC   ("rrfc", "運用状況の予想の修正に関するお知らせ"); // 運用状況の予想の修正に関するお知らせ
+		
+		private static final Category[] VALUES = Category.values();
+		public static Category getInstance(String value) {
+			if (value == null || value.isEmpty()) return null;
+			for(Category category: VALUES) {
+				if (value.equals(category.value)) return category;
+			}
+			logger.error("Unknown value {}!", value);
+			throw new UnexpectedException("Unknown value");
+		}
+		
+		public final String value;
+		public final String message;
+				
+		Category(String value, String message) {
+			this.value   = value;
+			this.message = message;
+		}
+		
+		@Override
+		public String toString() {
+			return message;
+		}
+	}
+
+	// 報告詳細区分
+	public enum Detail {
+		SUMMARY   ("sm", "サマリー"), // 決算短信サマリー情報
+		FINANCIAL ("fr", "財務諸表"); // 決算短信財務諸表情報
+		
+		private static final Detail[] VALUES = Detail.values();
+		public static Detail getInstance(String value) {
+			if (value == null || value.isEmpty()) return null;
+			for(Detail detail: VALUES) {
+				if (value.equals(detail.value)) return detail;
+			}
+			logger.error("Unknown value {}!", value);
+			throw new UnexpectedException("Unknown value");
+		}
+		
+		public final String value;
+		public final String message;
+				
+		Detail(String value, String message) {
+			this.value   = value;
+			this.message = message;
+		}
+		
+		@Override
+		public String toString() {
+			return message;
+		}
+	}
+
 	// 決算短信サマリー情報及び予想修正報告
 	// インラインXBRLファイル名
     //   tse-{報告書}[{報告書詳細区分}]-{証券コード}-{開示番号}-ixbrl.htm
+	// 報告書   :=  [{期区分}{連結・非連結区分}]{報告区分｝
+	// 開示番号　:=  {提出日 8 桁}{3 から開始する連番 1桁}{証券コード 5 桁}
 	//   tse-qcedjpsm-71770-20170725371770-ixbrl.htm
+	public static class EarningDigest {
+		private static final Pattern PAT = Pattern.compile("tse-(?<period>[asq]?)(?<consolidate>[cn]?)(?<category>[a-z]{4})(?<detail>(sm|fr)?)-(?<tdnetCode>[0-9]{5})-(?<id>[0-9]{14})-ixbrl.htm");
+		
+		private static final StringUtil.MatcherFunction<EarningDigest> OP = (m -> new EarningDigest(
+				m.group("period"),
+				m.group("consolidate"),
+				m.group("category"),
+				m.group("detail"),
+				m.group("tdnetCode"),
+				m.group("id")));
+		public static EarningDigest getInstance(String string) {
+			List<EarningDigest> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
+			if (list.size() == 0) return null;
+			if (list.size() == 1) return list.get(0);
+			logger.error("Unexpected value %s!", list);
+			throw new UnexpectedException("Unexpected value");
+		}
+
+		public final Period      period;
+		public final Consolidate consolidate;
+		public final Category    category;
+		public final Detail      detail;
+		public final String      tdnetCode;
+		public final String      id;
+		
+		public EarningDigest(String period, String consolidate, String category, String detail, String tdnetCode, String id) {
+			this.period      = Period.getInstance(period);
+			this.consolidate = Consolidate.getInstance(consolidate);
+			this.category    = Category.getInstance(category);
+			this.detail      = Detail.getInstance(detail);
+			this.tdnetCode   = tdnetCode;
+			this.id          = id;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s %s %s %s %s %s}", period, consolidate, category, detail, tdnetCode, id);
+		}
+	}
+	
 	
 	// 決算短信財務諸表情報
 	// インラインXBRLファイル名
@@ -15,38 +195,10 @@ public class FileName {
 	//   0500000-qcbs01-tse-qcedjpfr-71770-2017-06-30-01-2017-07-25-ixbrl.htm
 	//   0600000-qcpl11-tse-qcedjpfr-71770-2017-06-30-01-2017-07-25-ixbrl.htm
 	//   0700000-qcci11-tse-qcedjpfr-71770-2017-06-30-01-2017-07-25-ixbrl.htm
+		
+	// 提出日     :=  報告書の提出日（YYYY-MM-DD形式）
+	// 期末日     :=  報告期間の期末日（YYYY-MM-DD形式）
 	
-	// 報告書 := [{期区分}{連結・非連結区分}]{報告区分｝
-	// ※期区分、連結・非連結区分に該当する値がない場合は省略する。
-	// 期区分
-	//  := a // 通期
-	//   | s // 特定事業会社第２四半期／中間期
-	//   | q // 四半期
-	// 連結・非連結区分
-	//  := c // 連結
-	//   | n // 非連結
-	// 報告区分
-	//  := edjp 決算短信（日本基準）
-    //   | edus 決算短信（米国基準）
-	//   | edif 決算短信（国際会計基準）
-	//   | edit 決算短信（国際会計基準） ※IFRSタクソノミを利用する場合
-	//   | rvdf 配当予想修正に関するお知らせ
-	//   | rvfc 業績予想修正に関するお知らせ
-	//   | rejp REIT決算短信（日本基準）
-	//   | rrdf 分配予想の修正に関するお知らせ
-	//   | rrfc 運用状況の予想の修正に関するお知らせ
-	//   | efjp ETF決算短信（日本基準）
-	
-	// 報告詳細区分
-	//  := sm 決算短信サマリー情報
-	//   | fr 決算短信財務諸表情報
-	
-	// 証券コード  :=  証券コード協議会が保持する５桁の証券コード
-	// 開示番号　:=  {提出日 8 桁}{3 から開始する連番 1桁}{証券コード 5 桁}
-	// 提出日  :=  報告書の提出日（YYYY-MM-DD形式）
-	// 期末日  :=  報告期間の期末日（YYYY-MM-DD形式）
-	
-
 	// 財表識別区分
 	// a----- 通期
 	// q----- 四半期第
@@ -233,5 +385,4 @@ public class FileName {
 	// ETF様式（中間期）
 	// sebs01  中間貸借対照表
 	// sepl01  中間損益及び剰余金計算書
-	
 }
