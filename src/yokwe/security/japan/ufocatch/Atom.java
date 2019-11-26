@@ -17,7 +17,7 @@ public class Atom {
 		EDINET ("edinet"),  // EDINET情報配信サービス
 		EDINETX("edinetx"), // EDINET情報配信サービス(XBRL情報があるもの)
 		TDNET  ("tdnet"),   // 適時開示情報配信サービス
-		TDNETX ("tednex"),  // 適時開示情報配信サービス(XBRL情報があるもの)
+		TDNETX ("tdnetx"),  // 適時開示情報配信サービス(XBRL情報があるもの)
 		CG     ("cg");      // コーポレート・ガバナンス情報配信サービス
 		
 		public final String url;
