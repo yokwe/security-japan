@@ -28,7 +28,7 @@ update-listed-issue:
 
 clear-download-page:
 	rm -rf tmp/download/page-OLD
-	cp -r  tmp/download/page tmp/download/page-OLD
+	mv     tmp/download/page tmp/download/page-OLD
 
 update-stock-price:
 	rm -rf tmp/data/price-OLD
