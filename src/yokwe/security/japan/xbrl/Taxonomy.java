@@ -54,11 +54,11 @@ public class Taxonomy {
 				Map<String, String> arcMap = new TreeMap<>(); // key = link:from  value = link:to
 				Map<String, String> labelMap = new TreeMap<>(); // key = link:label  value = value
 //			    <loc xlink:type="locator" xlink:href="tse-ed-t-2014-01-12.xsd#tse-ed-t_DividendPerShare" xlink:label="DividendPerShare"/>
-				XMLUtil.buildStream(file).filter(o -> o.localName.equals("loc")).forEach(o -> locMap.put(o.getAttributeValue("xlink:href"), o.getAttributeValue("xlink:label")));
+				XMLUtil.buildStream(file).filter(o -> o.localName.equals("loc")).forEach(o -> locMap.put(o.getAttribute("xlink:href"), o.getAttribute("xlink:label")));
 //			    <label xlink:type="resource" xlink:label="label_DividendPerShare" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="ja" id="label_DividendPerShare">1株当たり配当金</label>
-				XMLUtil.buildStream(file).filter(o -> o.localName.equals("label")).forEach(o -> labelMap.put(o.getAttributeValue("xlink:label"), o.content));
+				XMLUtil.buildStream(file).filter(o -> o.localName.equals("label")).forEach(o -> labelMap.put(o.getAttribute("xlink:label"), o.content));
 //			    <labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="DividendPerShare" xlink:to="label_DividendPerShare"/>
-				XMLUtil.buildStream(file).filter(o -> o.localName.equals("labelArc")).forEach(o -> arcMap.put(o.getAttributeValue("xlink:from"), o.getAttributeValue("xlink:to")));
+				XMLUtil.buildStream(file).filter(o -> o.localName.equals("labelArc")).forEach(o -> arcMap.put(o.getAttribute("xlink:from"), o.getAttribute("xlink:to")));
 				
 				logger.info("locMap {}", locMap);
 				logger.info("arcMap {}", arcMap);
@@ -86,7 +86,7 @@ public class Taxonomy {
 			String targetNamespace;
 			if (schemaList.size() == 1) {
 				XMLUtil.XMLElement xmlElement = schemaList.get(0);
-				targetNamespace = xmlElement.getAttributeValue("targetNamespace");
+				targetNamespace = xmlElement.getAttribute("targetNamespace");
 			} else {
 				logger.error("Unexpected schemaList {}", schemaList);
 				throw new UnexpectedException("Unexpected schemaList");
@@ -94,9 +94,9 @@ public class Taxonomy {
 			
 			List<Element> list = new ArrayList<>();
 			for(XMLUtil.XMLElement xmlElement: elementList) {
-				String name       = xmlElement.getAttributeValue("name");
-				String id         = xmlElement.getAttributeValue("id");
-				String type       = xmlElement.getAttributeValue("type");
+				String name       = xmlElement.getAttribute("name");
+				String id         = xmlElement.getAttribute("id");
+				String type       = xmlElement.getAttribute("type");
 				
 				Element element = new Element(name, id, type);
 				list.add(element);

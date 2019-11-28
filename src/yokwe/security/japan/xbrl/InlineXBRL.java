@@ -24,7 +24,7 @@ public abstract class InlineXBRL {
 	
 	private static class NonNumericBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			String format = xmlElement.getAttributeValueOrNull("format");
+			String format = xmlElement.getAttributeOrNull("format");
 			if (format == null) {
 				return new StringValue(xmlElement);
 			} else {
@@ -44,7 +44,7 @@ public abstract class InlineXBRL {
 	}
 	private static class NonFractionBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			String format = xmlElement.getAttributeValueOrNull("format");
+			String format = xmlElement.getAttributeOrNull("format");
 			if (format == null) {
 				return new NumberValue(xmlElement);
 			} else {
@@ -103,12 +103,12 @@ public abstract class InlineXBRL {
 		this.kind         = kind;
 		this.xmlElement   = xmlElement;
 		
-		this.contextRef   = xmlElement.getAttributeValue("contextRef");
-		this.name         = xmlElement.getAttributeValue("name");
-		this.format       = xmlElement.getAttributeValueOrNull("format");
+		this.contextRef   = xmlElement.getAttribute("contextRef");
+		this.name         = xmlElement.getAttribute("name");
+		this.format       = xmlElement.getAttributeOrNull("format");
 		this.value        = xmlElement.content;
 		
-		String nilValue = xmlElement.getAttributeValueOrNull("xsi:nil");
+		String nilValue = xmlElement.getAttributeOrNull("xsi:nil");
 		if (nilValue == null) {
 			isNull = false;
 		} else {
@@ -142,7 +142,7 @@ public abstract class InlineXBRL {
 		
 		public StringValue(XMLElement xmlElement) {
 			super(Kind.STRING, xmlElement);
-			this.escape = xmlElement.getAttributeValueOrNull("escape");
+			this.escape = xmlElement.getAttributeOrNull("escape");
 			this.stringValue = xmlElement.content;
 			
 			// Sanity check
@@ -228,10 +228,10 @@ public abstract class InlineXBRL {
 		
 		public NumberValue(XMLElement xmlElement) {
 			super(Kind.NUMBER, xmlElement);
-			this.unitRef  = xmlElement.getAttributeValue("unitRef");
-			this.decimals = xmlElement.getAttributeValueOrNull("decimals");
-			this.scale    = xmlElement.getAttributeValueOrNull("scale");
-			this.sign     = xmlElement.getAttributeValueOrNull("sign");
+			this.unitRef  = xmlElement.getAttribute("unitRef");
+			this.decimals = xmlElement.getAttributeOrNull("decimals");
+			this.scale    = xmlElement.getAttributeOrNull("scale");
+			this.sign     = xmlElement.getAttributeOrNull("sign");
 			this.isMinus  = sign != null && sign.equals("-");
 			
 			// unitRef "Pure" means number has no unit
