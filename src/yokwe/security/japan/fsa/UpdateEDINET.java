@@ -27,7 +27,7 @@ public class UpdateEDINET {
 		logger.info("result {}", result.rawData.length);
 		
 		logger.info("write {} {}", EDINET.PATH_DOWNLOAD, result.rawData.length);
-		FileUtil.write().file(EDINET.PATH_DOWNLOAD, result.rawData);
+		FileUtil.rawWrite().file(EDINET.PATH_DOWNLOAD, result.rawData);
 		
 		logger.info("read {}", EDINET.PATH_DOWNLOAD);
 		try (ZipFile zipFile = new ZipFile(EDINET.PATH_DOWNLOAD)) {

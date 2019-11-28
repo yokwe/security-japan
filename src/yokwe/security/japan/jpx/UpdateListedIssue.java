@@ -67,7 +67,7 @@ public class UpdateListedIssue {
 		HttpUtil.Result result = http.download(ListedIssue.URL_DOWNLOAD);
 		
 		logger.info("write {} {}", ListedIssue.PATH_DOWNLOAD, result.rawData.length);
-		FileUtil.write().file(ListedIssue.PATH_DOWNLOAD, result.rawData);
+		FileUtil.rawWrite().file(ListedIssue.PATH_DOWNLOAD, result.rawData);
 		
 		String url;
 		try {
