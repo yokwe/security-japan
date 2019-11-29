@@ -1,22 +1,51 @@
 package yokwe.security.japan.linkbase;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 public class LabelLink {
 	@XmlElement(name = "loc")
-	public List<Loc>      locList;
-	
+	public final List<Loc>      locList      = new ArrayList<>();
 	@XmlElement(name = "label")
-	public List<Label>    labelList;
-	
+	public final List<Label>    labelList    = new ArrayList<>();
 	@XmlElement(name = "labelArc")
-	public List<LabelArc> labelArcList;
+	public final List<LabelArc> labelArcList = new ArrayList<>();
+	
+	@XmlTransient
+	public final Map<String, Loc>      locMap      = new TreeMap<>();
+	
+	@XmlTransient
+	public final Map<String, Label>    labelMap    = new TreeMap<>();
+	
+	@XmlTransient
+	public final Map<String, LabelArc> labelArcMap = new TreeMap<>();
 	
 	@Override
 	public String toString() {
-		return String.format("{%s %s %s}", locList, labelList, labelArcList);
+		return String.format("{loc %d / %d  label %d / %d  labelArc %d / %d}", locMap.size(), locList.size(), labelMap.size(), labelList.size(), labelArcMap.size(), labelArcList.size());
+	}
+	
+	void afterUnmarshal(Unmarshaller u, Object parent) {
+		locMap.clear();
+		for(Loc e: locList) {
+			locMap.put(e.label, e);
+		}
+		
+		labelMap.clear();
+		for(Label e: labelList) {
+			labelMap.put(e.id, e);
+		}
+		
+		labelArcMap.clear();
+		for(LabelArc e: labelArcList) {
+			labelArcMap.put(e.from, e);
+		}
 	}
 }
 

@@ -1,8 +1,11 @@
 package yokwe.security.japan.xsd;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,19 +14,25 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "schema")
 public class Schema {
 	@XmlAttribute
-	String targetNamespace;
+	public String targetNamespace;
 	
 	@XmlElement(name = "element")
-	public void setElement(Element newValue) {
-		elementMap.put(newValue.name, newValue);
-	}
+	public final List<Element> elementList = new ArrayList<>();	
 	
 	@XmlTransient
-	public Map<String, Element> elementMap = new TreeMap<>();
+	public final Map<String, Element> elementMap = new TreeMap<>();
 	
 	@Override
 	public String toString() {
-		return String.format("{%s (%d)%s}", targetNamespace, elementMap.size(), elementMap);
+		return String.format("{%s %d / %d}", targetNamespace, elementMap.size(), elementList.size());
+	}
+	
+	// Unmarshal Event Callbacks
+	public void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+		elementMap.clear();
+		for(Element element: elementList) {
+			elementMap.put(element.name, element);
+		}
 	}
 }
 
