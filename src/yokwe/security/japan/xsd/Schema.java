@@ -1,10 +1,12 @@
 package yokwe.security.japan.xsd;
 
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "schema")
 public class Schema {
@@ -12,11 +14,16 @@ public class Schema {
 	String targetNamespace;
 	
 	@XmlElement(name = "element")
-	List<Element> elementList;
+	public void setElement(Element newValue) {
+		elementMap.put(newValue.name, newValue);
+	}
+	
+	@XmlTransient
+	public Map<String, Element> elementMap = new TreeMap<>();
 	
 	@Override
 	public String toString() {
-		return String.format("{%s %s}", targetNamespace, elementList);
+		return String.format("{%s (%d)%s}", targetNamespace, elementMap.size(), elementMap);
 	}
 }
 
