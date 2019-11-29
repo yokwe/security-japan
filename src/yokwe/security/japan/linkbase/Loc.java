@@ -2,10 +2,18 @@ package yokwe.security.japan.linkbase;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
+// Locators are child elements of an Extended Link that point to resources external to the extended link itself.
 public class Loc {
+	// The @xlink:type attribute MUST occur on all Locators and MUST have the fixed content "locator".
+	@XmlAttribute(name = "type", namespace="http://www.w3.org/1999/xlink", required = true)
+	String type;  // type must be "locator"
+	
+	// A Locator MUST have an @xlink:href attribute. The @xlink:href attribute MUST be a URI.
+	// The URI MUST point to an XML document or to one or more XML fragments within an XML document.
 	@XmlAttribute(name = "href", namespace="http://www.w3.org/1999/xlink", required = true)
 	String href;
 	
+	// The @xlink:label attribute on a Locator identifies the locator so that Arcs in the same Extended Link can reference it.
 	@XmlAttribute(name = "label", namespace="http://www.w3.org/1999/xlink", required = true)
 	String label;
 	

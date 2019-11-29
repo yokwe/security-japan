@@ -9,7 +9,13 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.slf4j.LoggerFactory;
+
+import yokwe.UnexpectedException;
+
 public class LabelLink {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LabelLink.class);
+
 	@XmlElement(name = "loc")
 	public final List<Loc>      locList      = new ArrayList<>();
 	@XmlElement(name = "label")
@@ -34,17 +40,43 @@ public class LabelLink {
 	void afterUnmarshal(Unmarshaller u, Object parent) {
 		locMap.clear();
 		for(Loc e: locList) {
-			locMap.put(e.label, e);
+			if (locMap.containsKey(e.label)) {
+				logger.error("Duplicate label  {}", e.label);
+				logger.error("old {}", locMap.get(e.label));
+				logger.error("new {}", e);
+				throw new UnexpectedException("Duplicate label");
+			} else {
+				locMap.put(e.label, e);
+			}
 		}
 		
 		labelMap.clear();
 		for(Label e: labelList) {
-			labelMap.put(e.id, e);
+			if (labelMap.containsKey(e.label)) {
+				logger.error("Duplicate label  {}", e.label);
+				logger.error("old {}", labelMap.get(e.label));
+				logger.error("new {}", e);
+				throw new UnexpectedException("Duplicate label");
+			} else {
+				labelMap.put(e.label, e);
+			}
 		}
 		
 		labelArcMap.clear();
 		for(LabelArc e: labelArcList) {
-			labelArcMap.put(e.from, e);
+			if (e.to.matches(".+?_[0-9]+$")) {
+				logger.info("SKIP {}", e.to);
+				continue;
+			}
+			
+			if (labelArcMap.containsKey(e.from)) {
+				logger.error("Duplicate from  {}", e.from);
+				logger.error("  old {}", labelArcMap.get(e.from));
+				logger.error("  new {}", e);
+				throw new UnexpectedException("Duplicate from");
+			} else {
+				labelArcMap.put(e.from, e);
+			}
 		}
 	}
 }
