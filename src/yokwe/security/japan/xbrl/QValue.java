@@ -12,15 +12,15 @@ public class QValue implements Comparable<QValue> {
 	final String uri;
 	final String value;
 	
-	QValue(String uri, String value) {
+	public QValue(String uri, String value) {
 		this.uri  = uri;
 		this.value = value;
 	}
-	QValue(XMLElement xmlElement) {
+	public QValue(XMLElement xmlElement) {
 		this.uri  = xmlElement.uri;
 		this.value = xmlElement.localName;
 	}
-	QValue(XMLElement xmlElement, String qValue) {
+	public QValue(XMLElement xmlElement, String qValue) {
 		String[] names = qValue.split(":");
 		if (names.length == 2) {
 			String prefix    = names[0];
@@ -36,7 +36,7 @@ public class QValue implements Comparable<QValue> {
 			throw new UnexpectedException("Unexpected qName");
 		}
 	}
-	QValue(XMLAttribute xmlAttribute) {
+	public QValue(XMLAttribute xmlAttribute) {
 		this.uri  = xmlAttribute.uri;
 		this.value = xmlAttribute.localName;
 	}
