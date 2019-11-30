@@ -25,6 +25,8 @@ public class Label {
 	@XmlEnum
 	@XmlType(name="Label-Role")
 	enum Role {
+		@XmlEnumValue("http://www.xbrl.org/2003/role/label")
+		LABLE,
 		@XmlEnumValue("http://www.xbrl.org/2003/role/verboseLabel")
 		VERBOSE_LABEL,
 		@XmlEnumValue("http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Quarterly/verboseLabel")
@@ -56,8 +58,7 @@ public class Label {
 	
 	// Role can be "http://www.xbrl.org/2003/role/label
 	@XmlAttribute(name = "role", namespace="http://www.w3.org/1999/xlink", required = true)
-//	public Role role;
-	public String role;
+	public Role role;
 	
 	// All <label> resources MUST have an @xml:lang attribute identifying the language used for the content of the label.
 	@XmlAttribute(name = "lang", namespace="http://www.w3.org/XML/1998/namespace", required = true)
