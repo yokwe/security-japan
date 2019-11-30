@@ -9,10 +9,11 @@ import java.util.TreeSet;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.util.XMLUtil.XMLAttribute;
 import yokwe.util.XMLUtil.XMLElement;
 
 public abstract class InlineXBRL {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(InlineXBRL.class);
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(InlineXBRL.class);
 
 	public enum Kind {
 		STRING, BOOLEAN, NUMBER
@@ -22,70 +23,99 @@ public abstract class InlineXBRL {
 		public InlineXBRL getInstance(XMLElement xmlElement);
 	}
 	
+	private static class BooleanBuilder implements Builder {
+		private final boolean value;
+		BooleanBuilder(boolean newValue) {
+			value = newValue;
+		}
+		public InlineXBRL getInstance(XMLElement xmlElement) {
+			return new BooleanValue(xmlElement, value);
+		}
+	}
+	private static class StringBuilder implements Builder {
+		public InlineXBRL getInstance(XMLElement xmlElement) {
+			return new StringValue(xmlElement);
+		}
+	}
+	private static Map<QValue, Builder> nonNumericBuilderMap = new TreeMap<>();
+	static {
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,            new BooleanBuilder(true));
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,           new BooleanBuilder(false));
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK, new StringBuilder());
+	}
 	private static class NonNumericBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			String format = xmlElement.getAttributeOrNull("format");
+			String format = xmlElement.getAttributeOrNull("", "format");
 			if (format == null) {
 				return new StringValue(xmlElement);
 			} else {
-				switch(format) {
-				case "ixt:booleanfalse":
-					return new BooleanValue(xmlElement, false);
-				case "ixt:booleantrue":
-					return new BooleanValue(xmlElement, true);
-				case "ixt:dateyearmonthdaycjk":
-					return new StringValue(xmlElement);
-				default:
-					logger.error("Unexpected format {}", format);
-					throw new UnexpectedException("Unexpected format");
-				}
-			}
-		}
-	}
-	private static class NonFractionBuilder implements Builder {
-		public InlineXBRL getInstance(XMLElement xmlElement) {
-			String format = xmlElement.getAttributeOrNull("format");
-			if (format == null) {
-				return new NumberValue(xmlElement);
-			} else {
-				switch(format) {
-				case "ixt:numdotdecimal":
-					return new NumberValue(xmlElement);
-				default:
-					logger.error("Unexpected format {}", format);
-					throw new UnexpectedException("Unexpected format");
+				QValue qValue = new QValue(xmlElement, format);
+				if (nonNumericBuilderMap.containsKey(qValue)) {
+					Builder builder = nonNumericBuilderMap.get(qValue);
+					return builder.getInstance(xmlElement);
+				} else {
+					logger.error("Unexpected xmlElement {}", xmlElement);
+					logger.error("  format {}", format);
+					logger.error("  qValue {}", qValue);
+					throw new UnexpectedException("Unexpected xmlElement");	
 				}
 			}
 		}
 	}
 	
-	private static Map<String, Builder> map = new TreeMap<>();
+	private static class NumberBuilder implements Builder {
+		public InlineXBRL getInstance(XMLElement xmlElement) {
+			return new NumberValue(xmlElement);
+		}
+	}
+	private static Map<QValue, Builder> nonFractionalBuilderMap = new TreeMap<>();
 	static {
-		map.put("ix:nonNumeric",  new NonNumericBuilder());
-		map.put("ix:nonFraction", new NonFractionBuilder());
+		nonFractionalBuilderMap.put(XBRL.IXT_NUM_DOT_DECIMAL, new NumberBuilder());
+	}
+	private static class NonFractionBuilder implements Builder {
+		public InlineXBRL getInstance(XMLElement xmlElement) {
+			String format = xmlElement.getAttributeOrNull("", "format");
+			if (format == null) {
+				return new NumberValue(xmlElement);
+			} else {
+				QValue qValue = new QValue(xmlElement, format);
+				if (nonFractionalBuilderMap.containsKey(qValue)) {
+					Builder builder = nonFractionalBuilderMap.get(qValue);
+					return builder.getInstance(xmlElement);
+				} else {
+					logger.error("Unexpected qValue {}", qValue);
+					throw new UnexpectedException("Unexpected qValue");	
+				}
+			}
+		}
+	}
+	
+	private static Map<QValue, Builder> elementBuilderMap = new TreeMap<>();
+	static {
+		elementBuilderMap.put(XBRL.IX_NON_NUMERIC,  new NonNumericBuilder());
+		elementBuilderMap.put(XBRL.IX_NON_FRACTION, new NonFractionBuilder());
 	}
 	private static Builder getBuilder(XMLElement xmlElement) {
-		String qName = xmlElement.qName;
-		if (map.containsKey(qName)) {
-			return map.get(qName);
+		QValue key = new QValue(xmlElement);
+		if (elementBuilderMap.containsKey(key)) {
+			return elementBuilderMap.get(key);
 		} else {
-			logger.error("Unpexpected qName {}!", qName);
-			throw new UnexpectedException("Unpexpected qName");
+			logger.error("Unpexpected key {}!", key);
+			throw new UnexpectedException("Unpexpected key");
 		}
 	}
 	
 	public static boolean canGetInstance(XMLElement xmlElement) {
-		String qName = xmlElement.qName;
-		
-		return map.containsKey(qName);
+		QValue key = new QValue(xmlElement);
+		return elementBuilderMap.containsKey(key);
 	}
 	public static InlineXBRL getInstance(XMLElement xmlElement) {
 		if (canGetInstance(xmlElement)) {
 			Builder builder = getBuilder(xmlElement);
 			return builder.getInstance(xmlElement);
 		} else {
-			logger.error("Unpexpected qName {}!", xmlElement.qName);
-			throw new UnexpectedException("Unpexpected qName");
+			logger.error("Unpexpected name {}-{}", xmlElement.uri, xmlElement.localName);
+			throw new UnexpectedException("Unpexpected name");
 		}
 	}
 	
@@ -97,18 +127,24 @@ public abstract class InlineXBRL {
 	public final String  name;
 	public final String  format;
 	public final String  value;
+	public final String  uri;
+	public final String  localName;
 	public final boolean isNull;
 
 	private InlineXBRL(Kind kind, XMLElement xmlElement) {
 		this.kind         = kind;
 		this.xmlElement   = xmlElement;
 		
-		this.contextRef   = xmlElement.getAttribute("contextRef");
-		this.name         = xmlElement.getAttribute("name");
-		this.format       = xmlElement.getAttributeOrNull("format");
+		this.contextRef   = xmlElement.getAttribute("", "contextRef");
+		this.name         = xmlElement.getAttribute("", "name");
+		this.format       = xmlElement.getAttributeOrNull("", "format");
 		this.value        = xmlElement.content;
 		
-		String nilValue = xmlElement.getAttributeOrNull("xsi:nil");
+		QValue uriLocalName = new QValue(xmlElement, this.name);
+		this.uri       = uriLocalName.uri;
+		this.localName = uriLocalName.value;
+		
+		String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL.uri, XML.XSI_NIL.value);
 		if (nilValue == null) {
 			isNull = false;
 		} else {
@@ -127,14 +163,14 @@ public abstract class InlineXBRL {
 	}
 	
 	public static class StringValue extends InlineXBRL {
-		public static Set<String> validAttributeSet = new TreeSet<>();
+		public static Set<QValue> validAttributeSet = new TreeSet<>();
 		static {
-			validAttributeSet.add("contextRef");
-			validAttributeSet.add("name");
-			validAttributeSet.add("format");
-			validAttributeSet.add("xsi:nil");
+			validAttributeSet.add(new QValue("", "contextRef"));
+			validAttributeSet.add(new QValue("", "name"));
+			validAttributeSet.add(new QValue("", "format"));
+			validAttributeSet.add(XML.XSI_NIL);
 			//
-			validAttributeSet.add("escape");
+			validAttributeSet.add(new QValue("", "escape"));
 		}
 		
 		public final String escape;
@@ -142,13 +178,14 @@ public abstract class InlineXBRL {
 		
 		public StringValue(XMLElement xmlElement) {
 			super(Kind.STRING, xmlElement);
-			this.escape = xmlElement.getAttributeOrNull("escape");
+			this.escape = xmlElement.getAttributeOrNull("", "escape");
 			this.stringValue = xmlElement.content;
 			
 			// Sanity check
-			for(String attribute: xmlElement.attributeMap.keySet()) {
-				if (validAttributeSet.contains(attribute)) continue;
-				logger.error("Unpexpected attribute {}!", attribute);
+			for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
+				QValue value = new QValue(xmlAttribute);
+				if (validAttributeSet.contains(value)) continue;
+				logger.error("Unpexpected attribute {}-{}", xmlAttribute.uri, xmlAttribute.localName);
 				logger.error("xmlElement {}!", xmlElement);
 				throw new UnexpectedException("Unpexpected attribute");
 			}
@@ -158,27 +195,27 @@ public abstract class InlineXBRL {
 		public String toString() {
 			if (isNull) {
 				if (format == null) {
-					return String.format("{STRING %s %s *NULL*}", name, contextRef);
+					return String.format("{STRING %s %s %s *NULL*}", uri, localName, contextRef);
 				} else {
-					return String.format("{STRING %s %s %s %s *NULL*}", name, contextRef, format, escape);
+					return String.format("{STRING %s %s %s %s %s *NULL*}", uri, localName, contextRef, format, escape);
 				}
 			} else {
 				if (format == null) {
-					return String.format("{STRING %s %s %s}", name, contextRef, stringValue);
+					return String.format("{STRING %s %s %s %s}", uri, localName, contextRef, stringValue);
 				} else {
-					return String.format("{STRING %s %s %s %s %s}", name, contextRef, format, escape, stringValue);
+					return String.format("{STRING %s %s %s %s %s %s}", uri, localName, contextRef, format, escape, stringValue);
 				}
 			}
 		}
 	}
 	public static class BooleanValue extends InlineXBRL {
-		public static Set<String> validAttributeSet = new TreeSet<>();
+		public static Set<QValue> validAttributeSet = new TreeSet<>();
 		static {
-			validAttributeSet.add("contextRef");
-			validAttributeSet.add("name");
-			validAttributeSet.add("format");
+			validAttributeSet.add(new QValue("", "contextRef"));
+			validAttributeSet.add(new QValue("", "name"));
+			validAttributeSet.add(new QValue("", "format"));
 			//
-			validAttributeSet.add("escape");
+			validAttributeSet.add(new QValue("", "escape"));
 		}
 
 		public final boolean booleanValue;
@@ -188,9 +225,11 @@ public abstract class InlineXBRL {
 			this.booleanValue = booleanValue;
 			
 			// Sanity check
-			for(String attribute: xmlElement.attributeMap.keySet()) {
-				if (validAttributeSet.contains(attribute)) continue;
-				logger.error("Unpexpected attribute {}!", attribute);
+			for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
+				QValue value = new QValue(xmlAttribute);
+				if (validAttributeSet.contains(value)) continue;
+				logger.error("Unpexpected attribute {}!", value);
+				logger.error("xmlAttribute {}-{}!", xmlAttribute.uri, xmlAttribute.localName);
 				logger.error("xmlElement {}!", xmlElement);
 				throw new UnexpectedException("Unpexpected attribute");
 			}
@@ -198,24 +237,24 @@ public abstract class InlineXBRL {
 		@Override
 		public String toString() {
 			if (isNull) {
-				return String.format("{BOOLEAN %s %s %s %s *NULL* %s}", name, contextRef, value, format);
+				return String.format("{BOOLEAN %s %s %s %s %s *NULL* %s}", uri, localName, contextRef, value, format);
 			} else {
-				return String.format("{BOOLEAN %s %s %s %s}", name, contextRef, booleanValue, format);
+				return String.format("{BOOLEAN %s %s %s %s %s}", uri, localName, contextRef, booleanValue, format);
 			}
 		}
 	}
 	public static class NumberValue extends InlineXBRL {
-		public static Set<String> validAttributeSet = new TreeSet<>();
+		public static Set<QValue> validAttributeSet = new TreeSet<>();
 		static {
-			validAttributeSet.add("contextRef");
-			validAttributeSet.add("name");
-			validAttributeSet.add("format");
-			validAttributeSet.add("unitRef");
-			validAttributeSet.add("decimals");
-			validAttributeSet.add("scale");
+			validAttributeSet.add(new QValue("", "contextRef"));
+			validAttributeSet.add(new QValue("", "name"));
+			validAttributeSet.add(new QValue("", "format"));
+			validAttributeSet.add(new QValue("", "unitRef"));
+			validAttributeSet.add(new QValue("", "decimals"));
+			validAttributeSet.add(new QValue("", "scale"));
 			//
-			validAttributeSet.add("sign");
-			validAttributeSet.add("xsi:nil");
+			validAttributeSet.add(new QValue("", "sign"));
+			validAttributeSet.add(XML.XSI_NIL);
 		}
 
 		// ixt:numdotdecimal は 999,000.00
@@ -228,10 +267,10 @@ public abstract class InlineXBRL {
 		
 		public NumberValue(XMLElement xmlElement) {
 			super(Kind.NUMBER, xmlElement);
-			this.unitRef  = xmlElement.getAttribute("unitRef");
-			this.decimals = xmlElement.getAttributeOrNull("decimals");
-			this.scale    = xmlElement.getAttributeOrNull("scale");
-			this.sign     = xmlElement.getAttributeOrNull("sign");
+			this.unitRef  = xmlElement.getAttribute("", "unitRef");
+			this.decimals = xmlElement.getAttributeOrNull("", "decimals");
+			this.scale    = xmlElement.getAttributeOrNull("", "scale");
+			this.sign     = xmlElement.getAttributeOrNull("", "sign");
 			this.isMinus  = sign != null && sign.equals("-");
 			
 			// unitRef "Pure" means number has no unit
@@ -242,9 +281,11 @@ public abstract class InlineXBRL {
 			this.numericValue = null;
 			
 			// Sanity check
-			for(String attribute: xmlElement.attributeMap.keySet()) {
-				if (validAttributeSet.contains(attribute)) continue;
-				logger.error("Unpexpected attribute {}!", attribute);
+			// Sanity check
+			for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
+				QValue value = new QValue(xmlAttribute);
+				if (validAttributeSet.contains(value)) continue;
+				logger.error("Unpexpected attribute {}!", xmlAttribute);
 				logger.error("xmlElement {}!", xmlElement);
 				throw new UnexpectedException("Unpexpected attribute");
 			}
@@ -252,9 +293,9 @@ public abstract class InlineXBRL {
 		@Override
 		public String toString() {
 			if (isNull) {
-				return String.format("{NUMBER %s %s %s *NULL*}", name, contextRef, unitRef);
+				return String.format("{NUMBER %s %s %s %s *NULL*}", uri, localName, contextRef, unitRef);
 			} else {
-				return String.format("{NUMBER %s %s %s %s %s %s %s %s}", name, contextRef, unitRef, value, format, decimals, scale, sign);
+				return String.format("{NUMBER %s %s %s %s %s %s %s %s %s}", uri, localName, contextRef, unitRef, value, format, decimals, scale, sign);
 			}
 		}
 	}
