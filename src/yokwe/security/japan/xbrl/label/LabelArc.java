@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.xbrl.XML;
 
 // This arc role value is for use on a <labelArc> from a concept Locator (<loc> element) to a <label> element
 // and it indicates that the label conveys human-readable information about the Concept.
@@ -30,19 +31,19 @@ public class LabelArc {
 	}
 
 	// xlink:arcrole must be "http://www.xbrl.org/2003/arcrole/concept-label"
-	@XmlAttribute(name = "type", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "type", namespace = XML.NS_XLINK, required = true)
 	public Type type;
 	
 	// xlink:arcrole must be "http://www.xbrl.org/2003/arcrole/concept-label"
-	@XmlAttribute(name = "arcrole", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "arcrole", namespace = XML.NS_XLINK, required = true)
 	public ArcRole arcRole;
 	
 	// The @xlink:from attribute on an Arc MUST be equal to the value of an @xlink:label attribute of Locator.
-	@XmlAttribute(name = "from", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "from", namespace = XML.NS_XLINK, required = true)
 	public String from;
 	
 	// The @xlink:to attribute on an Arc MUST be equal to the value of an @xlink:label attribute of Label.
-	@XmlAttribute(name = "to", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "to", namespace = XML.NS_XLINK, required = true)
 	public String to;
 	
 	@Override

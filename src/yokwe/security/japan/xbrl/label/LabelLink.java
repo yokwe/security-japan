@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.xbrl.XML;
 
 public class LabelLink {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LabelLink.class);
@@ -32,11 +33,11 @@ public class LabelLink {
 	}
 	
 	// Role can be "http://www.xbrl.org/2003/role/label
-	@XmlAttribute(name = "type", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "type", namespace = XML.NS_XLINK, required = true)
 	public Type type;
 	
 	// Role can be "http://www.xbrl.org/2003/role/label
-	@XmlAttribute(name = "role", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "role", namespace = XML.NS_XLINK, required = true)
 	public Role role;
 	
 	@XmlElement(name = "loc")

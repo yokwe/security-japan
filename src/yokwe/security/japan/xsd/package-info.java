@@ -1,8 +1,10 @@
 @XmlSchema(
-    namespace = "http://www.w3.org/2001/XMLSchema",
+    namespace = XML.NS_XSD,
     elementFormDefault = XmlNsForm.QUALIFIED
 )
 package yokwe.security.japan.xsd;
 
-import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlSchema;
+
+import yokwe.security.japan.xbrl.XML;

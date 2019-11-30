@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlValue;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.xbrl.XML;
 
 // Documentation of XBRL Concepts MUST be contained in <label> element.
 public class Label {
@@ -53,19 +54,19 @@ public class Label {
 	}
 	
 	// Role can be "http://www.xbrl.org/2003/role/label
-	@XmlAttribute(name = "type", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "type", namespace = XML.NS_XLINK, required = true)
 	public Type type;
 	
 	// Role can be "http://www.xbrl.org/2003/role/label
-	@XmlAttribute(name = "role", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "role", namespace = XML.NS_XLINK, required = true)
 	public Role role;
 	
 	// All <label> resources MUST have an @xml:lang attribute identifying the language used for the content of the label.
-	@XmlAttribute(name = "lang", namespace="http://www.w3.org/XML/1998/namespace", required = true)
+	@XmlAttribute(name = "lang", namespace = XML.NS_XML, required = true)
 	public Lang lang;
 	
 	// The @xlink:label attribute on a resource identifies the resource so that Arcs in the same Extended Link can reference it.
-	@XmlAttribute(name = "label", namespace="http://www.w3.org/1999/xlink", required = true)
+	@XmlAttribute(name = "label", namespace = XML.NS_XLINK, required = true)
 	public String label;
 	
 	
