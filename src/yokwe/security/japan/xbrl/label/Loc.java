@@ -1,12 +1,29 @@
-package yokwe.security.japan.linkbase;
+package yokwe.security.japan.xbrl.label;
 
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.XmlType;
+
+import org.slf4j.LoggerFactory;
+
+import yokwe.UnexpectedException;
 
 // Locators are child elements of an Extended Link that point to resources external to the extended link itself.
 public class Loc {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Loc.class);
+
+	@XmlEnum
+	@XmlType(name="Loc-Type")
+	public enum Type {
+		@XmlEnumValue("locator")
+		LOCATOR,
+	}
+
 	// The @xlink:type attribute MUST occur on all Locators and MUST have the fixed content "locator".
 	@XmlAttribute(name = "type", namespace="http://www.w3.org/1999/xlink", required = true)
-	String type;  // type must be "locator"
+	Type type;  // type must be "locator"
 	
 	// A Locator MUST have an @xlink:href attribute. The @xlink:href attribute MUST be a URI.
 	// The URI MUST point to an XML document or to one or more XML fragments within an XML document.
@@ -20,6 +37,14 @@ public class Loc {
 	@Override
 	public String toString() {
 		return String.format("{%s %s}", href, label);
+	}
+	
+	void afterUnmarshal(Unmarshaller u, Object parent) {
+		// Sanity check
+		if (type == null) {
+			logger.error("type is null {}", this);
+			throw new UnexpectedException("type is null");
+		}
 	}
 }
 

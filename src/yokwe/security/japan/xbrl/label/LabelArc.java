@@ -1,10 +1,42 @@
-package yokwe.security.japan.linkbase;
+package yokwe.security.japan.xbrl.label;
 
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.XmlType;
+
+import org.slf4j.LoggerFactory;
+
+import yokwe.UnexpectedException;
 
 // This arc role value is for use on a <labelArc> from a concept Locator (<loc> element) to a <label> element
 // and it indicates that the label conveys human-readable information about the Concept.
 public class LabelArc {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LabelArc.class);
+
+	@XmlEnum
+	@XmlType(name="LabelArc-Type")
+	public enum Type {
+		@XmlEnumValue("arc")
+		ARC,
+	}
+
+	@XmlEnum
+	@XmlType(name="LabelArc-ArcRole")
+	enum ArcRole {
+		@XmlEnumValue("http://www.xbrl.org/2003/arcrole/concept-label")
+		CONCETPT_LABEL,
+	}
+
+	// xlink:arcrole must be "http://www.xbrl.org/2003/arcrole/concept-label"
+	@XmlAttribute(name = "type", namespace="http://www.w3.org/1999/xlink", required = true)
+	public Type type;
+	
+	// xlink:arcrole must be "http://www.xbrl.org/2003/arcrole/concept-label"
+	@XmlAttribute(name = "arcrole", namespace="http://www.w3.org/1999/xlink", required = true)
+	public ArcRole arcRole;
+	
 	// The @xlink:from attribute on an Arc MUST be equal to the value of an @xlink:label attribute of Locator.
 	@XmlAttribute(name = "from", namespace="http://www.w3.org/1999/xlink", required = true)
 	public String from;
@@ -13,11 +45,21 @@ public class LabelArc {
 	@XmlAttribute(name = "to", namespace="http://www.w3.org/1999/xlink", required = true)
 	public String to;
 	
-	// xlink:arcrole must be "http://www.xbrl.org/2003/arcrole/concept-label"
-	
 	@Override
 	public String toString() {
-		return String.format("{%s %s}", from, to);
+		return String.format("{%s %s %s %s}", type, arcRole, from, to);
+	}
+	
+	void afterUnmarshal(Unmarshaller u, Object parent) {
+		// Sanity check
+		if (type == null) {
+			logger.error("type is null {}", this);
+			throw new UnexpectedException("type is null");
+		}
+		if (arcRole == null) {
+			logger.error("arcRole is null {}", this);
+			throw new UnexpectedException("arcRole is null");
+		}
 	}
 }
 
