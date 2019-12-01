@@ -23,4 +23,19 @@ public class XBRL {
 	public static final QValue IXT_BOOLEAN_FALSE           = new QValue(NS_IXT, "booleanfalse");
 	public static final QValue IXT_DATE_YEAR_MONTH_DAY_CJK = new QValue(NS_IXT, "dateyearmonthdaycjk");
 	public static final QValue IXT_NUM_DOT_DECIMAL         = new QValue(NS_IXT, "numdotdecimal");
+	
+	// Role
+	public static final String ROLE_LABLE                         = "http://www.xbrl.org/2003/role/label";
+	public static final String ROLE_VERBOSE_LABEL                 = "http://www.xbrl.org/2003/role/verboseLabel";
+	public static final String ROLE_QUARTERLY_VERBOSE_LABEL       = "http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Quarterly/verboseLabel";
+	public static final String ROLE_INTERIM_VERBOSE_LABEL         = "http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Interim/verboseLabel";
+	public static final String ROLE_NON_CONSOLIDATED_LABEL        = "http://www.xbrl.tdnet.info/jp/tse/tdnet/role/NonConsolidated/label";
+	public static final String ROLE_NON_CONSOLIDATED_VERBOSELABEL = "http://www.xbrl.tdnet.info/jp/tse/tdnet/role/NonConsolidated/verboseLabel";
+	public static final String ROLE_QUARTERLYLABEL                = "http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Quarterly/label";
+	public static final String ROLE_INTERLIM_LABEL                = "http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Interim/label";
+
+	// Lang
+	public static final String LANG_EN = "en";
+	public static final String LANG_JA = "ja";
+
 }
