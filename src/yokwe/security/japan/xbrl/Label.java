@@ -11,8 +11,34 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
 
+import yokwe.util.XMLUtil.QValue;
+
 public class Label implements Comparable<Label> {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Label.class);
+	
+	private static class Key implements Comparable<Key> {
+		final String namespace;
+		final String label;
+		final String role;
+		final String lang;
+		
+		Key(String namespace, String label, String role, String lang) {
+			this.namespace = namespace;
+			this.label     = label;
+			this.role      = role;
+			this.lang      = lang;
+		}
+
+		@Override
+		public int compareTo(Key that) {
+			int ret = this.namespace.compareTo(that.namespace);
+			if (ret == 0) ret = this.label.compareTo(that.label);
+			if (ret == 0) ret = this.role.compareTo(that.role);
+			if (ret == 0) ret = this.lang.compareTo(that.lang);
+			return ret;
+		}
+	}
+	private static Map<Key, String> cache = new TreeMap<>();
 
 	public static final String PATH_DATA_FILE = "tmp/data/label.csv";
 		
@@ -23,9 +49,6 @@ public class Label implements Comparable<Label> {
 		CSVUtil.write(Label.class).file(PATH_DATA_FILE, data);
 	}
 	
-	private static final Map<String, Map<String, Map<String, Map<String, String>>>> cacheNamespace = new TreeMap<>();
-	//                       namespace
-	//                                   label       role        lang    value
 	private static void fillCache() {
 		List<Label> list = load();
 		if (list == null) {
@@ -39,30 +62,20 @@ public class Label implements Comparable<Label> {
 			final String lang      = e.lang;
 			final String value     = e.value;
 			
-			if (!cacheNamespace.containsKey(namespace)) {
-				cacheNamespace.put(namespace, new TreeMap<>());
-			}
-			Map<String, Map<String, Map<String, String>>> labelMap = cacheNamespace.get(namespace);
-			//  label       role        lang    value
-			
-			if (!labelMap.containsKey(label)) {
-				labelMap.put(label, new TreeMap<>());
-			}
-			Map<String, Map<String, String>> roleMap = labelMap.get(label);
-			if (!roleMap.containsKey(role)) {
-				roleMap.put(role, new TreeMap<>());
-			}
-			Map<String, String> langMap = roleMap.get(role);
-			if (langMap.containsKey(lang)) {
+			Key key = new Key(namespace, label, role, lang);
+
+			if (cache.containsKey(key)) {
 				logger.error("Duplicate entry {} {} {} {} \"{}\"", namespace, label, role, lang, value);
 				throw new UnexpectedException("Duplicate entry");	
 			} else {
-				langMap.put(lang, value);
+				cache.put(key, value);
 			}
 		}
 	}
 
-	
+	public static String getValueJA(QValue qValue) {
+		return getValueJA(qValue.namespace, qValue.value);
+	}
 	public static String getValueJA(String namespace, String label) {
 		return getValueJA(namespace, label, XBRL.ROLE_LABLE);
 	}
@@ -70,24 +83,10 @@ public class Label implements Comparable<Label> {
 		return getValue(namespace, label, role, XBRL.LANG_JA);
 	}
 	public static String getValue(String namespace, String label, String role, String lang) {
-		if (cacheNamespace.isEmpty()) fillCache();
-		if (cacheNamespace.containsKey(namespace)) {
-			Map<String, Map<String, Map<String, String>>> labelMap = cacheNamespace.get(namespace);
-			if (labelMap.containsKey(label)) {
-				Map<String, Map<String, String>> roleMap = labelMap.get(label);
-				if (roleMap.containsKey(role)) {
-					Map<String, String> langMap = roleMap.get(role);
-					if (langMap.containsKey(lang)) {
-						return langMap.get(lang);
-					} else {
-						logger.warn("Unknown label {} {} {} {}", namespace, label, role, lang);
-					}
-				} else {
-					logger.warn("Unknown role {} {} {} {}", namespace, label, role, lang);
-				}
-			} else {
-				logger.warn("Unknown label {} {} {} {}", namespace, label, role, lang);
-			}
+		if (cache.isEmpty()) fillCache();
+		Key key = new Key(namespace, label, role, lang);
+		if (cache.containsKey(key)) {
+			return cache.get(key);
 		} else {
 			logger.warn("Unknown namespace {} {} {} {}", namespace, label, role, lang);
 		}
