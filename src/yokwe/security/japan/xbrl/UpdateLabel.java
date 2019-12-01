@@ -66,11 +66,12 @@ public class UpdateLabel {
 				}
 			}
 			
+			String hrefPrefix = "#tse-ed-t_";
 			for(yokwe.security.japan.xbrl.label.Label label: linkbase.labelLink.labelList) {
 				String locLabel = labelArcMap.get(label.label);
 				String href = locMap.get(locLabel);
-				int pos = href.indexOf("#");
-				list.add(new Label(namespace, href.substring(pos + 1), label.role.value, label.lang.value, label.value));
+				int pos = href.indexOf(hrefPrefix);
+				list.add(new Label(namespace, href.substring(pos + hrefPrefix.length()), label.role.value, label.lang.value, label.value));
 			}
 			logger.info("{} {} {}", pathInfo.namespace, list.size(), pathInfo.path);
 			labelList.addAll(list);
