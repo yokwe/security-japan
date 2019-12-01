@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlValue;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.xbrl.XBRL;
 import yokwe.security.japan.xbrl.XML;
 
 // Documentation of XBRL Concepts MUST be contained in <label> element.
@@ -25,32 +26,42 @@ public class Label {
 
 	@XmlEnum
 	@XmlType(name="Label-Role")
-	enum Role {
-		@XmlEnumValue("http://www.xbrl.org/2003/role/label")
-		LABLE,
-		@XmlEnumValue("http://www.xbrl.org/2003/role/verboseLabel")
-		VERBOSE_LABEL,
-		@XmlEnumValue("http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Quarterly/verboseLabel")
-		QUARTERLY_VERBOSE_LABEL,
-		@XmlEnumValue("http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Interim/verboseLabel")
-		INTERIM_VERBOSE_LABEL,
-		@XmlEnumValue("http://www.xbrl.tdnet.info/jp/tse/tdnet/role/NonConsolidated/label")
-		NON_CONSOLIDATED_LABEL,
-		@XmlEnumValue("http://www.xbrl.tdnet.info/jp/tse/tdnet/role/NonConsolidated/verboseLabel")
-		NON_CONSOLIDATED_VERBOSELABEL,
-		@XmlEnumValue("http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Quarterly/label")
-		QUARTERLYLABEL,
-		@XmlEnumValue("http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Interim/label")
-		INTERLIM_LABEL,
+	public enum Role {
+		@XmlEnumValue(XBRL.ROLE_LABLE)
+		LABLE(XBRL.ROLE_LABLE),
+		@XmlEnumValue(XBRL.ROLE_VERBOSE_LABEL)
+		VERBOSE_LABEL(XBRL.ROLE_VERBOSE_LABEL),
+		@XmlEnumValue(XBRL.ROLE_QUARTERLY_VERBOSE_LABEL)
+		QUARTERLY_VERBOSE_LABEL(XBRL.ROLE_QUARTERLY_VERBOSE_LABEL),
+		@XmlEnumValue(XBRL.ROLE_INTERIM_VERBOSE_LABEL)
+		INTERIM_VERBOSE_LABEL(XBRL.ROLE_INTERIM_VERBOSE_LABEL),
+		@XmlEnumValue(XBRL.ROLE_NON_CONSOLIDATED_LABEL)
+		NON_CONSOLIDATED_LABEL(XBRL.ROLE_NON_CONSOLIDATED_LABEL),
+		@XmlEnumValue(XBRL.ROLE_NON_CONSOLIDATED_VERBOSELABEL)
+		NON_CONSOLIDATED_VERBOSELABEL(XBRL.ROLE_NON_CONSOLIDATED_VERBOSELABEL),
+		@XmlEnumValue(XBRL.ROLE_QUARTERLYLABEL)
+		QUARTERLYLABEL(XBRL.ROLE_QUARTERLYLABEL),
+		@XmlEnumValue(XBRL.ROLE_INTERLIM_LABEL)
+		INTERLIM_LABEL(XBRL.ROLE_INTERLIM_LABEL);
+		
+		public final String value;
+		Role(String value) {
+			this.value = value;
+		}
 	}
 	
 	@XmlEnum
 	@XmlType(name="Label-Lang")
-	enum Lang {
-		@XmlEnumValue("en")
-		EN,
-		@XmlEnumValue("ja")
-		JA,
+	public enum Lang {
+		@XmlEnumValue(XBRL.LANG_EN)
+		EN(XBRL.LANG_EN),
+		@XmlEnumValue(XBRL.LANG_JA)
+		JA(XBRL.LANG_JA);
+		
+		public final String value;
+		Lang(String value) {
+			this.value = value;
+		}
 	}
 	
 	// Role can be "http://www.xbrl.org/2003/role/label
@@ -75,7 +86,7 @@ public class Label {
 	
 	@Override
 	public String toString() {
-		return String.format("{%s %s %s %s %s \"%s\"}", type, role, lang, label, lang, value);
+		return String.format("{%s %s %s %s\"%s\"}", type, role, lang, label, value);
 	}
 	
 	void afterUnmarshal(Unmarshaller u, Object parent) {
