@@ -24,16 +24,16 @@ public class Loc {
 
 	// The @xlink:type attribute MUST occur on all Locators and MUST have the fixed content "locator".
 	@XmlAttribute(name = "type", namespace = XML.NS_XLINK, required = true)
-	Type type;  // type must be "locator"
+	public Type type;  // type must be "locator"
 	
 	// A Locator MUST have an @xlink:href attribute. The @xlink:href attribute MUST be a URI.
 	// The URI MUST point to an XML document or to one or more XML fragments within an XML document.
 	@XmlAttribute(name = "href", namespace = XML.NS_XLINK, required = true)
-	String href;
+	public String href;
 	
 	// The @xlink:label attribute on a Locator identifies the locator so that Arcs in the same Extended Link can reference it.
 	@XmlAttribute(name = "label", namespace = XML.NS_XLINK, required = true)
-	String label;
+	public String label;
 	
 	@Override
 	public String toString() {
