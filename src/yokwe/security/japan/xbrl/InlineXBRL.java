@@ -130,6 +130,8 @@ public abstract class InlineXBRL {
 	public final String  uri;
 	public final String  localName;
 	public final boolean isNull;
+	
+	public final String  nameLabel;
 
 	private InlineXBRL(Kind kind, XMLElement xmlElement) {
 		this.kind         = kind;
@@ -143,6 +145,8 @@ public abstract class InlineXBRL {
 		QValue uriLocalName = new QValue(xmlElement, this.name);
 		this.uri       = uriLocalName.uri;
 		this.localName = uriLocalName.value;
+		
+		this.nameLabel = Label.getValueJA(uri, localName);
 		
 		String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL.uri, XML.XSI_NIL.value);
 		if (nilValue == null) {
@@ -195,15 +199,15 @@ public abstract class InlineXBRL {
 		public String toString() {
 			if (isNull) {
 				if (format == null) {
-					return String.format("{STRING %s %s %s *NULL*}", uri, localName, contextRef);
+					return String.format("{STRING %s %s *NULL*}", nameLabel, contextRef);
 				} else {
-					return String.format("{STRING %s %s %s %s %s *NULL*}", uri, localName, contextRef, format, escape);
+					return String.format("{STRING %s %s %s *NULL*}", nameLabel, contextRef, format);
 				}
 			} else {
 				if (format == null) {
-					return String.format("{STRING %s %s %s %s}", uri, localName, contextRef, stringValue);
+					return String.format("{STRING %s %s \"%s\"}", nameLabel, contextRef, stringValue);
 				} else {
-					return String.format("{STRING %s %s %s %s %s %s}", uri, localName, contextRef, format, escape, stringValue);
+					return String.format("{STRING_%s %s %s \"%s\"", nameLabel, contextRef, format, stringValue);
 				}
 			}
 		}
@@ -237,9 +241,9 @@ public abstract class InlineXBRL {
 		@Override
 		public String toString() {
 			if (isNull) {
-				return String.format("{BOOLEAN %s %s %s %s %s *NULL* %s}", uri, localName, contextRef, value, format);
+				return String.format("{BOOLEAN %s %s *NULL*}", nameLabel, contextRef);
 			} else {
-				return String.format("{BOOLEAN %s %s %s %s %s}", uri, localName, contextRef, booleanValue, format);
+				return String.format("{BOOLEAN %s %s %s}", nameLabel, contextRef, booleanValue);
 			}
 		}
 	}
@@ -293,9 +297,21 @@ public abstract class InlineXBRL {
 		@Override
 		public String toString() {
 			if (isNull) {
-				return String.format("{NUMBER %s %s %s %s *NULL*}", uri, localName, contextRef, unitRef);
+				return String.format("{NUMBER %s %s %s *NULL*}", nameLabel, contextRef, unitRef);
 			} else {
-				return String.format("{NUMBER %s %s %s %s %s %s %s %s %s}", uri, localName, contextRef, unitRef, value, format, decimals, scale, sign);
+				if (sign == null) {
+					if (format == null) {
+						return String.format("{NUMBER %s %s %s %s *NULL* %s %s}", nameLabel, contextRef, unitRef, value, decimals, scale);
+					} else {
+						return String.format("{NUMBER %s %s %s %s %s %s %s}", nameLabel, contextRef, unitRef, value, format, decimals, scale);
+					}
+				} else {
+					if (isMinus) {
+						return String.format("{NUMBER %s %s %s %s %s %s %s *MINUS*}", nameLabel, contextRef, unitRef, value, format, decimals, scale);
+					} else {
+						return String.format("{NUMBER %s %s %s %s %s %s %s}", nameLabel, contextRef, unitRef, value, format, decimals, scale);
+					}
+				}
 			}
 		}
 	}
