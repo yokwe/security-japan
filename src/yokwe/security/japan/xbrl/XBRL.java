@@ -1,5 +1,7 @@
 package yokwe.security.japan.xbrl;
 
+import yokwe.util.XMLUtil.QValue;
+
 public class XBRL {
 	// Namespace
 	public static final String NS_IX      = "http://www.xbrl.org/2008/inlineXBRL";
@@ -12,7 +14,10 @@ public class XBRL {
 	public static final String NS_XBRLI    = "http://www.xbrl.org/2003/instance";
 	public static final String NS_ISO_4217 = "http://www.xbrl.org/2003/iso4217";
 
+	public static final String NS_TSE_AT_T           = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/at/t/2014-01-12";
 	public static final String NS_TSE_ED_T           = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/ed/t/2014-01-12";
+	public static final String NS_TSE_RE_T           = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/re/t/2014-01-12";
+
 	public static final String NS_TSE_SCEDJPSM_87250 = "http://www.xbrl.tdnet.info/jp/tse/tdnet/sc/edjp/sm/87250/20191010407057";
 	
 	// Value	
