@@ -16,13 +16,13 @@ import yokwe.util.XMLUtil.QValue;
 public class Label implements Comparable<Label> {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Label.class);
 	
-	private static class Key implements Comparable<Key> {
+	public static class Key implements Comparable<Key> {
 		final String namespace;
 		final String label;
 		final String role;
 		final String lang;
 		
-		Key(String namespace, String label, String role, String lang) {
+		public Key(String namespace, String label, String role, String lang) {
 			this.namespace = namespace;
 			this.label     = label;
 			this.role      = role;
@@ -36,6 +36,11 @@ public class Label implements Comparable<Label> {
 			if (ret == 0) ret = this.role.compareTo(that.role);
 			if (ret == 0) ret = this.lang.compareTo(that.lang);
 			return ret;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s %s %s %s}", namespace, label, role, lang);
 		}
 	}
 	private static Map<Key, String> cache = new TreeMap<>();
