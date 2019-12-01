@@ -90,8 +90,8 @@ public class UpdateListedIssue {
 				
 				String date = value.date.trim();
 				if (date.length() != 8) {
-					logger.error("Unpexpected date value {}!", date);
-					throw new UnexpectedException("Unpexpected date value");
+					logger.error("Unexpected date value {}!", date);
+					throw new UnexpectedException("Unexpected date value");
 				}
 				String newDate = String.format("%s-%s-%s", date.substring(0, 4), date.substring(4, 6), date.substring(6, 8));
 				
