@@ -70,13 +70,13 @@ public class Label implements Comparable<Label> {
 		return getValue(namespace, label, role, XBRL.LANG_JA);
 	}
 	public static String getValue(String namespace, String label, String role, String lang) {
-		if (cacheNamespace == null) fillCache();
+		if (cacheNamespace.isEmpty()) fillCache();
 		if (cacheNamespace.containsKey(namespace)) {
 			Map<String, Map<String, Map<String, String>>> labelMap = cacheNamespace.get(namespace);
 			if (labelMap.containsKey(label)) {
 				Map<String, Map<String, String>> roleMap = labelMap.get(label);
 				if (roleMap.containsKey(role)) {
-					Map<String, String> langMap = roleMap.get(lang);
+					Map<String, String> langMap = roleMap.get(role);
 					if (langMap.containsKey(lang)) {
 						return langMap.get(lang);
 					} else {
@@ -107,6 +107,9 @@ public class Label implements Comparable<Label> {
 		this.role  = role;
 		this.lang  = lang;
 		this.value = value;
+	}
+	public Label() {
+		this(null, null, null, null, null);
 	}
 	
 	@Override
