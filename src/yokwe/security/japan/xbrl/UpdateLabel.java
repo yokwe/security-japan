@@ -12,6 +12,7 @@ import javax.xml.bind.JAXB;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.xbrl.Label.Key;
 import yokwe.security.japan.xbrl.label.Linkbase;
 import yokwe.util.FileUtil;
 
@@ -42,7 +43,7 @@ public class UpdateLabel {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<Label> labelList = new ArrayList<>();
+		Map<Key, Label> labelMap = new TreeMap<>();
 		
 		for(PathInfo pathInfo: pathInfolist) {
 			List<Label> list = new ArrayList<>();
@@ -79,16 +80,42 @@ public class UpdateLabel {
 				int pos = href.indexOf(hrefPrefix);
 				list.add(new Label(namespace, href.substring(pos + hrefPrefix.length()), label.role.value, label.lang.value, label.value));
 			}
-			logger.info("{} {} {}", pathInfo.namespace, list.size(), pathInfo.path);
-			labelList.addAll(list);
+			logger.info("Collect {} {} {}", pathInfo.namespace, list.size(), pathInfo.path);
+			
+			// Copy list to labeMap with check
+			for(Label e: list) {
+				// String namespace, String label, String role, String lang
+				Key key = new Key(e.namespace, e.label, e.role, e.lang);
+				if (labelMap.containsKey(key)) {
+					String oldValue = labelMap.get(key).value;
+					String newValue = e.value;
+					
+					if (oldValue.equals(newValue)) {
+						// Ignore duplicate
+						logger.warn("  Ignore duplicate label  key = {}", key);
+					} else {
+						logger.warn("Duplicate key with different value");
+						logger.warn("key {}", key);
+						logger.warn("old {}", oldValue);
+						logger.warn("new {}", newValue);
+						throw new UnexpectedException("Duplicate key with different value");
+					}
+				} else {
+					labelMap.put(key, e);
+				}
+			}
 		}
 		
-		// Sort before save
-		Collections.sort(labelList);
+		{
+			// Sort before save
+			List<Label> list = new ArrayList<>(labelMap.values());
+			Collections.sort(list);
+			
+			// Save
+			logger.info("Save {} {}", Label.PATH_DATA_FILE, list.size());
+			Label.save(list);
+		}
 		
-		// Save
-		logger.info("Total {}", labelList.size());
-		Label.save(labelList);
 		
 		logger.info("STOP");
 	}
