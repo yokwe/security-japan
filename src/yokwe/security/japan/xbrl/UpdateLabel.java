@@ -29,8 +29,14 @@ public class UpdateLabel {
 	}
 	private static final List<PathInfo> pathInfolist= new ArrayList<>();
 	static {
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, "tmp/61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab.xml"));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, "tmp/61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab-en.xml"));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, "tmp/data/61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab.xml"));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, "tmp/data/61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab-en.xml"));
+		
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, "tmp/data/61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab-en.xml"));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, "tmp/data/61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab-en.xml"));
+
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, "tmp/data/61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab-en.xml"));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, "tmp/data/61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab-en.xml"));
 	}
 
 	public static void main(String[] args) {
@@ -66,7 +72,7 @@ public class UpdateLabel {
 				}
 			}
 			
-			String hrefPrefix = "#tse-ed-t_";
+			String hrefPrefix = "-t_";
 			for(yokwe.security.japan.xbrl.label.Label label: linkbase.labelLink.labelList) {
 				String locLabel = labelArcMap.get(label.label);
 				String href = locMap.get(locLabel);
