@@ -1,5 +1,7 @@
 package yokwe.security.japan.xbrl;
 
+import yokwe.util.XMLUtil.QValue;
+
 public class XML {
 	// Namespace
 	public static final String NS_XML   = "http://www.w3.org/XML/1998/namespace";
