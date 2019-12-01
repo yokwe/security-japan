@@ -3,9 +3,8 @@ package yokwe.security.japan.fsa;
 import java.util.List;
 
 import yokwe.util.CSVUtil;
-import yokwe.util.libreoffice.Sheet;
 
-public class EDINET extends Sheet implements Comparable<EDINET> {
+public class EDINET implements Comparable<EDINET> {
 	public static final String URL_DOWNLOAD     = "https://disclosure.edinet-fsa.go.jp/E01EW/download?uji.verb=W1E62071EdinetCodeDownload&uji.bean=ee.bean.W1E62071.EEW1E62071Bean&TID=W1E62071&PID=W1E62071&SESSIONKEY=9999&downloadFileName=&lgKbn=2&dflg=0&iflg=0&dispKbn=1";
 	public static final String CHARSET_DOWNLOAD = "MS932";
 	
