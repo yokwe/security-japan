@@ -31,6 +31,7 @@ public class XBRL {
 	
 	// Role
 	public static final String ROLE_LABLE                         = "http://www.xbrl.org/2003/role/label";
+	public static final String ROLE_TERSE_LABEL                   = "http://www.xbrl.org/2003/role/terseLabel";
 	public static final String ROLE_VERBOSE_LABEL                 = "http://www.xbrl.org/2003/role/verboseLabel";
 	public static final String ROLE_QUARTERLY_VERBOSE_LABEL       = "http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Quarterly/verboseLabel";
 	public static final String ROLE_INTERIM_VERBOSE_LABEL         = "http://www.xbrl.tdnet.info/jp/tse/tdnet/role/Interim/verboseLabel";
