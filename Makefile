@@ -36,4 +36,20 @@ update-stock-price:
 	cp     tmp/data/stock.csv  tmp/data/stock.csv-OLD
 	ant update-stock-price
 
+#
+# Taxonomy file
+#
+download-taxonomy-file:
+	cd tmp/download; rm -f 61_taxonomy.zip;       wget https://www.jpx.co.jp/equities/listing/xbrl/tvdivq00000088ai-att/61_taxonomy.zip
+	cd tmp/download; rm -f tse-cg-2015-04-01.zip; wget https://www.jpx.co.jp/equities/listing/xbrl/tvdivq00000088ai-att/tse-cg-2015-04-01.zip
 
+unpack-taxonomy-file:
+	cd tmp/data; rm -rf 61_taxonomy; unzip ../download/61_taxonomy.zip
+	cd tmp/data/61_taxonomy; unzip tse-at-2014-01-12.zip; rm -f tse-at-2014-01-12.zip
+	cd tmp/data/61_taxonomy; unzip tse-ed-2014-01-12.zip; rm -f tse-ed-2014-01-12.zip
+	cd tmp/data/61_taxonomy; unzip tse-re-2014-01-12.zip; rm -f tse-re-2014-01-12.zip
+	cd tmp/data/61_taxonomy; 
+
+	cd tmp/data; rm -rf tse-cg-2015-04-01; unzip ../download/tse-cg-2015-04-01.zip
+	
+	
