@@ -3055,13 +3055,13 @@ public enum TSE_ED_T {
         this.en   = en;
         this.ja   = ja;
         
-        addALL(this);
+        addNameMap(this);
     }
     
     public static final String NAMESPACE = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/ed/t/2014-01-12";
     
-    public static final Map<String, TSE_ED_T> ALL = new TreeMap<>();
-    private static void addALL(TSE_ED_T e) {
-        ALL.put(e.name, e);
+    public static final Map<String, TSE_ED_T> NAME_MAP = new TreeMap<>();
+    private static void addNameMap(TSE_ED_T e) {
+        NAME_MAP.put(e.name, e);
     }
 }
