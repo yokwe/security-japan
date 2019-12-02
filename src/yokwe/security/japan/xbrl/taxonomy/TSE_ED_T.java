@@ -3,6 +3,8 @@ package yokwe.security.japan.xbrl.taxonomy;
 import java.util.Map;
 import java.util.TreeMap;
 
+import yokwe.UnexpectedException;
+
 public enum TSE_ED_T {
     AMOUNT_CHANGE_GROSS_OPERATING_REVENUES (
         "AmountChangeGrossOperatingRevenues", 
@@ -3059,8 +3061,17 @@ public enum TSE_ED_T {
     }
     
     public static final String NAMESPACE = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/ed/t/2014-01-12";
-    
     public static final Map<String, TSE_ED_T> NAME_MAP = new TreeMap<>();
+    public static final TSE_ED_T get(String name) {
+        if (NAME_MAP.containsKey(name)) {
+            return NAME_MAP.get(name);
+        } else {
+            logger.error("no entry {} {}", NAMESPACE, name);
+            throw new UnexpectedException("no entry");
+        }
+    }
+    
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TSE_ED_T.class);
     private static void addNameMap(TSE_ED_T e) {
         NAME_MAP.put(e.name, e);
     }
