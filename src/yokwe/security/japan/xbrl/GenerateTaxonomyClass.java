@@ -37,6 +37,8 @@ public class GenerateTaxonomyClass {
 			out.indent().println("import java.util.Map;");
 			out.indent().println("import java.util.TreeMap;");
 			out.indent().println();
+			out.indent().println("import yokwe.UnexpectedException;");
+			out.indent().println();
 
 			out.indent().format("public enum %s {", className).println();
 			out.nest();
@@ -84,8 +86,24 @@ public class GenerateTaxonomyClass {
 			out.indent().println();
 			
 			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
+			out.indent().println("public static final Map<String, TSE_ED_T> NAME_MAP = new TreeMap<>();");			
+			out.indent().format("public static final %s get(String name) {", className).println();
+			out.nest();
+			out.indent().println("if (NAME_MAP.containsKey(name)) {");
+			out.nest();
+			out.indent().println("return NAME_MAP.get(name);");
+			out.unnest();
+			out.indent().println("} else {");
+			out.nest();
+			out.indent().println("logger.error(\"no entry {} {}\", NAMESPACE, name);");
+			out.indent().println("throw new UnexpectedException(\"no entry\");");
+			out.unnest();
+			out.indent().println("}");
+			out.unnest();
+			out.indent().println("}");
 			out.indent().println();
-			out.indent().println("public static final Map<String, TSE_ED_T> NAME_MAP = new TreeMap<>();");
+
+			out.indent().format("private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(%s.class);", className).println();
 			out.indent().format("private static void addNameMap(%s e) {", className).println();
 			out.nest();
 			out.indent().println("NAME_MAP.put(e.name, e);");
