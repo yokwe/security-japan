@@ -78,17 +78,17 @@ public class GenerateTaxonomyClass {
 			out.indent().println("this.en   = en;");
 			out.indent().println("this.ja   = ja;");
 			out.indent().println();
-			out.indent().println("addALL(this);");
+			out.indent().println("addNameMap(this);");
 			out.unnest();
 			out.indent().println("}");
 			out.indent().println();
 			
 			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
 			out.indent().println();
-			out.indent().println("public static final Map<String, TSE_ED_T> ALL = new TreeMap<>();");
-			out.indent().format("private static void addALL(%s e) {", className).println();
+			out.indent().println("public static final Map<String, TSE_ED_T> NAME_MAP = new TreeMap<>();");
+			out.indent().format("private static void addNameMap(%s e) {", className).println();
 			out.nest();
-			out.indent().println("ALL.put(e.name, e);");
+			out.indent().println("NAME_MAP.put(e.name, e);");
 			out.unnest();
 			out.indent().println("}");
 
