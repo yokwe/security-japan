@@ -3,7 +3,7 @@ package yokwe.security.japan.xbrl.taxonomy;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class TSE_RE_T extends TaxonomyData {
+public class TSE_RE_T extends LabelData {
     public static final String NAMESPACE = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/re/t/2014-01-12";
     
     public static final TSE_RE_T AMOUNT_CHANGE_NET_INCOME = new TSE_RE_T(

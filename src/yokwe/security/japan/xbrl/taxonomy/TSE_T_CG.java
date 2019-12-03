@@ -3,7 +3,7 @@ package yokwe.security.japan.xbrl.taxonomy;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class TSE_T_CG extends TaxonomyData {
+public class TSE_T_CG extends LabelData {
     public static final String NAMESPACE = "http://www.xbrl.tdnet.info/jp/br/tdnet/t/cg/2007-06-30";
     
     public static final TSE_T_CG ACTIVITIES_CONCERNING_RESPECT_FOR_STAKEHOLDERS_ABSTRACT = new TSE_T_CG(

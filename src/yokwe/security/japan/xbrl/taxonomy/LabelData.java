@@ -6,11 +6,11 @@ import java.util.TreeMap;
 import yokwe.UnexpectedException;
 import yokwe.util.XMLUtil.QValue;
 
-public abstract class TaxonomyData implements Comparable<TaxonomyData> {
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TaxonomyData.class);
+public abstract class LabelData implements Comparable<LabelData> {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LabelData.class);
     
-    private static Map<QValue, TaxonomyData> all = new TreeMap<>();
-    private static void add(TaxonomyData data) {
+    private static Map<QValue, LabelData> all = new TreeMap<>();
+    private static void add(LabelData data) {
     	final QValue key = data.qName;
     	if (all.containsKey(key)) {
     		logger.error("Duplicate data {}", key);
@@ -22,7 +22,7 @@ public abstract class TaxonomyData implements Comparable<TaxonomyData> {
     	}
     }
     
-    public static TaxonomyData get(QValue key) {
+    public static LabelData get(QValue key) {
     	if (all.containsKey(key)) {
     		return all.get(key);
     	} else {
@@ -41,7 +41,7 @@ public abstract class TaxonomyData implements Comparable<TaxonomyData> {
     public final String en;
     public final String ja;
     
-    protected TaxonomyData(String namespace, String name, String en, String ja) {
+    protected LabelData(String namespace, String name, String en, String ja) {
     	this.qName = new QValue(namespace, name);
     	this.en    = en;
     	this.ja    = ja;
@@ -59,8 +59,8 @@ public abstract class TaxonomyData implements Comparable<TaxonomyData> {
 		if (o == null) {
 			return false;
 		} else {
-			if (o instanceof TaxonomyData) {
-				TaxonomyData that = (TaxonomyData)o;
+			if (o instanceof LabelData) {
+				LabelData that = (LabelData)o;
 				return this.qName.equals(that.qName) && this.en.equals(that.en) && this.ja.equals(that.ja);
 			} else {
 				return false;
@@ -69,7 +69,7 @@ public abstract class TaxonomyData implements Comparable<TaxonomyData> {
 	}
 
 	@Override
-	public int compareTo(TaxonomyData that) {
+	public int compareTo(LabelData that) {
 		return this.qName.compareTo(that.qName);
 	}
 }
