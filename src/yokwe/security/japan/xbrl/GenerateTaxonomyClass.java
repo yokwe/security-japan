@@ -23,14 +23,18 @@ public class GenerateTaxonomyClass {
 	static {
 		classNameMap.put(XBRL.NS_TSE_ED_T, "TSE_ED_T");
 //		classNameMap.put(XBRL.NS_TSE_AT_T, "TSE_AT_T");
-//		classNameMap.put(XBRL.NS_TSE_RE_T, "TSE_RE_T");
+		classNameMap.put(XBRL.NS_TSE_RE_T, "TSE_RE_T");
 		
 		classNameMap.put(XBRL.NS_TSE_T_CG, "TSE_T_CG");
 	}
 	
 	private static void generateClass(String namespace, String className, Map<String, Entry> entryMap) {
+		if (entryMap.isEmpty()) {
+			logger.warn("entryMap is empty  {}", className);
+			return;
+		}
 		String path = String.format("%s/%s.java", PATH_DIR, className);
-		logger.info("generate {}", path);
+		logger.info("generate {} {}", entryMap.size(), path);
 		try (IndentPrintWriter out = new IndentPrintWriter(new PrintWriter(path))) {
 			out.indent().println("package yokwe.security.japan.xbrl.taxonomy;");
 			out.indent().println();
@@ -49,36 +53,34 @@ public class GenerateTaxonomyClass {
 				String en        = entry.en;
 				String ja        = entry.ja;
 				
-				if (en == null) {
-					logger.error("en is null {} {}", className, name);
-					throw new UnexpectedException("en is null");
-				}
-				if (ja == null) {
-					logger.error("ja is null ja {} {}", className, name);
-					throw new UnexpectedException("ja is null");
-				}
-				
 				// AmountChangeGrossOperatingRevenues("AmountChangeGrossOperatingRevenues", "増減額", "Amount change"),
 				out.indent().format("%s (", constName).println();
 				out.nest();
 				out.indent().format("\"%s\", ", name).println();
-				out.indent().format("\"%s\", ",en).println();
-				out.indent().format("\"%s\"), ", ja).println();
+				
+				if (en == null) {
+					out.indent().println("null,");
+					logger.warn("en is null  {}", name);
+				} else {
+					out.indent().format("\"%s\", ", en).println();
+				}
+				if (ja == null) {
+					out.indent().println("null),");
+					logger.warn("ja is null  {}", name);
+				} else {
+					out.indent().format("\"%s\"), ", ja).println();
+				}
 				out.unnest();
 			}
 			out.indent().println(";");
 			out.indent().println();
 			
-			out.indent().println("public final String name;");
-			out.indent().println("public final String en;");
-			out.indent().println("public final String ja;");
+			out.indent().println("public final TaxonomyData data;");
 			out.indent().println();
 
 			out.indent().format("private %s(String name, String en, String ja) {", className).println();
 			out.nest();
-			out.indent().println("this.name = name;");
-			out.indent().println("this.en   = en;");
-			out.indent().println("this.ja   = ja;");
+			out.indent().println("this.data = new TaxonomyData(NAMESPACE, name, en, ja);");
 			out.indent().println();
 			out.indent().println("addNameMap(this);");
 			out.unnest();
@@ -86,7 +88,7 @@ public class GenerateTaxonomyClass {
 			out.indent().println();
 			
 			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
-			out.indent().println("public static final Map<String, TSE_ED_T> NAME_MAP = new TreeMap<>();");			
+			out.indent().format("public static final Map<String, %s> NAME_MAP = new TreeMap<>();", className).println();			
 			out.indent().format("public static final %s get(String name) {", className).println();
 			out.nest();
 			out.indent().println("if (NAME_MAP.containsKey(name)) {");
@@ -106,7 +108,7 @@ public class GenerateTaxonomyClass {
 			out.indent().format("private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(%s.class);", className).println();
 			out.indent().format("private static void addNameMap(%s e) {", className).println();
 			out.nest();
-			out.indent().println("NAME_MAP.put(e.name, e);");
+			out.indent().println("NAME_MAP.put(e.data.qName.value, e);");
 			out.unnest();
 			out.indent().println("}");
 
