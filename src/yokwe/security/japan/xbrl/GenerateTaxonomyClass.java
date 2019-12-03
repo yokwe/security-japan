@@ -38,14 +38,15 @@ public class GenerateTaxonomyClass {
 		try (IndentPrintWriter out = new IndentPrintWriter(new PrintWriter(path))) {
 			out.indent().println("package yokwe.security.japan.xbrl.taxonomy;");
 			out.indent().println();
-			out.indent().println("import java.util.Map;");
-			out.indent().println("import java.util.TreeMap;");
-			out.indent().println();
-			out.indent().println("import yokwe.UnexpectedException;");
+			out.indent().println("import java.util.Set;");
+			out.indent().println("import java.util.TreeSet;");
 			out.indent().println();
 
-			out.indent().format("public enum %s {", className).println();
+			out.indent().format("public class %s extends TaxonomyData {", className).println();
 			out.nest();
+			
+			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
+			out.indent().println();
 			
 			for(Entry entry: entryMap.values()) {
 				String name      = entry.name;
@@ -53,8 +54,7 @@ public class GenerateTaxonomyClass {
 				String en        = entry.en;
 				String ja        = entry.ja;
 				
-				// AmountChangeGrossOperatingRevenues("AmountChangeGrossOperatingRevenues", "増減額", "Amount change"),
-				out.indent().format("%s (", constName).println();
+				out.indent().format("public static final %s %s = new %s(", className, constName, className).println();
 				out.nest();
 				out.indent().format("\"%s\", ", name).println();
 				
@@ -65,50 +65,32 @@ public class GenerateTaxonomyClass {
 					out.indent().format("\"%s\", ", en).println();
 				}
 				if (ja == null) {
-					out.indent().println("null),");
+					out.indent().println("null);");
 					logger.warn("ja is null  {}", name);
 				} else {
-					out.indent().format("\"%s\"), ", ja).println();
+					out.indent().format("\"%s\");", ja).println();
 				}
 				out.unnest();
 			}
 			out.indent().println(";");
 			out.indent().println();
 			
-			out.indent().println("public final TaxonomyData data;");
-			out.indent().println();
-
 			out.indent().format("private %s(String name, String en, String ja) {", className).println();
 			out.nest();
-			out.indent().println("this.data = new TaxonomyData(NAMESPACE, name, en, ja);");
-			out.indent().println();
-			out.indent().println("addNameMap(this);");
+			out.indent().println("super(NAMESPACE, name, en, ja);");
 			out.unnest();
 			out.indent().println("}");
 			out.indent().println();
+						
+			out.indent().format("public static final Set<%s> ALL = new TreeSet<>();", className).println();
+			out.indent().println("static {");
+			out.nest();
 			
-			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
-			out.indent().format("public static final Map<String, %s> NAME_MAP = new TreeMap<>();", className).println();			
-			out.indent().format("public static final %s get(String name) {", className).println();
-			out.nest();
-			out.indent().println("if (NAME_MAP.containsKey(name)) {");
-			out.nest();
-			out.indent().println("return NAME_MAP.get(name);");
-			out.unnest();
-			out.indent().println("} else {");
-			out.nest();
-			out.indent().println("logger.error(\"no entry {} {}\", NAMESPACE, name);");
-			out.indent().println("throw new UnexpectedException(\"no entry\");");
-			out.unnest();
-			out.indent().println("}");
-			out.unnest();
-			out.indent().println("}");
-			out.indent().println();
-
-			out.indent().format("private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(%s.class);", className).println();
-			out.indent().format("private static void addNameMap(%s e) {", className).println();
-			out.nest();
-			out.indent().println("NAME_MAP.put(e.data.qName.value, e);");
+			for(Entry entry: entryMap.values()) {
+				String constName = entry.constName;
+				out.indent().format("ALL.add(%s);", constName).println();
+			}
+			
 			out.unnest();
 			out.indent().println("}");
 

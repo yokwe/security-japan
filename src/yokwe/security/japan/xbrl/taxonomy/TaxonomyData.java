@@ -6,11 +6,11 @@ import java.util.TreeMap;
 import yokwe.UnexpectedException;
 import yokwe.util.XMLUtil.QValue;
 
-public class TaxonomyData {
+public abstract class TaxonomyData implements Comparable<TaxonomyData> {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TaxonomyData.class);
     
     private static Map<QValue, TaxonomyData> all = new TreeMap<>();
-    private void add(TaxonomyData data) {
+    private static void add(TaxonomyData data) {
     	final QValue key = data.qName;
     	if (all.containsKey(key)) {
     		logger.error("Duplicate data {}", key);
@@ -26,7 +26,7 @@ public class TaxonomyData {
     	if (all.containsKey(key)) {
     		return all.get(key);
     	} else {
-    		logger.error("Duplicate data {}", key);
+    		logger.error("No data in all {}  {}", all.size(), key);
             throw new UnexpectedException("No data");
     	}
     }
@@ -41,7 +41,7 @@ public class TaxonomyData {
     public final String en;
     public final String ja;
     
-    public TaxonomyData(String namespace, String name, String en, String ja) {
+    protected TaxonomyData(String namespace, String name, String en, String ja) {
     	this.qName = new QValue(namespace, name);
     	this.en    = en;
     	this.ja    = ja;
@@ -53,4 +53,23 @@ public class TaxonomyData {
     public String toString() {
     	return String.format("{%s %s %s}", qName, en, ja);
     }
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		} else {
+			if (o instanceof TaxonomyData) {
+				TaxonomyData that = (TaxonomyData)o;
+				return this.qName.equals(that.qName) && this.en.equals(that.en) && this.ja.equals(that.ja);
+			} else {
+				return false;
+			}
+		}
+	}
+
+	@Override
+	public int compareTo(TaxonomyData that) {
+		return this.qName.compareTo(that.qName);
+	}
 }
