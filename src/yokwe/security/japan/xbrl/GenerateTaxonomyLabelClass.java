@@ -12,8 +12,8 @@ import yokwe.UnexpectedException;
 import yokwe.util.IndentPrintWriter;
 import yokwe.util.StringUtil;
 
-public class GenerateTaxonomyClass {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateTaxonomyClass.class);
+public class GenerateTaxonomyLabelClass {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateTaxonomyLabelClass.class);
 	
 	private static final String PATH_DIR = "src/yokwe/security/japan/xbrl/taxonomy";
 	
@@ -42,7 +42,7 @@ public class GenerateTaxonomyClass {
 			out.indent().println("import java.util.TreeSet;");
 			out.indent().println();
 
-			out.indent().format("public class %s extends TaxonomyData {", className).println();
+			out.indent().format("public class %s extends LabelData {", className).println();
 			out.nest();
 			
 			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
@@ -172,7 +172,7 @@ public class GenerateTaxonomyClass {
 			
 			if (!classNameMap.containsKey(namespace)) continue;
 			
-			final String className = classNameMap.get(namespace);
+			final String className = classNameMap.get(namespace) + "_LABEL";
 			
 			generateClass(namespace, className, entryMap);
 		}
