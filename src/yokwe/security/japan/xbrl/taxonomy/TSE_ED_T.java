@@ -3048,14 +3048,10 @@ public enum TSE_ED_T {
         "期末"), 
     ;
     
-    public final String name;
-    public final String en;
-    public final String ja;
+    public final TaxonomyData data;
     
     private TSE_ED_T(String name, String en, String ja) {
-        this.name = name;
-        this.en   = en;
-        this.ja   = ja;
+        this.data = new TaxonomyData(NAMESPACE, name, en, ja);
         
         addNameMap(this);
     }
@@ -3073,6 +3069,6 @@ public enum TSE_ED_T {
     
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TSE_ED_T.class);
     private static void addNameMap(TSE_ED_T e) {
-        NAME_MAP.put(e.name, e);
+        NAME_MAP.put(e.data.qName.value, e);
     }
 }
