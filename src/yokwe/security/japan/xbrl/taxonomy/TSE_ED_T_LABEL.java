@@ -6,6 +6,8 @@ import java.util.TreeSet;
 public class TSE_ED_T_LABEL extends LabelData {
     public static final String NAMESPACE = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/ed/t/2014-01-12";
     
+    public static void init() {}
+    
     public static final TSE_ED_T_LABEL AMOUNT_CHANGE_GROSS_OPERATING_REVENUES = new TSE_ED_T_LABEL(
         "AmountChangeGrossOperatingRevenues", 
         "Amount change", 

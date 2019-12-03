@@ -48,6 +48,9 @@ public class GenerateTaxonomyLabelClass {
 			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
 			out.indent().println();
 			
+			out.indent().println("public static void init() {}");
+			out.indent().println();
+			
 			for(Entry entry: entryMap.values()) {
 				String name      = entry.name;
 				String constName = entry.constName;

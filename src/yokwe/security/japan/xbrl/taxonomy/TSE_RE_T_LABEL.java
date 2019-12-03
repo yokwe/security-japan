@@ -6,6 +6,8 @@ import java.util.TreeSet;
 public class TSE_RE_T_LABEL extends LabelData {
     public static final String NAMESPACE = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/re/t/2014-01-12";
     
+    public static void init() {}
+    
     public static final TSE_RE_T_LABEL AMOUNT_CHANGE_NET_INCOME = new TSE_RE_T_LABEL(
         "AmountChangeNetIncome", 
         "Amount change", 
