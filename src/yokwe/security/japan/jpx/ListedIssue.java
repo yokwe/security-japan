@@ -1,5 +1,8 @@
 package yokwe.security.japan.jpx;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import yokwe.util.CSVUtil;
@@ -13,6 +16,16 @@ public class ListedIssue implements Comparable<ListedIssue> {
 	
 	public static List<ListedIssue> load() {
 		return CSVUtil.read(ListedIssue.class).file(PATH_DATA);
+	}
+	public static void save(Collection<ListedIssue> collection) {
+		save(new ArrayList<>(collection));
+	}
+	public static void save(List<ListedIssue> list) {
+		if (list.isEmpty()) return;
+		
+		// Sort before save
+		Collections.sort(list);
+		CSVUtil.write(ListedIssue.class).file(PATH_DATA, list);
 	}
 
 	@CSVUtil.ColumnName("日付")
@@ -51,6 +64,22 @@ public class ListedIssue implements Comparable<ListedIssue> {
 			return String.format("%s %s %s %s", date, stockCode, name, market);
 		} else {
 			return String.format("%s %s %s %s %s %s %s %s %s %s", date, stockCode, name, market, sector33Code, sector33, sector17Code, sector17, scale, scaleCode);
+		}
+	}
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) return false;
+		if (o instanceof ListedIssue) {
+			ListedIssue that = (ListedIssue)o;
+			return this.date.equals(that.date) &&
+					this.stockCode.equals(that.stockCode) &&
+					this.name.equals(that.name) &&
+					this.market.equals(that.market) &&
+					this.sector33.equals(that.sector33) && this.sector33Code.equals(that.sector33Code) &&
+					this.sector17.equals(that.sector17) && this.sector17Code.equals(that.sector17Code) &&
+					this.scale.equals(that.scale) && this.scaleCode.equals(that.scaleCode);
+		} else {
+			return false;
 		}
 	}
 
