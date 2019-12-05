@@ -1,5 +1,7 @@
 package yokwe.security.japan.jpx;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,10 @@ public class Price implements Comparable<Price> {
 	public static List<Price> load(String stockCode) {
 		String path = getPath(stockCode);
 		return CSVUtil.read(Price.class).file(path);
+	}
+	
+	public static void save(Collection<Price> collection) {
+		save(new ArrayList<>(collection));
 	}
 	public static void save(List<Price> list) {
 		if (list.isEmpty()) return;
@@ -78,6 +84,17 @@ public class Price implements Comparable<Price> {
 	@Override
 	public String toString() {
 		return String.format("%s %s %.1f %.1f %.1f %.1f %d", date, stockCode, open, high, low, close, volume);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) return false;
+		if (o instanceof Price) {
+			Price that = (Price)o;
+			return this.compareTo(that) == 0;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override
