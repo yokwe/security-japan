@@ -367,6 +367,11 @@ public class UpdateStockPrice {
 			}
 		}
 		
+		// Sort list
+		Collections.sort(listNotExist);
+		Collections.sort(listNoData);
+		Collections.sort(listEmpty);
+		
 		logger.info("----", countTotal);
 		logger.info("countTotal   {}", countTotal);
 		logger.info("countUpdate  {}", countUpdate);
