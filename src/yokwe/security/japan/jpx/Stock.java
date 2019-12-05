@@ -1,5 +1,7 @@
 package yokwe.security.japan.jpx;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,9 @@ public class Stock implements Comparable<Stock> {
 
 	public static List<Stock> load() {
 		return CSVUtil.read(Stock.class).file(PATH_DATA);
+	}
+	public static void save(Collection<Stock> collection) {
+		save(new ArrayList<>(collection));
 	}
 	public static void save(List<Stock> list) {
 		// Sort before save
