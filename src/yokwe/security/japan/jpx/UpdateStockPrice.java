@@ -2,7 +2,7 @@ package yokwe.security.japan.jpx;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -382,12 +382,11 @@ public class UpdateStockPrice {
 		List<ListedIssue> list = ListedIssue.load();
 		logger.info("list {}", list.size());
 		
+		// Randomize order of list
+		Collections.shuffle(list);
+
 		// update stock and price
-		{
-			// Randomize order of list with HashSet
-			List<ListedIssue> newList = new ArrayList<>(new HashSet<>(list));
-			updateStockPrice(newList);
-		}
+		updateStockPrice(list);
 		
 		logger.info("STOP");
 		System.exit(0);
