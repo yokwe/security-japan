@@ -250,6 +250,7 @@ public class UpdateStockPrice {
 		logger.info("lastTradingDate {}", lastTradingDate);
 		
 		int count        = 0;
+		int countUpdate  = 0;
 		int countAlready = 0;
 		int countTotal   = list.size();
 		
@@ -334,6 +335,7 @@ public class UpdateStockPrice {
 				}
 				
 				Price.save(newPriceMap.values());
+				countUpdate++;
 			}
 			
 			// Update newStockMap
@@ -343,29 +345,31 @@ public class UpdateStockPrice {
 			}
 		}
 		
-
 		// Update stock
 		{
-			Map<String, Stock> oldStockMap = Stock.getStockMap();
-			logger.info("----", countTotal);
-			logger.info("oldStockMap   {}", oldStockMap.size());
-			logger.info("newStockMap   {}", newStockMap.size());
-			
-			// update newStockMap with key of oldStockMap
-			for(String stockCode: oldStockMap.keySet()) {
-				Stock oldStock = oldStockMap.get(stockCode);
-				if (newStockMap.containsKey(stockCode)) {
-					//
-				} else {
-					newStockMap.put(stockCode, oldStock);
+			if (countUpdate != 0) {
+				Map<String, Stock> oldStockMap = Stock.getStockMap();
+				logger.info("----", countTotal);
+				logger.info("oldStockMap   {}", oldStockMap.size());
+				logger.info("newStockMap   {}", newStockMap.size());
+				
+				// update newStockMap with key of oldStockMap
+				for(String stockCode: oldStockMap.keySet()) {
+					Stock oldStock = oldStockMap.get(stockCode);
+					if (newStockMap.containsKey(stockCode)) {
+						//
+					} else {
+						newStockMap.put(stockCode, oldStock);
+					}
 				}
+				logger.info("newStockMap   {}", newStockMap.size());
+				Stock.save(newStockMap.values());
 			}
-			logger.info("newStockMap   {}", newStockMap.size());
-			Stock.save(newStockMap.values());
 		}
 		
 		logger.info("----", countTotal);
 		logger.info("countTotal   {}", countTotal);
+		logger.info("countUpdate  {}", countUpdate);
 		logger.info("countAlready {}", countAlready);
 		logger.info("listNotExist {} {}", listNotExist.size(), listNotExist);
 		logger.info("listNoData   {} {}", listNoData.size(), listNoData);
