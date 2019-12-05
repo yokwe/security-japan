@@ -309,7 +309,7 @@ public class UpdateStockPrice {
 				logger.warn("priceMap contains no lastStradingDate data  {}", stockCode);
 				
 				if (MAX_COUNT_NO_DATA <= listNoData.size()) {
-					logger.warn("priceMap contains no lastStradingDate data  {}", listNoData.size());
+					logger.warn("MAX_COUNT_NO_DATA <= listNoData.size()  {}", listNoData.size());
 					return;
 				}
 				continue;
