@@ -3,15 +3,15 @@ package yokwe.security.japan.jpx;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
+import yokwe.util.HashCode;
 import yokwe.util.HttpUtil;
+import yokwe.util.StringUtil;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -58,14 +58,28 @@ public class UpdateListedIssue {
 		public String scale;
 	}
 
-
-	public static void main(String[] args) {
-		logger.info("START");
-		
+	
+	private static void processRequest() {
 		logger.info("download {}", ListedIssue.URL_DOWNLOAD);
 		HttpUtil http = HttpUtil.getInstance().withRawData(true);
 		HttpUtil.Result result = http.download(ListedIssue.URL_DOWNLOAD);
 		
+		// Check file and download contents
+		{
+			File file = new File(ListedIssue.PATH_DOWNLOAD);
+			if (file.exists()) {
+				final String hashOfDownload       = StringUtil.toHexString(HashCode.getHashCode(result.rawData));
+				final String hashOfDownlaodedFile = StringUtil.toHexString(HashCode.getHashCode(new File(ListedIssue.PATH_DOWNLOAD)));
+
+				if (hashOfDownlaodedFile.equals(hashOfDownload)) {
+					logger.info("Download same contents {}", hashOfDownload);
+					logger.info("  download  {}  {}", result.rawData.length, hashOfDownload);
+					logger.info("  file      {}  {}", file.length(), hashOfDownlaodedFile);
+					return;
+				}
+			}
+		}
+
 		logger.info("write {} {}", ListedIssue.PATH_DOWNLOAD, result.rawData.length);
 		FileUtil.rawWrite().file(ListedIssue.PATH_DOWNLOAD, result.rawData);
 		
@@ -109,12 +123,39 @@ public class UpdateListedIssue {
 				newList.add(newValue);
 			}
 			
-			// Sort before write
-			Collections.sort(newList);
+			// Sanity check
+			if (newList.isEmpty()) {
+				logger.error("Empty data");
+				throw new UnexpectedException("Empty data");
+			}
 			
-			logger.info("write {} {}", ListedIssue.PATH_DATA, newList.size());
-			CSVUtil.write(ListedIssue.class).file(ListedIssue.PATH_DATA, newList);
+			// Save if necessary
+			{
+				boolean sameData = false;
+				String  newDate  = newList.get(0).date;
+				
+				List<ListedIssue> oldList = ListedIssue.load();
+				if (oldList == null) {
+					sameData = false;
+				} else {
+					String oldDate = oldList.get(0).date;
+					sameData = newDate.equals(oldDate);
+				}
+				
+				if (sameData) {
+					logger.warn("same data  {}  {}", newDate, newList.size());
+				} else {
+					logger.info("write {}  {}  {}", newDate, newList.size(), ListedIssue.PATH_DATA);
+					ListedIssue.save(newList);
+				}
+			}
 		}
+	}
+
+	public static void main(String[] args) {
+		logger.info("START");
+		
+		processRequest();
 		
 		logger.info("STOP");
 		System.exit(0);
