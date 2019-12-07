@@ -66,6 +66,7 @@ public class UpdateListedIssue {
 		
 		// Check file and download contents
 		{
+			boolean needsWrite = true;
 			File file = new File(ListedIssue.PATH_DOWNLOAD);
 			if (file.exists()) {
 				final String hashOfDownload       = StringUtil.toHexString(HashCode.getHashCode(result.rawData));
@@ -75,14 +76,18 @@ public class UpdateListedIssue {
 					logger.info("Download same contents {}", hashOfDownload);
 					logger.info("  download  {}  {}", result.rawData.length, hashOfDownload);
 					logger.info("  file      {}  {}", file.length(), hashOfDownlaodedFile);
-					return;
+					
+					// if file and download has same contents, no needs to write
+					needsWrite = false;
 				}
+			}
+			
+			if (needsWrite) {
+				logger.info("write {} {}", ListedIssue.PATH_DOWNLOAD, result.rawData.length);
+				FileUtil.rawWrite().file(ListedIssue.PATH_DOWNLOAD, result.rawData);
 			}
 		}
 
-		logger.info("write {} {}", ListedIssue.PATH_DOWNLOAD, result.rawData.length);
-		FileUtil.rawWrite().file(ListedIssue.PATH_DOWNLOAD, result.rawData);
-		
 		String url;
 		try {
 			url = new File(ListedIssue.PATH_DOWNLOAD).toURI().toURL().toString();
@@ -93,12 +98,14 @@ public class UpdateListedIssue {
 		}
 		logger.info("open {}", url);
 		
+		List<ListedIssue> newList = new ArrayList<>();
+		
+		// Build newList
 		try (SpreadSheet docListedIssue = new SpreadSheet(url, true)) {
 			List<RawData> rawDataList = Sheet.extractSheet(docListedIssue, RawData.class);
 			logger.info("read {}", rawDataList.size());
 			
 			// Trim space
-			List<ListedIssue> newList = new ArrayList<>(rawDataList.size());
 			for(RawData value: rawDataList) {
 				ListedIssue newValue = new ListedIssue();
 				
@@ -138,6 +145,7 @@ public class UpdateListedIssue {
 				if (oldList == null) {
 					sameData = false;
 				} else {
+					// check date of first data
 					String oldDate = oldList.get(0).date;
 					sameData = newDate.equals(oldDate);
 				}
