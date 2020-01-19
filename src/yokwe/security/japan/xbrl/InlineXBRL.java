@@ -259,26 +259,68 @@ public abstract class InlineXBRL {
 
 		// ixt:numdotdecimal は 999,000.00
 		public final String     unitRef;
-		public final String     decimals; // 値の精度情報　3 => 0.001刻み  0 => 1刻み  -3 => 1,000刻み
-		public final String     scale;    // 値の意味　6 => 1の値は1,000,000を意味する, -2 => 1の値は0.01を意味する
-		public final String     sign;
+		public final int        decimals; // 値の精度情報　3 => 0.001刻み  0 => 1刻み  -3 => 1,000刻み
+		public final int        scale;    // 値の意味　6 => 1の値は1,000,000を意味する, -2 => 1の値は0.01を意味する
 		public final boolean    isMinus;
 		public final BigDecimal numericValue;
+		public final BigDecimal unitValue;
+		
 		
 		public NumberValue(XMLElement xmlElement) {
 			super(Kind.NUMBER, xmlElement);
 			this.unitRef  = xmlElement.getAttribute("unitRef");
-			this.decimals = xmlElement.getAttributeOrNull("decimals");
-			this.scale    = xmlElement.getAttributeOrNull("scale");
-			this.sign     = xmlElement.getAttributeOrNull("sign");
-			this.isMinus  = sign != null && sign.equals("-");
 			
+			if (isNull) {
+				decimals     = 0;
+				scale        = 0;
+				isMinus      = false;
+				numericValue = null;
+				unitValue    = null;
+				logger.info("NumberValue  {}!{}!", "*NULL*", unitRef);
+			} else {
+				final String decimalsString = xmlElement.getAttribute("decimals");
+				final String scaleString    = xmlElement.getAttribute("scale");
+				final String signString     = xmlElement.getAttributeOrNull("sign");
+
+				decimals = Integer.parseInt(decimalsString);
+				scale    = Integer.parseInt(scaleString);
+
+				if (signString == null) {
+					isMinus = false;
+				} else {
+					switch(signString) {
+					case "-":
+						isMinus = true;
+						break;
+					default:
+						logger.error("Unexpected signString {}!", signString);
+						logger.error("xmlElement {}!", xmlElement);
+						throw new UnexpectedException("Unexpected attribute");
+					}
+				}
+				
+				{
+					// Remove comma
+					final String valueString = value.replace(",", "");
+					BigDecimal value = new BigDecimal(valueString);
+					if (isMinus) {
+						value = value.negate();
+					}
+					value = value.scaleByPowerOfTen(scale);
+					numericValue = value;
+				}
+				
+				unitValue = BigDecimal.ONE.scaleByPowerOfTen(-decimals);
+				
+				logger.info("NumberValue  {}!{}!{}!{}!{}!{}!", numericValue, unitValue, unitRef, value, decimals, scale);
+			}
+		
 			// unitRef "Pure" means number has no unit
 			// unitRef "JPY" means number is Japanese Yen
 			// unitRef "JPYPerShares" means number is Japanese Yen price per one share.
 			
 			// TODO calculate numericValue from value, scale and sign
-			this.numericValue = null;
+			
 			
 			// Sanity check
 			// Sanity check
@@ -295,18 +337,10 @@ public abstract class InlineXBRL {
 			if (isNull) {
 				return String.format("{NUMBER %s %s %s *NULL*}", name, contextRef, unitRef);
 			} else {
-				if (sign == null) {
-					if (format == null) {
-						return String.format("{NUMBER %s %s %s %s *NULL* %s %s}", name, contextRef, unitRef, value, decimals, scale);
-					} else {
-						return String.format("{NUMBER %s %s %s %s %s %s %s}", name, contextRef, unitRef, value, format, decimals, scale);
-					}
+				if (isMinus) {
+					return String.format("{NUMBER %s %s %s %s %s %s %s *MINUS*}", name, contextRef, unitRef, value, format, decimals, scale);
 				} else {
-					if (isMinus) {
-						return String.format("{NUMBER %s %s %s %s %s %s %s *MINUS*}", name, contextRef, unitRef, value, format, decimals, scale);
-					} else {
-						return String.format("{NUMBER %s %s %s %s %s %s %s}", name, contextRef, unitRef, value, format, decimals, scale);
-					}
+					return String.format("{NUMBER %s %s %s %s %s %s %s}", name, contextRef, unitRef, value, format, decimals, scale);
 				}
 			}
 		}
