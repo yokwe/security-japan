@@ -262,8 +262,9 @@ public abstract class InlineXBRL {
 		public final int        decimals; // 値の精度情報　3 => 0.001刻み  0 => 1刻み  -3 => 1,000刻み
 		public final int        scale;    // 値の意味　6 => 1の値は1,000,000を意味する, -2 => 1の値は0.01を意味する
 		public final boolean    isMinus;
-		public final BigDecimal numericValue;
-		public final BigDecimal unitValue;
+		public final BigDecimal unscaledValue;
+		public final BigDecimal scaledValue;
+		public final BigDecimal precision;
 		
 		
 		public NumberValue(XMLElement xmlElement) {
@@ -271,11 +272,12 @@ public abstract class InlineXBRL {
 			this.unitRef  = xmlElement.getAttribute("unitRef");
 			
 			if (isNull) {
-				decimals     = 0;
-				scale        = 0;
-				isMinus      = false;
-				numericValue = null;
-				unitValue    = null;
+				decimals      = 0;
+				scale         = 0;
+				isMinus       = false;
+				unscaledValue = null;
+				scaledValue   = null;
+				precision     = null;
 				logger.info("NumberValue  {}!{}!", "*NULL*", unitRef);
 			} else {
 				final String decimalsString = xmlElement.getAttribute("decimals");
@@ -299,30 +301,17 @@ public abstract class InlineXBRL {
 					}
 				}
 				
-				{
-					// Remove comma
-					final String valueString = value.replace(",", "");
-					BigDecimal value = new BigDecimal(valueString);
-					if (isMinus) {
-						value = value.negate();
-					}
-					value = value.scaleByPowerOfTen(scale);
-					numericValue = value;
+				// Remove comma
+				unscaledValue = new BigDecimal(value.replace(",", ""));
+				if (isMinus) {
+					scaledValue = unscaledValue.scaleByPowerOfTen(scale).negate();
+				} else {
+					scaledValue = unscaledValue.scaleByPowerOfTen(scale);
 				}
 				
-				unitValue = BigDecimal.ONE.scaleByPowerOfTen(-decimals);
-				
-				logger.info("NumberValue  {}!{}!{}!{}!{}!{}!", numericValue, unitValue, unitRef, value, decimals, scale);
+				precision = BigDecimal.valueOf(1, decimals);
 			}
 		
-			// unitRef "Pure" means number has no unit
-			// unitRef "JPY" means number is Japanese Yen
-			// unitRef "JPYPerShares" means number is Japanese Yen price per one share.
-			
-			// TODO calculate numericValue from value, scale and sign
-			
-			
-			// Sanity check
 			// Sanity check
 			for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
 				QValue value = new QValue(xmlAttribute);
@@ -337,11 +326,7 @@ public abstract class InlineXBRL {
 			if (isNull) {
 				return String.format("{NUMBER %s %s %s *NULL*}", name, contextRef, unitRef);
 			} else {
-				if (isMinus) {
-					return String.format("{NUMBER %s %s %s %s %s %s %s *MINUS*}", name, contextRef, unitRef, value, format, decimals, scale);
-				} else {
-					return String.format("{NUMBER %s %s %s %s %s %s %s}", name, contextRef, unitRef, value, format, decimals, scale);
-				}
+				return String.format("{NUMBER %s %s %s %s %s}", name, contextRef, unitRef, scaledValue, precision);
 			}
 		}
 	}
