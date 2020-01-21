@@ -1,6 +1,7 @@
 package yokwe.security.japan.xbrl;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -124,7 +125,8 @@ public abstract class InlineXBRL {
 	public final Kind       kind;
 	public final XMLElement xmlElement;
 	
-	public final String  contextRef;
+	public final Set<String> contextSet;
+	
 	public final String  name;
 	public final String  format;
 	public final String  value;
@@ -136,12 +138,16 @@ public abstract class InlineXBRL {
 		this.kind         = kind;
 		this.xmlElement   = xmlElement;
 		
-		this.contextRef   = xmlElement.getAttribute("contextRef");
-		this.name         = xmlElement.getAttribute("name");
-		this.format       = xmlElement.getAttributeOrNull("format");
-		this.value        = xmlElement.content;
+		{
+			String contextRef = xmlElement.getAttribute("contextRef");
+			this.contextSet = new TreeSet<>(Arrays.asList(contextRef.split("_")));
+		}
 		
-		this.qName        = new QValue(xmlElement, this.name);
+		this.name   = xmlElement.getAttribute("name");
+		this.format = xmlElement.getAttributeOrNull("format");
+		this.value  = xmlElement.content;
+		
+		this.qName  = new QValue(xmlElement, this.name);
 		
 		// check nil
 		String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL);
@@ -152,9 +158,9 @@ public abstract class InlineXBRL {
 			case "true":
 				this.isNull = true;
 				break;
-			case "false":
-				this.isNull = false;
-				break;
+//			case "false":
+//				this.isNull = false;
+//				break;
 			default:
 				logger.error("Unexpected nilValue {}!", nilValue);
 				throw new UnexpectedException("Unexpected nilValue");
@@ -195,15 +201,15 @@ public abstract class InlineXBRL {
 		public String toString() {
 			if (isNull) {
 				if (format == null) {
-					return String.format("{STRING %s %s *NULL*}", name, contextRef);
+					return String.format("{STRING %s %s *NULL*}", name, contextSet);
 				} else {
-					return String.format("{STRING %s %s %s *NULL*}", name, contextRef, format);
+					return String.format("{STRING %s %s %s *NULL*}", name, contextSet, format);
 				}
 			} else {
 				if (format == null) {
-					return String.format("{STRING %s %s \"%s\"}", name, contextRef, stringValue);
+					return String.format("{STRING %s %s \"%s\"}", name, contextSet, stringValue);
 				} else {
-					return String.format("{STRING %s %s %s \"%s\"", name, contextRef, format, stringValue);
+					return String.format("{STRING %s %s %s \"%s\"", name, contextSet, format, stringValue);
 				}
 			}
 		}
@@ -237,9 +243,9 @@ public abstract class InlineXBRL {
 		@Override
 		public String toString() {
 			if (isNull) {
-				return String.format("{BOOLEAN %s %s *NULL*}", name, contextRef);
+				return String.format("{BOOLEAN %s %s *NULL*}", name, contextSet);
 			} else {
-				return String.format("{BOOLEAN %s %s %s}", name, contextRef, booleanValue);
+				return String.format("{BOOLEAN %s %s %s}", name, contextSet, booleanValue);
 			}
 		}
 	}
@@ -278,7 +284,6 @@ public abstract class InlineXBRL {
 				unscaledValue = null;
 				scaledValue   = null;
 				precision     = null;
-				logger.info("NumberValue  {}!{}!", "*NULL*", unitRef);
 			} else {
 				final String decimalsString = xmlElement.getAttribute("decimals");
 				final String scaleString    = xmlElement.getAttribute("scale");
@@ -324,9 +329,9 @@ public abstract class InlineXBRL {
 		@Override
 		public String toString() {
 			if (isNull) {
-				return String.format("{NUMBER %s %s %s *NULL*}", name, contextRef, unitRef);
+				return String.format("{NUMBER %s %s %s *NULL*}", name, contextSet, unitRef);
 			} else {
-				return String.format("{NUMBER %s %s %s %s %s}", name, contextRef, unitRef, scaledValue, precision);
+				return String.format("{NUMBER %s %s %s %s %s}", name, contextSet, unitRef, scaledValue, precision);
 			}
 		}
 	}
