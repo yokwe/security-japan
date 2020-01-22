@@ -274,7 +274,6 @@ public abstract class InlineXBRL {
 		public final BigDecimal numberValue;
 		public final BigDecimal precision;
 		
-		
 		public NumberValue(XMLElement xmlElement) {
 			super(Kind.NUMBER, xmlElement);
 			this.unitRef  = xmlElement.getAttribute("unitRef");
@@ -335,6 +334,40 @@ public abstract class InlineXBRL {
 			} else {
 				return String.format("{NUMBER %s %s %s %s %s}", name, contextSet, unitRef, numberValue, precision);
 			}
+		}
+	}
+	
+	public String getStringValue() {
+		if (kind == Kind.STRING) {
+			if (isNull) return null;
+			
+			InlineXBRL.StringValue stringValue = (InlineXBRL.StringValue)this;
+			return stringValue.stringValue;
+		} else {
+			logger.error("Unexpected kind {} {}", Kind.STRING, this);
+			throw new UnexpectedException("Unexpected kind");
+		}
+	}
+	public Boolean getBooleanValue() {
+		if (kind == Kind.BOOLEAN) {
+			if (isNull) return null;
+			
+			InlineXBRL.BooleanValue booleanValue = (InlineXBRL.BooleanValue)this;
+			return booleanValue.booleanValue;
+		} else {
+			logger.error("Unexpected kind {} {}", Kind.BOOLEAN, this);
+			throw new UnexpectedException("Unexpected kind");
+		}
+	}
+	public BigDecimal getNumberValue() {
+		if (kind == Kind.NUMBER) {
+			if (isNull) return null;
+			
+			InlineXBRL.NumberValue numberValue = (InlineXBRL.NumberValue)this;
+			return numberValue.numberValue;
+		} else {
+			logger.error("Unexpected kind {} {}", Kind.NUMBER, this);
+			throw new UnexpectedException("Unexpected kind");
 		}
 	}
 }
