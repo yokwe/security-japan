@@ -2,6 +2,7 @@ package yokwe.security.japan.xbrl;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -140,7 +141,8 @@ public abstract class InlineXBRL {
 		
 		{
 			String contextRef = xmlElement.getAttribute("contextRef");
-			this.contextSet = new TreeSet<>(Arrays.asList(contextRef.split("_")));
+			TreeSet<String> set = new TreeSet<>(Arrays.asList(contextRef.split("_")));
+			this.contextSet = Collections.unmodifiableSet(set);
 		}
 		
 		this.name   = xmlElement.getAttribute("name");
