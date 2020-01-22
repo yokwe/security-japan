@@ -1,6 +1,7 @@
 package yokwe.security.japan.xbrl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -77,19 +78,19 @@ public class InlineXBRLMap {
 	}
 
 	private static class ContextFilter implements Predicate<InlineXBRL>  {
-		private final String contextName;
-		private ContextFilter(String contextName) {
-			this.contextName = contextName;
+		private final List<String> contextList;
+		private ContextFilter(String... contextNames) {
+			this.contextList = Arrays.asList(contextNames);
 		}
 		
 		@Override
 		public boolean test(InlineXBRL ix) {
-			return ix.contextSet.contains(contextName);
+			return ix.contextSet.containsAll(contextList);
 		}
 	}
 	
-	public static Predicate<InlineXBRL> contextFilter(String contextName) {
-		return new ContextFilter(contextName);
+	public static Predicate<InlineXBRL> contextFilter(String... contextNames) {
+		return new ContextFilter(contextNames);
 	}
 	
 	public static boolean booleanFilter(InlineXBRL ix) {
