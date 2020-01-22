@@ -271,7 +271,7 @@ public abstract class InlineXBRL {
 		public final int        scale;    // 値の意味　6 => 1の値は1,000,000を意味する, -2 => 1の値は0.01を意味する
 		public final boolean    isMinus;
 		public final BigDecimal unscaledValue;
-		public final BigDecimal scaledValue;
+		public final BigDecimal numberValue;
 		public final BigDecimal precision;
 		
 		
@@ -284,7 +284,7 @@ public abstract class InlineXBRL {
 				scale         = 0;
 				isMinus       = false;
 				unscaledValue = null;
-				scaledValue   = null;
+				numberValue   = null;
 				precision     = null;
 			} else {
 				final String decimalsString = xmlElement.getAttribute("decimals");
@@ -311,9 +311,9 @@ public abstract class InlineXBRL {
 				// Remove comma
 				unscaledValue = new BigDecimal(value.replace(",", ""));
 				if (isMinus) {
-					scaledValue = unscaledValue.scaleByPowerOfTen(scale).negate();
+					numberValue = unscaledValue.scaleByPowerOfTen(scale).negate();
 				} else {
-					scaledValue = unscaledValue.scaleByPowerOfTen(scale);
+					numberValue = unscaledValue.scaleByPowerOfTen(scale);
 				}
 				
 				precision = BigDecimal.valueOf(1, decimals);
@@ -333,7 +333,7 @@ public abstract class InlineXBRL {
 			if (isNull) {
 				return String.format("{NUMBER %s %s %s *NULL*}", name, contextSet, unitRef);
 			} else {
-				return String.format("{NUMBER %s %s %s %s %s}", name, contextSet, unitRef, scaledValue, precision);
+				return String.format("{NUMBER %s %s %s %s %s}", name, contextSet, unitRef, numberValue, precision);
 			}
 		}
 	}
