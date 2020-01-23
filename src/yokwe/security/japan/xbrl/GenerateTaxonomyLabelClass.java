@@ -57,26 +57,31 @@ public class GenerateTaxonomyLabelClass {
 				String en        = entry.en;
 				String ja        = entry.ja;
 				
-				out.indent().format("public static final %s %s = new %s(", className, constName, className).println();
-				out.nest();
-				out.indent().format("\"%s\", ", name).println();
+				String nameValue = String.format("\"%s\"", name);
+				String enValue = (en == null) ? "null" : String.format("\"%s\"", en);
+				String jaValue = (ja == null) ? "null" : String.format("\"%s\"", ja);
 				
-				if (en == null) {
-					out.indent().println("null,");
-					logger.warn("en is null  {}", name);
-				} else {
-					out.indent().format("\"%s\", ", en).println();
-				}
-				if (ja == null) {
-					out.indent().println("null);");
-					logger.warn("ja is null  {}", name);
-				} else {
-					out.indent().format("\"%s\");", ja).println();
-				}
+				
+				out.indent().format("public static final String %s_NAME = %s;", constName, nameValue).println();
+				out.indent().format("public static final String %s_EN   = %s;", constName, enValue).println();
+				out.indent().format("public static final String %s_JA   = %s;", constName, jaValue).println();
+				out.indent().println();
+			}
+
+			for(Entry entry: entryMap.values()) {
+//				String name      = entry.name;
+				String constName = entry.constName;
+//				String en        = entry.en;
+//				String ja        = entry.ja;
+				
+				out.indent().format("public sttic final %s %s = new %s(", className, constName, className).println();
+				out.nest();
+				out.indent().format("%s_NAME,", constName).println();
+				out.indent().format("%s_EN,",   constName).println();
+				out.indent().format("%s_JA);",  constName).println();
+				out.indent().println();
 				out.unnest();
 			}
-			out.indent().println(";");
-			out.indent().println();
 			
 			out.indent().format("private %s(String name, String en, String ja) {", className).println();
 			out.nest();
@@ -151,7 +156,7 @@ public class GenerateTaxonomyLabelClass {
 				if (entry.ja == null) {
 					entry.ja = value;
 				} else {
-					logger.error("Duplcate lang ja {}", e);
+					logger.error("Duplcate lang ja {}cons", e);
 					throw new UnexpectedException("Duplcate lang");
 				}
 				break;
