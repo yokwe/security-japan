@@ -99,6 +99,10 @@ public abstract class BriefReport {
 						ValueInfo valueInfo = (ValueInfo)info;
 						
 						logger.info("valueInfo {}", valueInfo);
+						// Filter with context
+						if (ix.contextSet.containsAll(valueInfo.contextList)) {
+							logger.info("  {}", valueInfo);			
+						}
 					}
 					if (info instanceof ContextInfo) {
 						ContextInfo contextInfo = (ContextInfo)info;
