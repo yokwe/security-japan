@@ -32,25 +32,25 @@ public class DividendBriefReport extends BriefReport {
 	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PAYABLE_DATE_AS_PLANNED_NAME)
 	String dividendPayableDateAsPlanned;
 	
-	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PAYABLE_DATE_AS_PLANNED_NAME,
-			contexts = {"CurrentYearDuration", "ResultMember", "FirstQuaterMember"},
+	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PER_SHARE_NAME,
+			contexts = {"CurrentYearDuration", "ResultMember", "FirstQuarterMember"},
 			acceptNull = true)
-	double dividendPerShareQ1; // PriorYearDuration/CurrentYearDuration FirstQuaterMember/SecondQuaterMember/ThirdQuaterMember/YearEndMember/AnnualMember
+	double dividendPerShareQ1; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
-	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PAYABLE_DATE_AS_PLANNED_NAME,
-			contexts = {"CurrentYearDuration", "ResultMember", "SecondQuaterMember"},
+	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PER_SHARE_NAME,
+			contexts = {"CurrentYearDuration", "ResultMember", "SecondQuarterMember"},
 			acceptNull = true)
-	BigDecimal dividendPerShareQ2; // PriorYearDuration/CurrentYearDuration FirstQuaterMember/SecondQuaterMember/ThirdQuaterMember/YearEndMember/AnnualMember
+	BigDecimal dividendPerShareQ2; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
-	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PAYABLE_DATE_AS_PLANNED_NAME,
-			contexts = {"CurrentYearDuration", "ResultMember", "ThirdQuaterMember"},
+	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PER_SHARE_NAME,
+			contexts = {"CurrentYearDuration", "ResultMember", "ThirdQuarterMember"},
 			acceptNull = true)
-	BigDecimal dividendPerShareQ3; // PriorYearDuration/CurrentYearDuration FirstQuaterMember/SecondQuaterMember/ThirdQuaterMember/YearEndMember/AnnualMember
+	BigDecimal dividendPerShareQ3; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
-	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PAYABLE_DATE_AS_PLANNED_NAME,
+	@Value(name = TSE_ED_T_LABEL.DIVIDEND_PER_SHARE_NAME,
 			contexts = {"CurrentYearDuration", "ResultMember", "YearEndMember"},
 			acceptNull = true)
-	BigDecimal dividendPerShareQ4; // PriorYearDuration/CurrentYearDuration FirstQuaterMember/SecondQuaterMember/ThirdQuaterMember/YearEndMember/AnnualMember
+	BigDecimal dividendPerShareQ4; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
 	public static void main(String[] args) {
 		logger.info("START");
