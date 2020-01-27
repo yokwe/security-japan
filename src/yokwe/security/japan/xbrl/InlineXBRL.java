@@ -52,7 +52,7 @@ public abstract class InlineXBRL {
 			if (format == null) {
 				return new StringValue(xmlElement);
 			} else {
-				QValue qValue = new QValue(xmlElement, format);
+				QValue qValue = xmlElement.expandNamespacePrefix(format);
 				if (nonNumericBuilderMap.containsKey(qValue)) {
 					Builder builder = nonNumericBuilderMap.get(qValue);
 					return builder.getInstance(xmlElement);
@@ -81,7 +81,7 @@ public abstract class InlineXBRL {
 			if (format == null) {
 				return new NumberValue(xmlElement);
 			} else {
-				QValue qValue = new QValue(xmlElement, format);
+				QValue qValue = xmlElement.expandNamespacePrefix(format);
 				if (nonFractionalBuilderMap.containsKey(qValue)) {
 					Builder builder = nonFractionalBuilderMap.get(qValue);
 					return builder.getInstance(xmlElement);
@@ -149,7 +149,7 @@ public abstract class InlineXBRL {
 		this.format = xmlElement.getAttributeOrNull("format");
 		this.value  = xmlElement.content;
 		
-		this.qName  = new QValue(xmlElement, this.name);
+		this.qName  = xmlElement.expandNamespacePrefix(this.name);
 		
 		// check nil
 		String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL);
