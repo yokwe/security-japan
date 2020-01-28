@@ -1,16 +1,22 @@
 package yokwe.security.japan.xbrl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.xbrl.taxonomy.LabelData;
 import yokwe.util.XMLUtil.QValue;
 import yokwe.util.XMLUtil.XMLAttribute;
 import yokwe.util.XMLUtil.XMLElement;
@@ -368,6 +374,138 @@ public abstract class InlineXBRL {
 		} else {
 			logger.error("Unexpected kind {} {}", Kind.NUMBER, this);
 			throw new UnexpectedException("Unexpected kind");
+		}
+	}
+	
+	public static class QNameMap {
+		private static final List<InlineXBRL> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
+
+		private final List<InlineXBRL>              all;
+		private final Map<QValue, List<InlineXBRL>> map;
+		
+		private QNameMap(List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map) {
+			this.all = all;
+			this.map = map;
+		}
+
+		private static void buildMap(List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map, InlineXBRL ix) {
+			all.add(ix);
+			
+			QValue qName = ix.qName;
+			
+			List<InlineXBRL> list;
+			if (map.containsKey(qName)) {
+				list = map.get(qName);
+			} else {
+				list = new ArrayList<>();
+				map.put(qName, list);
+			}
+			list.add(ix);
+		}
+		
+		public static QNameMap getInstance(Stream<XMLElement> stream) {
+			List<InlineXBRL>              all = new ArrayList<>();
+			Map<QValue, List<InlineXBRL>> map = new TreeMap<>();
+			
+			stream.filter(InlineXBRL::canGetInstance).forEach(o -> buildMap(all, map, InlineXBRL.getInstance(o)));
+			
+			// Make unmodifiable element of map
+			Map<QValue, List<InlineXBRL>> map2 = new TreeMap<>();
+			for(Map.Entry<QValue, List<InlineXBRL>> entry: map.entrySet()) {
+				QValue key = entry.getKey();
+				List<InlineXBRL> value = entry.getValue();
+				map2.put(key, Collections.unmodifiableList(value));
+			}
+
+			return new QNameMap(Collections.unmodifiableList(all), Collections.unmodifiableMap(map2));
+		}
+
+		public List<InlineXBRL> getList() {
+			return all;
+		}
+		public Stream<InlineXBRL> getStream() {
+			return getList().stream();
+		}
+		
+		public List<InlineXBRL> getList(QValue qName) {
+			if (map.containsKey(qName)) {
+				return map.get(qName);
+			} else {
+				return EMPTY_LIST;
+			}
+		}
+		public Stream<InlineXBRL> getStream(QValue qName) {
+			List<InlineXBRL> list = getList(qName);
+			return list.stream();
+		}
+		
+		public List<InlineXBRL> getList(LabelData labelData) {
+			return getList(labelData.qName);
+		}
+		public Stream<InlineXBRL> getStream(LabelData labelData) {
+			List<InlineXBRL> list = getList(labelData);
+			return list.stream();
+		}
+	}
+	
+	private static class ContextFilter implements Predicate<InlineXBRL>  {
+		private final List<String> contextList;
+		private ContextFilter(Context... contexts) {
+			contextList = Arrays.stream(contexts).map(o -> o.toString()).collect(Collectors.toList());
+		}
+		
+		@Override
+		public boolean test(InlineXBRL ix) {
+			return ix.contextSet.containsAll(contextList);
+		}
+	}
+	
+	public static Predicate<InlineXBRL> contextFilter(Context... contexts) {
+		return new ContextFilter(contexts);
+	}
+	
+	public static boolean booleanFilter(InlineXBRL ix) {
+		return ix.kind == InlineXBRL.Kind.BOOLEAN;
+	}
+	public static boolean numberFilter(InlineXBRL ix) {
+		return ix.kind == InlineXBRL.Kind.NUMBER;
+	}
+	public static boolean stringFilter(InlineXBRL ix) {
+		return ix.kind == InlineXBRL.Kind.STRING;
+	}
+	public static boolean notNullFilter(InlineXBRL ix) {
+		return !ix.isNull;
+	}
+
+	public static enum Context {
+		ANNUAL_MEMBER                   ("AnnualMember"), 
+		CONSOLIDATED_MEMBER             ("ConsolidatedMember"), 
+		CURRENT_ACCUMULATED_Q_2_DURATION("CurrentAccumulatedQ2Duration"), 
+		CURRENT_ACCUMULATED_Q_2_INSTANT ("CurrentAccumulatedQ2Instant"), 
+		CURRENT_YEAR_DURATION           ("CurrentYearDuration"), 
+		CURRENT_YEAR_INSTANT            ("CurrentYearInstant"), 
+		FIRST_QUARTER_MEMBER            ("FirstQuarterMember"), 
+		FORECAST_MEMBER                 ("ForecastMember"), 
+		LOWER_MEMBER                    ("LowerMember"), 
+		NON_CONSOLIDATED_MEMBER         ("NonConsolidatedMember"), 
+		PRIOR_ACCUMULATED_Q_2_DURATION  ("PriorAccumulatedQ2Duration"), 
+		PRIOR_YEAR_DURATION             ("PriorYearDuration"), 
+		PRIOR_YEAR_INSTANT              ("PriorYearInstant"), 
+		RESULT_MEMBER                   ("ResultMember"), 
+		SECOND_QUARTER_MEMBER           ("SecondQuarterMember"), 
+		THIRD_QUARTER_MEMBER            ("ThirdQuarterMember"), 
+		UPPER_MEMBER                    ("UpperMember"), 
+		YEAR_END_MEMBER                 ("YearEndMember");
+		
+		public final String value;
+		
+		Context(String value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return value;
 		}
 	}
 }
