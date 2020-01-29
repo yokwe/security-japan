@@ -9,6 +9,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,7 @@ import yokwe.UnexpectedException;
 import yokwe.security.japan.xbrl.InlineXBRL.Context;
 import yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL;
 import yokwe.util.XMLUtil.QValue;
+import yokwe.util.XMLUtil.XMLElement;
 
 public abstract class BriefReport {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(BriefReport.class);
@@ -25,16 +27,15 @@ public abstract class BriefReport {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
 	public static @interface Value {
-		String    namespace()  default NAMESPACE;
-		String    name();
+		TSE_ED_T_LABEL label();
 		Context[] contextIncludeAll()   default {};
 		Context[] contextExcludeAny()   default {};
-		boolean   acceptNull() default false;
+		boolean   acceptNull()          default false;
 	}
 	// type of field can be InlineXBRL, String, Boolean, BigDecimal, boolean, int, long, float, double
 	
 	
-	public void init(InlineXBRL.Document ixDoc) {
+	protected void init(InlineXBRL.Document ixDoc) {
 		// TODO implement this
 		// use reflection to initialize annotated variable in class
 		for(Field field: this.getClass().getDeclaredFields()) {
@@ -69,14 +70,11 @@ public abstract class BriefReport {
 				
 				
 				Value annotation = field.getDeclaredAnnotation(Value.class);
-				String    namespace         = annotation.namespace();
-				String    name              = annotation.name();
+				QValue    qName             = annotation.label().qName;
 				Context[] contextIncludeAll = annotation.contextIncludeAll();
 				Context[] contextExcludeAny = annotation.contextExcludeAny();
 				boolean   acceptNull        = annotation.acceptNull();
 				
-				QValue    qName             = new QValue(namespace, name);
-
 				List<InlineXBRL> list = ixDoc.getStream(qName).filter(InlineXBRL.contextIncludeAll(contextIncludeAll)).filter(InlineXBRL.contextExcludeAny(contextExcludeAny)).collect(Collectors.toList());
 				int size = list.size();
 				
@@ -84,8 +82,8 @@ public abstract class BriefReport {
 					if (size == 0) {
 						// doesn't exist
 						logger.error("No matching entry");
-						logger.error("   namespace         {}", namespace);
-						logger.error("   name              {}", name);
+						logger.error("   namespace         {}", qName.namespace);
+						logger.error("   name              {}", qName.value);
 						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
 						throw new UnexpectedException("No matching entry");
@@ -97,8 +95,8 @@ public abstract class BriefReport {
 								
 								if (fieldIsPrimitive) {
 									logger.error("Field cannot be null {}", fieldTypeName);
-									logger.error("   namespace         {}", namespace);
-									logger.error("   name              {}", name);
+									logger.error("   namespace         {}", qName.namespace);
+									logger.error("   name              {}", qName.value);
 									logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 									logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
 									throw new UnexpectedException("Field cannot be null");
@@ -106,8 +104,8 @@ public abstract class BriefReport {
 								field.set(this, null);
 							} else {
 								logger.error("Entry is null");
-								logger.error("   namespace         {}", namespace);
-								logger.error("   name              {}", name);
+								logger.error("   namespace         {}", qName.namespace);
+								logger.error("   name              {}", qName.value);
 								logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 								logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
 								throw new UnexpectedException("Entry is null");
@@ -276,8 +274,8 @@ public abstract class BriefReport {
 					} else {
 						// multiple hit
 						logger.error("More than one matching entry");
-						logger.error("   namespace         {}", namespace);
-						logger.error("   name              {}", name);
+						logger.error("   namespace         {}", qName.namespace);
+						logger.error("   name              {}", qName.value);
 						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
 						for(int i = 0; i < list.size(); i++) {
@@ -292,6 +290,22 @@ public abstract class BriefReport {
 				}
 			}
 		}
+	}
 
+	public static <E extends BriefReport> E getInstance(Class<E> clazz, InlineXBRL.Document ixDoc) {
+		try {
+			E ret = clazz.newInstance();
+			ret.init(ixDoc);
+			return ret;
+		} catch (InstantiationException | IllegalAccessException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		}
+	}
+	
+	public static <E extends BriefReport> E getinstance(Class<E> clazz, Stream<XMLElement> stream) {
+		InlineXBRL.Document document = InlineXBRL.Document.getInstance(stream);
+		return getInstance(clazz, document);
 	}
 }
