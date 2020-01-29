@@ -22,21 +22,18 @@ import yokwe.util.XMLUtil.XMLElement;
 public abstract class BriefReport {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(BriefReport.class);
 
-	public static final String NAMESPACE = TSE_ED_T_LABEL.NAMESPACE;
-	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
 	public static @interface Value {
 		TSE_ED_T_LABEL label();
-		Context[] contextIncludeAll()   default {};
-		Context[] contextExcludeAny()   default {};
-		boolean   acceptNull()          default false;
+		Context[]      contextIncludeAll()   default {};
+		Context[]      contextExcludeAny()   default {};
+		boolean        acceptNull()          default false;
 	}
 	// type of field can be InlineXBRL, String, Boolean, BigDecimal, boolean, int, long, float, double
 	
 	
 	protected void init(InlineXBRL.Document ixDoc) {
-		// TODO implement this
 		// use reflection to initialize annotated variable in class
 		for(Field field: this.getClass().getDeclaredFields()) {
 			if (field.isAnnotationPresent(Value.class)) {
