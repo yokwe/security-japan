@@ -377,13 +377,13 @@ public abstract class InlineXBRL {
 		}
 	}
 	
-	public static class QNameMap {
+	public static class Document {
 		private static final List<InlineXBRL> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
 
 		private final List<InlineXBRL>              all;
 		private final Map<QValue, List<InlineXBRL>> map;
 		
-		private QNameMap(List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map) {
+		private Document(List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map) {
 			this.all = all;
 			this.map = map;
 		}
@@ -403,7 +403,7 @@ public abstract class InlineXBRL {
 			list.add(ix);
 		}
 		
-		public static QNameMap getInstance(Stream<XMLElement> stream) {
+		public static Document getInstance(Stream<XMLElement> stream) {
 			List<InlineXBRL>              all = new ArrayList<>();
 			Map<QValue, List<InlineXBRL>> map = new TreeMap<>();
 			
@@ -417,7 +417,7 @@ public abstract class InlineXBRL {
 				map2.put(key, Collections.unmodifiableList(value));
 			}
 
-			return new QNameMap(Collections.unmodifiableList(all), Collections.unmodifiableMap(map2));
+			return new Document(Collections.unmodifiableList(all), Collections.unmodifiableMap(map2));
 		}
 
 		public List<InlineXBRL> getList() {
@@ -446,6 +446,16 @@ public abstract class InlineXBRL {
 			List<InlineXBRL> list = getList(labelData);
 			return list.stream();
 		}
+		
+		private Set<String> contextSet = null;
+		public Set<String> getContextSet() {
+			if (contextSet == null) {
+				Set<String> set = new TreeSet<>();
+				getList().stream().forEach(o -> set.addAll(o.contextSet));
+				contextSet = Collections.unmodifiableSet(set);
+			}
+			return contextSet;
+		}
 	}
 	
 	private static class ContextFilter implements Predicate<InlineXBRL>  {
@@ -459,7 +469,6 @@ public abstract class InlineXBRL {
 			return ix.contextSet.containsAll(contextList);
 		}
 	}
-	
 	public static Predicate<InlineXBRL> contextFilter(Context... contexts) {
 		return new ContextFilter(contexts);
 	}
@@ -473,9 +482,26 @@ public abstract class InlineXBRL {
 	public static boolean stringFilter(InlineXBRL ix) {
 		return ix.kind == InlineXBRL.Kind.STRING;
 	}
-	public static boolean notNullFilter(InlineXBRL ix) {
-		return !ix.isNull;
+	
+	private static class NullFilter implements Predicate<InlineXBRL>  {
+		private final boolean canBeNull;
+		private NullFilter(boolean canBeNull) {
+			this.canBeNull = canBeNull;
+		}
+		
+		@Override
+		public boolean test(InlineXBRL ix) {
+			if (ix.isNull) {
+				return canBeNull ? true : false;
+			} else {
+				return true;
+			}
+		}
 	}
+	public static Predicate<InlineXBRL> nullFilter(boolean canBeNull) {
+		return new NullFilter(canBeNull);
+	}
+
 
 	public static enum Context {
 		ANNUAL_MEMBER                   ("AnnualMember"), 
