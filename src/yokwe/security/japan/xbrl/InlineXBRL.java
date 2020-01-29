@@ -458,9 +458,9 @@ public abstract class InlineXBRL {
 		}
 	}
 	
-	private static class ContextFilter implements Predicate<InlineXBRL>  {
+	private static class ContextIncludeAllFilter implements Predicate<InlineXBRL>  {
 		private final List<String> contextList;
-		private ContextFilter(Context... contexts) {
+		private ContextIncludeAllFilter(Context... contexts) {
 			contextList = Arrays.stream(contexts).map(o -> o.toString()).collect(Collectors.toList());
 		}
 		
@@ -469,8 +469,26 @@ public abstract class InlineXBRL {
 			return ix.contextSet.containsAll(contextList);
 		}
 	}
-	public static Predicate<InlineXBRL> contextFilter(Context... contexts) {
-		return new ContextFilter(contexts);
+	public static Predicate<InlineXBRL> contextIncludeAll(Context... contexts) {
+		return new ContextIncludeAllFilter(contexts);
+	}
+	
+	private static class ContextExcludeAnyFilter implements Predicate<InlineXBRL>  {
+		private final List<String> contextList;
+		private ContextExcludeAnyFilter(Context... contexts) {
+			contextList = Arrays.stream(contexts).map(o -> o.toString()).collect(Collectors.toList());
+		}
+		
+		@Override
+		public boolean test(InlineXBRL ix) {
+			for(String context: contextList) {
+				if (ix.contextSet.contains(context)) return false;
+			}
+			return true;
+		}
+	}
+	public static Predicate<InlineXBRL> contextExcludeAny(Context... contexts) {
+		return new ContextExcludeAnyFilter(contexts);
 	}
 	
 	public static boolean booleanFilter(InlineXBRL ix) {
@@ -484,22 +502,22 @@ public abstract class InlineXBRL {
 	}
 	
 	private static class NullFilter implements Predicate<InlineXBRL>  {
-		private final boolean canBeNull;
-		private NullFilter(boolean canBeNull) {
-			this.canBeNull = canBeNull;
+		private final boolean acceptNull;
+		private NullFilter(boolean acceptNull) {
+			this.acceptNull = acceptNull;
 		}
 		
 		@Override
 		public boolean test(InlineXBRL ix) {
 			if (ix.isNull) {
-				return canBeNull ? true : false;
+				return acceptNull;
 			} else {
 				return true;
 			}
 		}
 	}
-	public static Predicate<InlineXBRL> nullFilter(boolean canBeNull) {
-		return new NullFilter(canBeNull);
+	public static Predicate<InlineXBRL> nullFilter(boolean acceptNull) {
+		return new NullFilter(acceptNull);
 	}
 
 
