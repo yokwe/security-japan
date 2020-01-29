@@ -2,6 +2,7 @@ package yokwe.security.japan.xbrl;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -38,20 +39,21 @@ public class GenerateTaxonomyLabelClass {
 		try (IndentPrintWriter out = new IndentPrintWriter(new PrintWriter(path))) {
 			out.indent().println("package yokwe.security.japan.xbrl.taxonomy;");
 			out.indent().println();
-			out.indent().println("import java.util.Set;");
-			out.indent().println("import java.util.TreeSet;");
+			out.indent().println("import java.util.Map;");
+			out.indent().println("import java.util.TreeMap;");
 			out.indent().println();
-
-			out.indent().format("public class %s extends LabelData {", className).println();
+			out.indent().println("import yokwe.UnexpectedException;");
+			out.indent().println("import yokwe.util.XMLUtil.QValue;");
+			out.indent().println();
+			
+			out.indent().format("public enum %s {", className).println();
 			out.nest();
 			
-			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
-			out.indent().println();
-			
-			out.indent().println("public static void init() {}");
-			out.indent().println();
-			
-			for(Entry entry: entryMap.values()) {
+			List<Entry> entryList = new ArrayList<>(entryMap.values());
+			int entryListSize = entryList.size();
+			for(int i = 0; i < entryListSize; i++) {
+				Entry entry = entryList.get(i);
+				
 				String name      = entry.name;
 				String constName = entry.constName;
 				String en        = entry.en;
@@ -60,48 +62,85 @@ public class GenerateTaxonomyLabelClass {
 				String nameValue = String.format("\"%s\"", name);
 				String enValue = (en == null) ? "null" : String.format("\"%s\"", en);
 				String jaValue = (ja == null) ? "null" : String.format("\"%s\"", ja);
+				String comma   = (i == (entryListSize - 1)) ? ";" : ",";
 				
+				out.indent().format("%s(", constName).println();
+				out.nest();
 				
-				out.indent().format("public static final String %s_NAME = %s;", constName, nameValue).println();
-				out.indent().format("public static final String %s_EN   = %s;", constName, enValue).println();
-				out.indent().format("public static final String %s_JA   = %s;", constName, jaValue).println();
+				out.indent().format("%s,",  nameValue).println();
+				out.indent().format("%s,",  enValue).println();
+				out.indent().format("%s)%s", jaValue, comma).println();
+				out.unnest();
+				
 				out.indent().println();
 			}
 
-			for(Entry entry: entryMap.values()) {
-//				String name      = entry.name;
-				String constName = entry.constName;
-//				String en        = entry.en;
-//				String ja        = entry.ja;
-				
-				out.indent().format("public sttic final %s %s = new %s(", className, constName, className).println();
-				out.nest();
-				out.indent().format("%s_NAME,", constName).println();
-				out.indent().format("%s_EN,",   constName).println();
-				out.indent().format("%s_JA);",  constName).println();
-				out.indent().println();
-				out.unnest();
-			}
+			out.indent().println();
+			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
+			out.indent().println();
 			
-			out.indent().format("private %s(String name, String en, String ja) {", className).println();
+			out.indent().println("public final QValue qName;");
+			out.indent().println("public final String en;");
+			out.indent().println("public final String ja;");
+			out.indent().println();
+			
+			out.indent().format("%s (String name, String en, String ja) {", className).println();
 			out.nest();
-			out.indent().println("super(NAMESPACE, name, en, ja);");
+			
+			out.indent().println("this.qName = new QValue(NAMESPACE, name);");
+			out.indent().println("this.en = en;");
+			out.indent().println("this.ja = ja;");
+
 			out.unnest();
 			out.indent().println("}");
 			out.indent().println();
-						
-			out.indent().format("public static final Set<%s> ALL = new TreeSet<>();", className).println();
+
+			out.indent().format("private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(%s.class);", className).println();
+			out.indent().println();
+
+			out.indent().println("private static final Map<QValue, TSE_T_CG_LABEL> all = new TreeMap<>();");
 			out.indent().println("static {");
 			out.nest();
-			
-			for(Entry entry: entryMap.values()) {
-				String constName = entry.constName;
-				out.indent().format("ALL.add(%s);", constName).println();
-			}
+
+			out.indent().println("for(TSE_T_CG_LABEL e: TSE_T_CG_LABEL.class.getEnumConstants()) {");
+			out.nest();
+
+			out.indent().println("QValue key = e.qName;");
+			out.indent().println("if (all.containsKey(key)) {");
+			out.nest();
+			out.indent().println("logger.error(\"Unknow key {}\", key);");
+			out.indent().println("throw new UnexpectedException(\"Duplicate key\");");
+			out.unnest();
+			out.indent().println("} else {");
+			out.nest();
+			out.indent().println("all.put(key, e);");
+			out.unnest();
+			out.indent().println("}");
 			
 			out.unnest();
 			out.indent().println("}");
 
+			out.unnest();
+			out.indent().println("}");
+			out.indent().println();
+
+			out.indent().println("public static TSE_T_CG_LABEL get(QValue qName) {");
+			out.nest();
+			out.indent().println("if (all.containsKey(qName)) {");
+			out.nest();
+			out.indent().println("return  all.get(qName);");
+			out.unnest();
+			out.indent().println("} else {");
+			out.nest();
+			out.indent().println("logger.error(\"Unknow key {}\", qName);");
+			out.indent().println("throw new UnexpectedException(\"Unknow key\");");
+			out.unnest();
+			out.indent().println("}");
+			out.unnest();
+			out.indent().println("}");
+			out.indent().println();
+
+			
 			out.unnest();
 			out.indent().println("}");
 		} catch (FileNotFoundException e) {
