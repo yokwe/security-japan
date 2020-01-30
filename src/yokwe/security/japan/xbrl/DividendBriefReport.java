@@ -26,10 +26,10 @@ public class DividendBriefReport extends BriefReport {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendBriefReport.class);
 
 	@Value(label = DOCUMENT_NAME)
-	public InlineXBRL documentName;
+	public String documentName;
 	
 	@Value(label = FILING_DATE)
-	public InlineXBRL filingDate;
+	public String filingDate;
 	
 	@Value(label = COMPANY_NAME)
 	public String companyName;
@@ -65,7 +65,12 @@ public class DividendBriefReport extends BriefReport {
 			contextIncludeAll = {CURRENT_YEAR_DURATION, YEAR_END_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
 			acceptNull = true)
-	public InlineXBRL dividendPerShareQ4; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
+	public BigDecimal dividendPerShareQ4; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
+	
+	@Override
+	public String toString() {
+		return String.format("%s %s %s   %s %s %s %s %s", filingDate, securitiesCode, companyName, dividendPayableDateAsPlanned, dividendPerShareQ1, dividendPerShareQ2, dividendPerShareQ3, dividendPerShareQ4);
+	}
 
 	public static void main(String[] args) {
 		logger.info("START");
@@ -79,9 +84,7 @@ public class DividendBriefReport extends BriefReport {
 		
 		DividendBriefReport briefReport = BriefReport.getInstance(DividendBriefReport.class, document);
 		
-		logger.info("documentName {}", briefReport.documentName);
-		logger.info("filingDate {}", briefReport.filingDate);
-		logger.info("dividendPerShareQ4 {}", briefReport.dividendPerShareQ4);
+		logger.info("briefReport {}", briefReport);
 		logger.info("STOP");
 	}
 }
