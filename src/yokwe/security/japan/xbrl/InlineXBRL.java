@@ -41,16 +41,16 @@ public abstract class InlineXBRL {
 			return new BooleanValue(xmlElement, value);
 		}
 	}
-	private static class StringBuilder implements Builder {
+	private static class DateYearMonthDayCJKBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			return new StringValue(xmlElement);
+			return new StringValue(xmlElement); // FIXME
 		}
 	}
 	private static Map<QValue, Builder> nonNumericBuilderMap = new TreeMap<>();
 	static {
 		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,            new BooleanBuilder(true));
 		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,           new BooleanBuilder(false));
-		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK, new StringBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK, new DateYearMonthDayCJKBuilder());
 	}
 	private static class NonNumericBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
@@ -139,6 +139,7 @@ public abstract class InlineXBRL {
 	public final String  value;
 	
 	public final QValue  qName;
+	public final QValue  qFormat;
 	public final boolean isNull;
 
 	private InlineXBRL(Kind kind, XMLElement xmlElement) {
@@ -156,6 +157,11 @@ public abstract class InlineXBRL {
 		this.value  = xmlElement.content;
 		
 		this.qName  = xmlElement.expandNamespacePrefix(this.name);
+		if (format == null) {
+			qFormat = null;
+		} else {
+			qFormat = xmlElement.expandNamespacePrefix(this.name);
+		}
 		
 		// check nil
 		String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL);
@@ -193,8 +199,19 @@ public abstract class InlineXBRL {
 		public StringValue(XMLElement xmlElement) {
 			super(Kind.STRING, xmlElement);
 			this.escape = xmlElement.getAttributeOrNull("escape");
-			this.stringValue = xmlElement.content;
+			if (escape != null) { // FIXME
+				logger.error("escape is not null");
+				throw new UnexpectedException("escape is not null");
+			}
 			
+			if (isNull) {
+				this.stringValue = null;
+			} else {
+				this.stringValue = xmlElement.content;
+				logger.info("STRING {}  {}  {}", format, escape, stringValue); // FIXME
+			}
+			
+
 			// Sanity check
 			for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
 				QValue value = new QValue(xmlAttribute);
@@ -232,11 +249,17 @@ public abstract class InlineXBRL {
 			validAttributeSet.add(new QValue("", "escape"));
 		}
 
-		public final boolean booleanValue;
+		public final Boolean booleanValue;
 		
 		public BooleanValue(XMLElement xmlElement, boolean booleanValue) {
 			super(Kind.BOOLEAN, xmlElement);
-			this.booleanValue = booleanValue;
+			
+			if (isNull) {
+				this.booleanValue = null;
+			} else {
+				logger.info("BOOLEAN {}  {}", format, booleanValue); // FIXME
+				this.booleanValue = booleanValue;
+			}
 			
 			// Sanity check
 			for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
@@ -292,6 +315,8 @@ public abstract class InlineXBRL {
 				numberValue   = null;
 				precision     = null;
 			} else {
+				logger.info("NUBER {}  {}  {}", format, unitRef, value); // FIXME
+
 				final String decimalsString = xmlElement.getAttribute("decimals");
 				final String scaleString    = xmlElement.getAttribute("scale");
 				final String signString     = xmlElement.getAttributeOrNull("sign");
