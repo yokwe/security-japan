@@ -1,6 +1,7 @@
 package yokwe.security.japan.xbrl;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +11,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +28,7 @@ public abstract class InlineXBRL {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(InlineXBRL.class);
 
 	public enum Kind {
-		STRING, BOOLEAN, NUMBER
+		STRING, BOOLEAN, DATE, NUMBER
 	}
 	
 	private interface Builder {
@@ -33,24 +36,20 @@ public abstract class InlineXBRL {
 	}
 	
 	private static class BooleanBuilder implements Builder {
-		private final boolean value;
-		BooleanBuilder(boolean newValue) {
-			value = newValue;
-		}
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			return new BooleanValue(xmlElement, value);
+			return new BooleanValue(xmlElement);
 		}
 	}
-	private static class DateYearMonthDayCJKBuilder implements Builder {
+	private static class DateBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			return new StringValue(xmlElement); // FIXME
+			return new DateValue(xmlElement);
 		}
 	}
 	private static Map<QValue, Builder> nonNumericBuilderMap = new TreeMap<>();
 	static {
-		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,            new BooleanBuilder(true));
-		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,           new BooleanBuilder(false));
-		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK, new DateYearMonthDayCJKBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,            new BooleanBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,           new BooleanBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK, new DateBuilder());
 	}
 	private static class NonNumericBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
@@ -83,17 +82,24 @@ public abstract class InlineXBRL {
 	}
 	private static class NonFractionBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			String format = xmlElement.getAttributeOrNull("format");
-			if (format == null) {
+			String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL);
+			if (nilValue != null) {
 				return new NumberValue(xmlElement);
 			} else {
-				QValue qValue = xmlElement.expandNamespacePrefix(format);
-				if (nonFractionalBuilderMap.containsKey(qValue)) {
-					Builder builder = nonFractionalBuilderMap.get(qValue);
-					return builder.getInstance(xmlElement);
+				String format = xmlElement.getAttributeOrNull("format");
+				if (format == null) {
+					return new NumberValue(xmlElement);
 				} else {
-					logger.error("Unexpected qValue {}", qValue);
-					throw new UnexpectedException("Unexpected qValue");	
+					QValue qFormat = xmlElement.expandNamespacePrefix(format);
+					if (nonFractionalBuilderMap.containsKey(qFormat)) {
+						Builder builder = nonFractionalBuilderMap.get(qFormat);
+						return builder.getInstance(xmlElement);
+					} else {
+						logger.error("Unexpected format");
+						logger.error("  format  {}", format);
+						logger.error("  qFormat {}", qFormat);
+						throw new UnexpectedException("Unexpected format");
+					}
 				}
 			}
 		}
@@ -160,7 +166,7 @@ public abstract class InlineXBRL {
 		if (format == null) {
 			qFormat = null;
 		} else {
-			qFormat = xmlElement.expandNamespacePrefix(this.name);
+			qFormat = xmlElement.expandNamespacePrefix(this.format);
 		}
 		
 		// check nil
@@ -199,15 +205,21 @@ public abstract class InlineXBRL {
 		public StringValue(XMLElement xmlElement) {
 			super(Kind.STRING, xmlElement);
 			this.escape = xmlElement.getAttributeOrNull("escape");
-			if (escape != null) { // FIXME
-				logger.error("escape is not null");
-				throw new UnexpectedException("escape is not null");
+			if (this.escape != null) { // FIXME
+				logger.info("ESCAPE STRING {}!", this.escape);
 			}
 			
 			if (isNull) {
 				this.stringValue = null;
 			} else {
-				this.stringValue = xmlElement.content;
+				if (qFormat == null) {
+					this.stringValue = xmlElement.content;
+				} else {
+					logger.error("Unexpected format", value);
+					logger.error("  format  {}", format);
+					logger.error("  qFormat {}", qFormat);
+					throw new UnexpectedException("Unexpected format");
+				}
 				logger.info("STRING {}  {}  {}", format, escape, stringValue); // FIXME
 			}
 			
@@ -239,6 +251,77 @@ public abstract class InlineXBRL {
 			}
 		}
 	}
+	public static class DateValue extends InlineXBRL {
+		public static Set<QValue> validAttributeSet = new TreeSet<>();
+		static {
+			validAttributeSet.add(new QValue("", "contextRef"));
+			validAttributeSet.add(new QValue("", "name"));
+			validAttributeSet.add(new QValue("", "format"));
+			validAttributeSet.add(XML.XSI_NIL);
+		}
+		
+		private static Pattern PAT_DATE_YEAR_MONTH_DAY_CJK = Pattern.compile("^(?<YY>[0-9]+)年(?<MM>[0-9]+)月(?<DD>[0-9]+)日$");
+		private static LocalDate convertDateYearMonthDayCJK(String value) {
+			Matcher m = PAT_DATE_YEAR_MONTH_DAY_CJK.matcher(value);
+			if (m.matches()) {
+				int yy = Integer.parseInt(m.group("YY"));
+				int mm = Integer.parseInt(m.group("MM"));
+				int dd = Integer.parseInt(m.group("DD"));
+				
+				LocalDate ret = LocalDate.of(yy, mm, dd);
+				return ret;
+			} else {
+				logger.error("Unexpected content {}", value);
+				throw new UnexpectedException("Unexpected content");
+			}
+		}
+
+		public final LocalDate dateValue;
+		
+		public DateValue(XMLElement xmlElement) {
+			super(Kind.DATE, xmlElement);
+			
+			if (isNull) {
+				this.dateValue = null;
+			} else {
+				if (qFormat.equals(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK)) {
+					this.dateValue = convertDateYearMonthDayCJK(xmlElement.content);
+					logger.info("DATE {}  {}", format, dateValue); // FIXME
+				} else {
+					logger.error("Unexpected format", value);
+					logger.error("  format  {}", format);
+					logger.error("  qFormat {}", qFormat);
+					throw new UnexpectedException("Unexpected format");
+				}
+			}
+
+			// Sanity check
+			for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
+				QValue value = new QValue(xmlAttribute);
+				if (validAttributeSet.contains(value)) continue;
+				logger.error("Unexpected attribute {}", xmlAttribute.name);
+				logger.error("xmlElement {}!", xmlElement);
+				throw new UnexpectedException("Unexpected attribute");
+			}
+		}
+		
+		@Override
+		public String toString() {
+			if (isNull) {
+				if (format == null) {
+					return String.format("{DATE %s %s *NULL*}", name, contextSet);
+				} else {
+					return String.format("{DATE %s %s %s *NULL*}", name, contextSet, format);
+				}
+			} else {
+				if (format == null) {
+					return String.format("{DATE %s %s %s}", name, contextSet, dateValue);
+				} else {
+					return String.format("{DATE %s %s %s %s", name, contextSet, format, dateValue);
+				}
+			}
+		}
+	}
 	public static class BooleanValue extends InlineXBRL {
 		public static Set<QValue> validAttributeSet = new TreeSet<>();
 		static {
@@ -249,16 +332,31 @@ public abstract class InlineXBRL {
 			validAttributeSet.add(new QValue("", "escape"));
 		}
 
+		public final String  escape;
 		public final Boolean booleanValue;
 		
-		public BooleanValue(XMLElement xmlElement, boolean booleanValue) {
+		public BooleanValue(XMLElement xmlElement) {
 			super(Kind.BOOLEAN, xmlElement);
+			
+			this.escape = xmlElement.getAttributeOrNull("escape");
+			if (this.escape != null) { // FIXME
+				logger.info("ESCAPE BOOLEAN {}!", this.escape);
+			}
 			
 			if (isNull) {
 				this.booleanValue = null;
 			} else {
+				if (this.qFormat.equals(XBRL.IXT_BOOLEAN_FALSE)) {
+					this.booleanValue = false;
+				} else if (qFormat.equals(XBRL.IXT_BOOLEAN_TRUE)) {
+					this.booleanValue = true;
+				} else {
+					logger.error("Unexpected format");
+					logger.error("  xmlElement  {}", xmlElement);
+					logger.error("  qFormat {}", qFormat);
+					throw new UnexpectedException("Unexpected format");
+				}
 				logger.info("BOOLEAN {}  {}", format, booleanValue); // FIXME
-				this.booleanValue = booleanValue;
 			}
 			
 			// Sanity check
@@ -274,9 +372,9 @@ public abstract class InlineXBRL {
 		@Override
 		public String toString() {
 			if (isNull) {
-				return String.format("{BOOLEAN %s %s *NULL*}", name, contextSet);
+				return String.format("{BOOLEAN %s %s %s *NULL*}", name, contextSet, escape);
 			} else {
-				return String.format("{BOOLEAN %s %s %s}", name, contextSet, booleanValue);
+				return String.format("{BOOLEAN %s %s %s %s}", name, contextSet, escape, booleanValue);
 			}
 		}
 	}
@@ -514,16 +612,6 @@ public abstract class InlineXBRL {
 	}
 	public static Predicate<InlineXBRL> contextExcludeAny(Context... contexts) {
 		return new ContextExcludeAnyFilter(contexts);
-	}
-	
-	public static boolean booleanFilter(InlineXBRL ix) {
-		return ix.kind == InlineXBRL.Kind.BOOLEAN;
-	}
-	public static boolean numberFilter(InlineXBRL ix) {
-		return ix.kind == InlineXBRL.Kind.NUMBER;
-	}
-	public static boolean stringFilter(InlineXBRL ix) {
-		return ix.kind == InlineXBRL.Kind.STRING;
 	}
 	
 	private static class NullFilter implements Predicate<InlineXBRL>  {
