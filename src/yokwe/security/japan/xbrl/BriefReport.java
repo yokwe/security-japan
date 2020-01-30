@@ -120,12 +120,16 @@ public abstract class BriefReport {
 	}
 	
 	private void assignField(FieldInfo fieldInfo, InlineXBRL.StringValue value) throws IllegalArgumentException, IllegalAccessException {
-		final String fieldName = fieldInfo.fieldName;
+		final Field  field         = fieldInfo.field;
+		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
 		
 		switch(fieldTypeName) {
+		case "yokwe.security.japan.xbrl.InlineXBRL":
+			field.set(this, (InlineXBRL)value);
+			break;
 		case "java.lang.String":
-			fieldInfo.field.set(this, value.stringValue);
+			field.set(this, value.stringValue);
 			break;
 		default:
 			logger.error("Unexpected field type");
@@ -135,12 +139,17 @@ public abstract class BriefReport {
 		}
 	}
 	private void assignField(FieldInfo fieldInfo, InlineXBRL.BooleanValue value) throws IllegalArgumentException, IllegalAccessException {
-		final String fieldName = fieldInfo.fieldName;
+		final Field  field         = fieldInfo.field;
+		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
 		
 		switch(fieldTypeName) {
+		case "yokwe.security.japan.xbrl.InlineXBRL":
+			field.set(this, (InlineXBRL)value);
+			break;
 		case "boolean":
-			fieldInfo.field.setBoolean(this, value.booleanValue);
+		case "java.lang.Boolean":
+			field.set(this, value.booleanValue);
 			break;
 		default:
 			logger.error("Unexpected field type");
@@ -179,11 +188,7 @@ public abstract class BriefReport {
 				throw new UnexpectedException("Unexpected field type");
 			}
 			
-			if (fieldInfo.fieldIsPrimitive) {
-				field.setFloat(this, floatValue);
-			} else {
-				field.set(this, new Float(floatValue));
-			}
+			field.set(this, floatValue);
 		}
 			break;
 		// DOUBLE
@@ -203,38 +208,24 @@ public abstract class BriefReport {
 				logger.error("   value         {}", value.numberValue);
 				throw new UnexpectedException("Unexpected field type");
 			}
-			if (fieldInfo.fieldIsPrimitive) {
-				field.setDouble(this, doubleValue);
-			} else {
-				field.set(this, new Double(doubleValue));
-			}
+			field.set(this, doubleValue);
 		}
 			break;
 		// INT INTEGER
 		case "int":
-		{
-			int intValue = value.numberValue.intValueExact();
-			field.setInt(this, intValue);
-		}
-			break;
 		case "java.lang.Integer":
 		{
 			int intValue = value.numberValue.intValueExact();
-			field.set(this, new Integer(intValue));
+			field.set(this, intValue);
 		}
 			break;
 
 		// LONG
 		case "long":
-		{
-			long longValue = value.numberValue.longValueExact();
-			field.setLong(this, longValue);
-		}
-			break;
 		case "java.lang.Long":
 		{
 			long longValue = value.numberValue.longValueExact();
-			field.set(this, new Long(longValue));
+			field.set(this, longValue);
 		}
 			break;
 
