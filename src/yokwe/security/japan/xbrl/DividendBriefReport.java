@@ -17,6 +17,7 @@ import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.SECURITIES_CODE;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class DividendBriefReport extends BriefReport {
 	public String documentName;
 	
 	@Value(label = FILING_DATE)
-	public String filingDate;
+	public LocalDate filingDate;
 	
 	@Value(label = COMPANY_NAME)
 	public String companyName;
@@ -69,7 +70,7 @@ public class DividendBriefReport extends BriefReport {
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s %s   %s %s %s %s %s", filingDate, securitiesCode, companyName, dividendPayableDateAsPlanned, dividendPerShareQ1, dividendPerShareQ2, dividendPerShareQ3, dividendPerShareQ4);
+		return String.format("%s %s %s %s %s %s %s %s", filingDate, securitiesCode, companyName, dividendPayableDateAsPlanned, dividendPerShareQ1, dividendPerShareQ2, dividendPerShareQ3, dividendPerShareQ4);
 	}
 
 	public static void main(String[] args) {
