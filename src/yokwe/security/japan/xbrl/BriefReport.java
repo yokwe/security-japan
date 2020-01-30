@@ -236,6 +236,28 @@ public abstract class BriefReport {
 			throw new UnexpectedException("Unexpected field type");
 		}
 	}
+	private void assignField(FieldInfo fieldInfo, InlineXBRL.DateValue value) throws IllegalArgumentException, IllegalAccessException {
+		final Field  field         = fieldInfo.field;
+		final String fieldName     = fieldInfo.fieldName;
+		final String fieldTypeName = fieldInfo.fieldTypeName;
+
+		switch(fieldTypeName) {
+		case "yokwe.security.japan.xbrl.InlineXBRL":
+			field.set(this, (InlineXBRL)value);
+			break;
+		case "java.lang.String":
+			field.set(this, value.dateValue.toString());
+			break;
+		case "java.time.LocalDate":
+			field.set(this, value.dateValue);
+			break;
+		default:
+			logger.error("Unexpected field type");
+			logger.error("   fieldName     {}", fieldName);
+			logger.error("   fieldTypeName {}", fieldTypeName);
+			throw new UnexpectedException("Unexpected field type");
+		}
+	}
 	
 	protected void init(InlineXBRL.Document ixDoc) {
 		// use reflection to initialize annotated variable in class
@@ -298,6 +320,9 @@ public abstract class BriefReport {
 							break;
 						case NUMBER:
 							assignField(fieldInfo, (InlineXBRL.NumberValue)ix);
+							break;
+						case DATE:
+							assignField(fieldInfo, (InlineXBRL.DateValue)ix);
 							break;
 						default:
 							logger.error("Unexpected kind");
