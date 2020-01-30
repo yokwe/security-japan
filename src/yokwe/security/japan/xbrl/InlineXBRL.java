@@ -53,18 +53,16 @@ public abstract class InlineXBRL {
 	}
 	private static class NonNumericBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			String format = xmlElement.getAttributeOrNull("format");
-			if (format == null) {
+			QValue qFormat = getQFormat(xmlElement);
+			if (qFormat == null) {
 				return new StringValue(xmlElement);
 			} else {
-				QValue qValue = xmlElement.expandNamespacePrefix(format);
-				if (nonNumericBuilderMap.containsKey(qValue)) {
-					Builder builder = nonNumericBuilderMap.get(qValue);
+				if (nonNumericBuilderMap.containsKey(qFormat)) {
+					Builder builder = nonNumericBuilderMap.get(qFormat);
 					return builder.getInstance(xmlElement);
 				} else {
 					logger.error("Unexpected xmlElement {}", xmlElement);
-					logger.error("  format {}", format);
-					logger.error("  qValue {}", qValue);
+					logger.error("  qFormat {}", qFormat);
 					throw new UnexpectedException("Unexpected xmlElement");	
 				}
 			}
@@ -82,21 +80,18 @@ public abstract class InlineXBRL {
 	}
 	private static class NonFractionBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
-			String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL);
-			if (nilValue != null) {
+			if (isNull(xmlElement)) {
 				return new NumberValue(xmlElement);
 			} else {
-				String format = xmlElement.getAttributeOrNull("format");
-				if (format == null) {
+				QValue qFormat = getQFormat(xmlElement);
+				if (qFormat == null) {
 					return new NumberValue(xmlElement);
 				} else {
-					QValue qFormat = xmlElement.expandNamespacePrefix(format);
 					if (nonFractionalBuilderMap.containsKey(qFormat)) {
 						Builder builder = nonFractionalBuilderMap.get(qFormat);
 						return builder.getInstance(xmlElement);
 					} else {
 						logger.error("Unexpected format");
-						logger.error("  format  {}", format);
 						logger.error("  qFormat {}", qFormat);
 						throw new UnexpectedException("Unexpected format");
 					}
@@ -115,7 +110,7 @@ public abstract class InlineXBRL {
 		if (elementBuilderMap.containsKey(key)) {
 			return elementBuilderMap.get(key);
 		} else {
-			logger.error("Unexpected key {}!", key);
+			logger.error("Unexpected key {}", key);
 			throw new UnexpectedException("Unexpected key");
 		}
 	}
@@ -131,6 +126,32 @@ public abstract class InlineXBRL {
 		} else {
 			logger.error("Unexpected name {}", xmlElement.name);
 			throw new UnexpectedException("Unexpected name");
+		}
+	}
+	public static QValue getQName(XMLElement xmlElement) {
+		String name  = xmlElement.getAttribute("name");
+		QValue qName = xmlElement.expandNamespacePrefix(name);
+		return qName;
+	}
+	public static QValue getQFormat(XMLElement xmlElement) {
+		String format = xmlElement.getAttributeOrNull("format");
+		return (format == null) ? null : xmlElement.expandNamespacePrefix(format);
+	}
+	public static boolean isNull(XMLElement xmlElement) {
+		String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL);
+		if (nilValue == null) {
+			return false;
+		} else {
+			switch(nilValue) {
+			case "true":
+				return true;
+//			case "false":
+//				this.isNull = false;
+//				break;
+			default:
+				logger.error("Unexpected nilValue {}!", nilValue);
+				throw new UnexpectedException("Unexpected nilValue");
+			}
 		}
 	}
 	
@@ -162,30 +183,9 @@ public abstract class InlineXBRL {
 		this.format = xmlElement.getAttributeOrNull("format");
 		this.value  = xmlElement.content;
 		
-		this.qName  = xmlElement.expandNamespacePrefix(this.name);
-		if (format == null) {
-			qFormat = null;
-		} else {
-			qFormat = xmlElement.expandNamespacePrefix(this.format);
-		}
-		
-		// check nil
-		String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL);
-		if (nilValue == null) {
-			this.isNull = false;
-		} else {
-			switch(nilValue) {
-			case "true":
-				this.isNull = true;
-				break;
-//			case "false":
-//				this.isNull = false;
-//				break;
-			default:
-				logger.error("Unexpected nilValue {}!", nilValue);
-				throw new UnexpectedException("Unexpected nilValue");
-			}
-		}
+		this.qName   = getQName(xmlElement);
+		this.qFormat = getQFormat(xmlElement);
+		this.isNull  = isNull(xmlElement);
 	}
 	
 	public static class StringValue extends InlineXBRL {
@@ -223,7 +223,6 @@ public abstract class InlineXBRL {
 				logger.info("STRING {}  {}  {}", format, escape, stringValue); // FIXME
 			}
 			
-
 			// Sanity check
 			for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
 				QValue value = new QValue(xmlAttribute);
