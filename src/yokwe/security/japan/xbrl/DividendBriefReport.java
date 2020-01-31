@@ -16,13 +16,10 @@ import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.QUARTERLY_PERIOD
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.QUARTERLY_STATEMENT_FILING_DATE_AS_PLANNED;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.SECURITIES_CODE;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
-
-import yokwe.util.XMLUtil;
 
 public class DividendBriefReport extends BriefReport {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendBriefReport.class);
@@ -76,18 +73,5 @@ public class DividendBriefReport extends BriefReport {
 	@Override
 	public String toString() {
 		return String.format("%s %s %d %s %s %s %s %s %s", filingDate, securitiesCode, quarterlyPeriod, dividendPayableDateAsPlanned, dividendPerShareQ1, dividendPerShareQ2, dividendPerShareQ3, dividendPerShareQ4, companyName);
-	}
-
-	public static void main(String[] args) {
-		logger.info("START");
-		
-		File file = new File("tmp/TD2019111900049/XBRLData/Summary/tse-scedjpsm-87250-20191010407057-ixbrl.htm");
-
-		InlineXBRL.Document document = InlineXBRL.Document.getInstance(XMLUtil.buildStream(file));
-		
-		DividendBriefReport briefReport = BriefReport.getInstance(DividendBriefReport.class, document);
-		
-		logger.info("briefReport {}", briefReport);
-		logger.info("STOP");
 	}
 }
