@@ -12,6 +12,7 @@ import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DIVIDEND_PAYABLE
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DIVIDEND_PER_SHARE;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DOCUMENT_NAME;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.FILING_DATE;
+import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.QUARTERLY_PERIOD;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.QUARTERLY_STATEMENT_FILING_DATE_AS_PLANNED;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.SECURITIES_CODE;
 
@@ -40,6 +41,10 @@ public class DividendBriefReport extends BriefReport {
 
 	@Value(label = QUARTERLY_STATEMENT_FILING_DATE_AS_PLANNED)
 	public String quarterlyStatementFilingDateAsPlanned;
+	
+	@Value(label = QUARTERLY_PERIOD)
+	public Integer quarterlyPeriod;
+	
 	
 	@Value(label = DIVIDEND_PAYABLE_DATE_AS_PLANNED)
 	public String dividendPayableDateAsPlanned;
@@ -70,7 +75,7 @@ public class DividendBriefReport extends BriefReport {
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s %s %s %s %s %s %s", filingDate, securitiesCode, companyName, dividendPayableDateAsPlanned, dividendPerShareQ1, dividendPerShareQ2, dividendPerShareQ3, dividendPerShareQ4);
+		return String.format("%s %s %d %s %s %s %s %s %s", filingDate, securitiesCode, quarterlyPeriod, dividendPayableDateAsPlanned, dividendPerShareQ1, dividendPerShareQ2, dividendPerShareQ3, dividendPerShareQ4, companyName);
 	}
 
 	public static void main(String[] args) {
@@ -79,9 +84,6 @@ public class DividendBriefReport extends BriefReport {
 		File file = new File("tmp/TD2019111900049/XBRLData/Summary/tse-scedjpsm-87250-20191010407057-ixbrl.htm");
 
 		InlineXBRL.Document document = InlineXBRL.Document.getInstance(XMLUtil.buildStream(file));
-		
-//		DividendBriefReport briefReport = new DividendBriefReport();
-//		briefReport.init(document);
 		
 		DividendBriefReport briefReport = BriefReport.getInstance(DividendBriefReport.class, document);
 		
