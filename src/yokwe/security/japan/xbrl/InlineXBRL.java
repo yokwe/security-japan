@@ -53,9 +53,10 @@ public abstract class InlineXBRL {
 	
 	private static Map<QValue, Builder> nonNumericBuilderMap = new TreeMap<>();
 	static {
-		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,            new BooleanBuilder());
-		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,           new BooleanBuilder());
-		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK, new DateBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,               new BooleanBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,              new BooleanBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK,    new DateBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_ERA_YEAR_MONTH_DAY_JP, new DateBuilder());
 	}
 	private static class NonNumericBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
@@ -107,6 +108,7 @@ public abstract class InlineXBRL {
 		elementBuilderMap.put(XBRL.IX_NON_FRACTION, new NonFractionBuilder());
 	}
 	private static Builder getBuilder(XMLElement xmlElement) {
+		logger.info("xmlElement {}", xmlElement); // FIXME
 		QValue key = new QValue(xmlElement);
 		if (elementBuilderMap.containsKey(key)) {
 			return elementBuilderMap.get(key);
@@ -257,10 +259,30 @@ public abstract class InlineXBRL {
 			validAttributeSet.add(new QValue("", "name"));
 			validAttributeSet.add(new QValue("", "format"));
 			validAttributeSet.add(XML.XSI_NIL);
+			//
+			validAttributeSet.add(new QValue("", "escape"));
 		}
 		
+		private static String nomalizeNumberCharacter(String value) {
+//			１２３４５６７８９０
+			
+			value = value.replace("１", "1");
+			value = value.replace("２", "2");
+			value = value.replace("３", "3");
+			value = value.replace("４", "4");
+			value = value.replace("５", "5");
+			value = value.replace("６", "6");
+			value = value.replace("７", "7");
+			value = value.replace("８", "8");
+			value = value.replace("９", "9");
+			value = value.replace("０", "0");
+
+			return value;
+		}
 		private static Pattern PAT_DATE_YEAR_MONTH_DAY_CJK = Pattern.compile("^(?<YY>[0-9]+)年(?<MM>[0-9]+)月(?<DD>[0-9]+)日$");
 		private static LocalDate convertDateYearMonthDayCJK(String value) {
+			value = nomalizeNumberCharacter(value);
+			
 			Matcher m = PAT_DATE_YEAR_MONTH_DAY_CJK.matcher(value);
 			if (m.matches()) {
 				int yy = Integer.parseInt(m.group("YY"));
@@ -270,21 +292,45 @@ public abstract class InlineXBRL {
 				LocalDate ret = LocalDate.of(yy, mm, dd);
 				return ret;
 			} else {
-				logger.error("Unexpected content {}", value);
+				logger.error("Unexpected content {}!", value);
+				throw new UnexpectedException("Unexpected content");
+			}
+		}
+		private static Pattern PAT_DATE_ERA_YEAR_MONTH_DAY_JP = Pattern.compile("^令和(?<YY>[0-9]+)年(?<MM>[0-9]+)月(?<DD>[0-9]+)日$");
+		private static LocalDate convertDateEraYearMonthDayJP(String value) {
+			value = nomalizeNumberCharacter(value);
+
+			Matcher m = PAT_DATE_ERA_YEAR_MONTH_DAY_JP.matcher(value);
+			if (m.matches()) {
+				int yy = Integer.parseInt(m.group("YY") + 2018);
+				int mm = Integer.parseInt(m.group("MM"));
+				int dd = Integer.parseInt(m.group("DD"));
+				
+				LocalDate ret = LocalDate.of(yy, mm, dd);
+				return ret;
+			} else {
+				logger.error("Unexpected content {}!", value);
 				throw new UnexpectedException("Unexpected content");
 			}
 		}
 
+		public final String    escape;
 		public final LocalDate dateValue;
 		
 		public DateValue(XMLElement xmlElement) {
 			super(Kind.DATE, xmlElement);
 			
+			this.escape = xmlElement.getAttributeOrNull("escape");
+			if (this.escape != null) { // FIXME
+				logger.debug("ESCAPE DATE {} {}!", this.name, this.escape);
+			}
 			if (isNull) {
 				this.dateValue = null;
 			} else {
 				if (qFormat.equals(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK)) {
 					this.dateValue = convertDateYearMonthDayCJK(xmlElement.content);
+				} else if (qFormat.equals(XBRL.IXT_DATE_ERA_YEAR_MONTH_DAY_JP)) {
+					this.dateValue = convertDateEraYearMonthDayJP(xmlElement.content);
 				} else {
 					logger.error("Unexpected format", value);
 					logger.error("  format  {}", format);
