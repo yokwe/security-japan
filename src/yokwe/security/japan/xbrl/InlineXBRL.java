@@ -274,6 +274,8 @@ public abstract class InlineXBRL {
 			value = value.replace("９", "9");
 			value = value.replace("０", "0");
 
+			value = value.trim();
+			
 			return value;
 		}
 		private static Pattern PAT_DATE_YEAR_MONTH_DAY_CJK = Pattern.compile("^(?<YY>[0-9]+)年(?<MM>[0-9]+)月(?<DD>[0-9]+)日$");
@@ -289,7 +291,7 @@ public abstract class InlineXBRL {
 				LocalDate ret = LocalDate.of(yy, mm, dd);
 				return ret;
 			} else {
-				logger.error("Unexpected content {}!", value);
+				logger.error("Unexpected content !{}!", value);
 				throw new UnexpectedException("Unexpected content");
 			}
 		}
