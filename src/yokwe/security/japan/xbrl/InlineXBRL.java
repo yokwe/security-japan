@@ -78,7 +78,8 @@ public abstract class InlineXBRL {
 	
 	private static Map<QValue, Builder> nonFractionalBuilderMap = new TreeMap<>();
 	static {
-		nonFractionalBuilderMap.put(XBRL.IXT_NUM_DOT_DECIMAL, new NumberBuilder());
+		nonFractionalBuilderMap.put(XBRL.IXT_NUM_DOT_DECIMAL,  new NumberBuilder());
+		nonFractionalBuilderMap.put(XBRL.IXT_NUM_UNIT_DECIMAL, new NumberBuilder());
 	}
 	private static class NonFractionBuilder implements Builder {
 		public InlineXBRL getInstance(XMLElement xmlElement) {
@@ -296,16 +297,30 @@ public abstract class InlineXBRL {
 				throw new UnexpectedException("Unexpected content");
 			}
 		}
-		private static Pattern PAT_DATE_ERA_YEAR_MONTH_DAY_JP = Pattern.compile("^令和(?<YY>[0-9]+)年(?<MM>[0-9]+)月(?<DD>[0-9]+)日$");
+		private static Pattern PAT_DATE_ERA_YEAR_MONTH_DAY_JP = Pattern.compile("^(?<ERA>..)(?<YY>[0-9]+)年(?<MM>[0-9]+)月(?<DD>[0-9]+)日$");
 		private static LocalDate convertDateEraYearMonthDayJP(String value) {
 			value = nomalizeNumberCharacter(value);
+			value = value.replace("令和元年", "令和1年");
 
 			Matcher m = PAT_DATE_ERA_YEAR_MONTH_DAY_JP.matcher(value);
 			if (m.matches()) {
-				int yy = Integer.parseInt(m.group("YY") + 2018);
+				int yy = Integer.parseInt(m.group("YY"));
 				int mm = Integer.parseInt(m.group("MM"));
 				int dd = Integer.parseInt(m.group("DD"));
 				
+				String era = m.group("ERA");
+				switch(era) {
+				case "令和":
+					yy += 2018;
+					break;
+				case "平成":
+					yy += 1988;
+					break;
+				default:
+					logger.error("Unexpeced era {}", era);
+					throw new UnexpectedException("Unexpected content");
+				}
+
 				LocalDate ret = LocalDate.of(yy, mm, dd);
 				return ret;
 			} else {
@@ -477,7 +492,17 @@ public abstract class InlineXBRL {
 				}
 				
 				// Remove comma
-				unscaledValue = new BigDecimal(value.replace(",", ""));
+				{
+					String numberString = this.value;
+					// ixt::numdotdecimal
+					//   1,000 => 1000
+					numberString = numberString.replace(",", "");
+					// ixt::numunitdecimal
+					//   10円00銭 => 10.00
+					numberString = numberString.replace("円", ".");
+					numberString = numberString.replace("銭", "");
+					unscaledValue = new BigDecimal(numberString);
+				}
 				if (isMinus) {
 					numberValue = unscaledValue.scaleByPowerOfTen(scale).negate();
 				} else {
@@ -675,24 +700,34 @@ public abstract class InlineXBRL {
 
 
 	public static enum Context {
-		ANNUAL_MEMBER                   ("AnnualMember"), 
-		CONSOLIDATED_MEMBER             ("ConsolidatedMember"), 
-		CURRENT_ACCUMULATED_Q_2_DURATION("CurrentAccumulatedQ2Duration"), 
-		CURRENT_ACCUMULATED_Q_2_INSTANT ("CurrentAccumulatedQ2Instant"), 
-		CURRENT_YEAR_DURATION           ("CurrentYearDuration"), 
-		CURRENT_YEAR_INSTANT            ("CurrentYearInstant"), 
-		FIRST_QUARTER_MEMBER            ("FirstQuarterMember"), 
-		FORECAST_MEMBER                 ("ForecastMember"), 
-		LOWER_MEMBER                    ("LowerMember"), 
-		NON_CONSOLIDATED_MEMBER         ("NonConsolidatedMember"), 
-		PRIOR_ACCUMULATED_Q_2_DURATION  ("PriorAccumulatedQ2Duration"), 
-		PRIOR_YEAR_DURATION             ("PriorYearDuration"), 
-		PRIOR_YEAR_INSTANT              ("PriorYearInstant"), 
-		RESULT_MEMBER                   ("ResultMember"), 
-		SECOND_QUARTER_MEMBER           ("SecondQuarterMember"), 
-		THIRD_QUARTER_MEMBER            ("ThirdQuarterMember"), 
-		UPPER_MEMBER                    ("UpperMember"), 
-		YEAR_END_MEMBER                 ("YearEndMember");
+		ANNUAL_MEMBER                     ("AnnualMember"),
+		CONSOLIDATED_MEMBER               ("ConsolidatedMember"),
+		CURRENT_ACCUMULATED_Q_1_DURATION  ("CurrentAccumulatedQ1Duration"),
+		CURRENT_ACCUMULATED_Q_1_INSTANT   ("CurrentAccumulatedQ1Instant"),
+		CURRENT_ACCUMULATED_Q_2_DURATION  ("CurrentAccumulatedQ2Duration"),
+		CURRENT_ACCUMULATED_Q_2_INSTANT   ("CurrentAccumulatedQ2Instant"),
+		CURRENT_ACCUMULATED_Q_3_DURATION  ("CurrentAccumulatedQ3Duration"),
+		CURRENT_ACCUMULATED_Q_3_INSTANT   ("CurrentAccumulatedQ3Instant"),
+		CURRENT_YEAR_DURATION             ("CurrentYearDuration"),
+		CURRENT_YEAR_INSTANT              ("CurrentYearInstant"),
+		FIRST_QUARTER_MEMBER              ("FirstQuarterMember"),
+		FORECAST_MEMBER                   ("ForecastMember"),
+		LOWER_MEMBER                      ("LowerMember"),
+		NEXT_ACCUMULATED_Q_1_DURATION     ("NextAccumulatedQ1Duration"),
+		NEXT_ACCUMULATED_Q_2_DURATION     ("NextAccumulatedQ2Duration"),
+		NEXT_ACCUMULATED_Q_3_DURATION     ("NextAccumulatedQ3Duration"),
+		NEXT_YEAR_DURATION                ("NextYearDuration"),
+		NON_CONSOLIDATED_MEMBER           ("NonConsolidatedMember"),
+		PRIOR_ACCUMULATED_Q_1_DURATION    ("PriorAccumulatedQ1Duration"),
+		PRIOR_ACCUMULATED_Q_2_DURATION    ("PriorAccumulatedQ2Duration"),
+		PRIOR_ACCUMULATED_Q_3_DURATION    ("PriorAccumulatedQ3Duration"),
+		PRIOR_YEAR_DURATION               ("PriorYearDuration"),
+		PRIOR_YEAR_INSTANT                ("PriorYearInstant"),
+		RESULT_MEMBER                     ("ResultMember"),
+		SECOND_QUARTER_MEMBER             ("SecondQuarterMember"),
+		THIRD_QUARTER_MEMBER              ("ThirdQuarterMember"),
+		UPPER_MEMBER                      ("UpperMember"),
+		YEAR_END_MEMBER                   ("YearEndMember");
 		
 		public final String value;
 		
