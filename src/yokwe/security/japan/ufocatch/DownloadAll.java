@@ -39,7 +39,7 @@ public class DownloadAll {
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {
 		logger.info("START");
 		
 		Map<String, File> existingFileMap = Atom.getExistingFileMap();
@@ -69,8 +69,6 @@ public class DownloadAll {
 								// Skip
 								logger.info("{} / {}  Skip file {}", count, entryListSize, fileName);
 							} else {
-								Thread.sleep(1000); // sleep 1 sec
-								
 								HttpUtil.Result result = HttpUtil.getInstance().download(link.href);
 								if (result.result == null) {
 									logger.error("Unable to download {}", link.href);
