@@ -109,7 +109,6 @@ public abstract class InlineXBRL {
 		elementBuilderMap.put(XBRL.IX_NON_FRACTION, new NonFractionBuilder());
 	}
 	private static Builder getBuilder(XMLElement xmlElement) {
-		logger.info("xmlElement {}", xmlElement); // FIXME
 		QValue key = new QValue(xmlElement);
 		if (elementBuilderMap.containsKey(key)) {
 			return elementBuilderMap.get(key);
@@ -209,9 +208,6 @@ public abstract class InlineXBRL {
 		public StringValue(XMLElement xmlElement) {
 			super(Kind.STRING, xmlElement);
 			this.escape = xmlElement.getAttributeOrNull("escape");
-			if (this.escape != null) { // FIXME
-				logger.debug("ESCAPE STRING {} {}!", this.name, this.escape);
-			}
 			
 			if (isNull) {
 				this.stringValue = null;
@@ -336,9 +332,7 @@ public abstract class InlineXBRL {
 			super(Kind.DATE, xmlElement);
 			
 			this.escape = xmlElement.getAttributeOrNull("escape");
-			if (this.escape != null) { // FIXME
-				logger.debug("ESCAPE DATE {} {}!", this.name, this.escape);
-			}
+
 			if (isNull) {
 				this.dateValue = null;
 			} else {
@@ -397,9 +391,6 @@ public abstract class InlineXBRL {
 			super(Kind.BOOLEAN, xmlElement);
 			
 			this.escape = xmlElement.getAttributeOrNull("escape");
-			if (this.escape != null) { // FIXME
-				logger.debug("ESCAPE BOOLEAN {} {}!", this.name, this.escape);
-			}
 			
 			if (isNull) {
 				this.booleanValue = null;
