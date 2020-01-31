@@ -27,10 +27,11 @@ public class XBRL {
 	public static final QValue IX_NON_NUMERIC  = new QValue(NS_IX, "nonNumeric");
 	public static final QValue IX_NON_FRACTION = new QValue(NS_IX, "nonFraction");
 	
-	public static final QValue IXT_BOOLEAN_TRUE            = new QValue(NS_IXT, "booleantrue");
-	public static final QValue IXT_BOOLEAN_FALSE           = new QValue(NS_IXT, "booleanfalse");
-	public static final QValue IXT_DATE_YEAR_MONTH_DAY_CJK = new QValue(NS_IXT, "dateyearmonthdaycjk");
-	public static final QValue IXT_NUM_DOT_DECIMAL         = new QValue(NS_IXT, "numdotdecimal");
+	public static final QValue IXT_BOOLEAN_TRUE               = new QValue(NS_IXT, "booleantrue");
+	public static final QValue IXT_BOOLEAN_FALSE              = new QValue(NS_IXT, "booleanfalse");
+	public static final QValue IXT_DATE_YEAR_MONTH_DAY_CJK    = new QValue(NS_IXT, "dateyearmonthdaycjk");
+	public static final QValue IXT_DATE_ERA_YEAR_MONTH_DAY_JP = new QValue(NS_IXT, "dateerayearmonthdayjp");
+	public static final QValue IXT_NUM_DOT_DECIMAL            = new QValue(NS_IXT, "numdotdecimal");
 	
 	// Role
 	public static final String ROLE_LABLE                         = "http://www.xbrl.org/2003/role/label";
