@@ -32,6 +32,7 @@ public class XBRL {
 	public static final QValue IXT_DATE_YEAR_MONTH_DAY_CJK    = new QValue(NS_IXT, "dateyearmonthdaycjk");
 	public static final QValue IXT_DATE_ERA_YEAR_MONTH_DAY_JP = new QValue(NS_IXT, "dateerayearmonthdayjp");
 	public static final QValue IXT_NUM_DOT_DECIMAL            = new QValue(NS_IXT, "numdotdecimal");
+	public static final QValue IXT_NUM_UNIT_DECIMAL           = new QValue(NS_IXT, "numunitdecimal");
 	
 	// Role
 	public static final String ROLE_LABLE                         = "http://www.xbrl.org/2003/role/label";
