@@ -45,6 +45,12 @@ public abstract class InlineXBRL {
 			return new DateValue(xmlElement);
 		}
 	}
+	private static class NumberBuilder implements Builder {
+		public InlineXBRL getInstance(XMLElement xmlElement) {
+			return new NumberValue(xmlElement);
+		}
+	}
+	
 	private static Map<QValue, Builder> nonNumericBuilderMap = new TreeMap<>();
 	static {
 		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,            new BooleanBuilder());
@@ -69,11 +75,6 @@ public abstract class InlineXBRL {
 		}
 	}
 	
-	private static class NumberBuilder implements Builder {
-		public InlineXBRL getInstance(XMLElement xmlElement) {
-			return new NumberValue(xmlElement);
-		}
-	}
 	private static Map<QValue, Builder> nonFractionalBuilderMap = new TreeMap<>();
 	static {
 		nonFractionalBuilderMap.put(XBRL.IXT_NUM_DOT_DECIMAL, new NumberBuilder());
@@ -206,7 +207,7 @@ public abstract class InlineXBRL {
 			super(Kind.STRING, xmlElement);
 			this.escape = xmlElement.getAttributeOrNull("escape");
 			if (this.escape != null) { // FIXME
-				logger.info("ESCAPE STRING {}!", this.escape);
+				logger.debug("ESCAPE STRING {} {}!", this.name, this.escape);
 			}
 			
 			if (isNull) {
@@ -220,7 +221,6 @@ public abstract class InlineXBRL {
 					logger.error("  qFormat {}", qFormat);
 					throw new UnexpectedException("Unexpected format");
 				}
-				logger.info("STRING {}  {}  {}", format, escape, stringValue); // FIXME
 			}
 			
 			// Sanity check
@@ -285,7 +285,6 @@ public abstract class InlineXBRL {
 			} else {
 				if (qFormat.equals(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK)) {
 					this.dateValue = convertDateYearMonthDayCJK(xmlElement.content);
-					logger.info("DATE {}  {}", format, dateValue); // FIXME
 				} else {
 					logger.error("Unexpected format", value);
 					logger.error("  format  {}", format);
@@ -330,7 +329,6 @@ public abstract class InlineXBRL {
 			//
 			validAttributeSet.add(new QValue("", "escape"));
 		}
-
 		public final String  escape;
 		public final Boolean booleanValue;
 		
@@ -339,7 +337,7 @@ public abstract class InlineXBRL {
 			
 			this.escape = xmlElement.getAttributeOrNull("escape");
 			if (this.escape != null) { // FIXME
-				logger.info("ESCAPE BOOLEAN {}!", this.escape);
+				logger.debug("ESCAPE BOOLEAN {} {}!", this.name, this.escape);
 			}
 			
 			if (isNull) {
@@ -355,7 +353,6 @@ public abstract class InlineXBRL {
 					logger.error("  qFormat {}", qFormat);
 					throw new UnexpectedException("Unexpected format");
 				}
-				logger.info("BOOLEAN {}  {}", format, booleanValue); // FIXME
 			}
 			
 			// Sanity check
@@ -412,8 +409,6 @@ public abstract class InlineXBRL {
 				numberValue   = null;
 				precision     = null;
 			} else {
-				logger.info("NUBER {}  {}  {}", format, unitRef, value); // FIXME
-
 				final String decimalsString = xmlElement.getAttribute("decimals");
 				final String scaleString    = xmlElement.getAttribute("scale");
 				final String signString     = xmlElement.getAttributeOrNull("sign");
