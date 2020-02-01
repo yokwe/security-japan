@@ -29,6 +29,17 @@ public class Atom {
 	public static String getPath(String name) {
 		return String.format("%s/%s", DIR_BASE, name);
 	}
+	
+	private static int compareFile(File a, File b) {
+		// tse-qcedjpsm-39160-20190214339160-ixbrl.htm
+		String[] nameA = a.getName().split("-");
+		String[] nameB = b.getName().split("-");
+		
+		int ret = nameA[2].compareTo(nameB[2]);
+		if (ret == 0) ret = nameA[1].compareTo(nameB[1]);
+		if (ret == 0) ret = nameA[3].compareTo(nameB[3]);
+		return ret;
+	}
 	public static List<File> getExistingFileList() {
 		File dir = new File(DIR_BASE);
 		if (!dir.exists()) {
@@ -42,7 +53,7 @@ public class Atom {
 				ret.add(file);
 			}
 		}
-		Collections.sort(ret);
+		Collections.sort(ret, Atom::compareFile);
 		return ret;
 	}
 	public static Map<String, File> getExistingFileMap() {
