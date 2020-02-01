@@ -32,6 +32,7 @@ public class Atom {
 	
 	private static int compareFile(File a, File b) {
 		// tse-qcedjpsm-39160-20190214339160-ixbrl.htm
+		//   0        1     2              3
 		String[] nameA = a.getName().split("-");
 		String[] nameB = b.getName().split("-");
 		
