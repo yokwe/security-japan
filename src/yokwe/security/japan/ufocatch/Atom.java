@@ -7,7 +7,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +25,21 @@ public class Atom {
 
 	public static final String DIR_BASE = "tmp/ufocatch";
 	
-	public static String getPath(String name) {
-		return String.format("%s/%s", DIR_BASE, name);
+	public static String getSubDirectory(String filename) {
+		String[] token = filename.split("-");
+		
+		// tse-qcedjpsm-39160-20190214339160-ixbrl.htm
+		//   0        1     2              3         4
+		if (token.length == 5 && token[0].equals("tse") && token[4].equals("ixbrl.htm")) {
+			return token[2];
+		} else {
+			logger.error("Unexpected filename {}", filename);
+			throw new UnexpectedException("Unexpected filename");
+		}
+	}
+	public static String getPath(String filename) {
+		String subDir = getSubDirectory(filename);
+		return String.format("%s/%s/%s", DIR_BASE, subDir, filename);
 	}
 	
 	private static int compareFile(File a, File b) {
@@ -47,22 +59,11 @@ public class Atom {
 			dir.mkdirs();
 		}
 		
-		List<File> ret = new ArrayList<>();
-		for(File file: dir.listFiles()) {
-			String name = file.getName();
-			if (name.endsWith("-ixbrl.htm")) {
-				ret.add(file);
-			}
-		}
+		List<File> ret = FileUtil.listFile(dir);
 		Collections.sort(ret, Atom::compareFile);
 		return ret;
 	}
 	public static Map<String, File> getExistingFileMap() {
-		File dir = new File(DIR_BASE);
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-		
 		Map<String, File> ret = new TreeMap<>();
 		for(File file: getExistingFileList()) {
 			String name = file.getName();
