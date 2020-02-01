@@ -260,27 +260,9 @@ public abstract class InlineXBRL {
 			validAttributeSet.add(new QValue("", "escape"));
 		}
 		
-		private static String nomalizeNumberCharacter(String value) {
-//			１２３４５６７８９０
-			
-			value = value.replace("１", "1");
-			value = value.replace("２", "2");
-			value = value.replace("３", "3");
-			value = value.replace("４", "4");
-			value = value.replace("５", "5");
-			value = value.replace("６", "6");
-			value = value.replace("７", "7");
-			value = value.replace("８", "8");
-			value = value.replace("９", "9");
-			value = value.replace("０", "0");
-
-			value = value.trim();
-			
-			return value;
-		}
 		private static Pattern PAT_DATE_YEAR_MONTH_DAY_CJK = Pattern.compile("^(?<YY>[0-9]+)年(?<MM>[0-9]+)月(?<DD>[0-9]+)日$");
 		private static LocalDate convertDateYearMonthDayCJK(String value) {
-			value = nomalizeNumberCharacter(value);
+			value = normalizeNumberCharacter(value);
 			
 			Matcher m = PAT_DATE_YEAR_MONTH_DAY_CJK.matcher(value);
 			if (m.matches()) {
@@ -297,7 +279,7 @@ public abstract class InlineXBRL {
 		}
 		private static Pattern PAT_DATE_ERA_YEAR_MONTH_DAY_JP = Pattern.compile("^(?<ERA>..)(?<YY>[0-9]+)年(?<MM>[0-9]+)月(?<DD>[0-9]+)日$");
 		private static LocalDate convertDateEraYearMonthDayJP(String value) {
-			value = nomalizeNumberCharacter(value);
+			value = normalizeNumberCharacter(value);
 			value = value.replace("令和元年", "令和1年");
 
 			Matcher m = PAT_DATE_ERA_YEAR_MONTH_DAY_JP.matcher(value);
@@ -487,6 +469,8 @@ public abstract class InlineXBRL {
 				// Remove comma
 				{
 					String numberString = this.value;
+					numberString = normalizeNumberCharacter(numberString);
+					
 					// ixt::numdotdecimal
 					//   1,000 => 1000
 					numberString = numberString.replace(",", "");
@@ -524,6 +508,30 @@ public abstract class InlineXBRL {
 		}
 	}
 	
+	private static String normalizeNumberCharacter(String value) {
+		// １２３４５６７８９０
+		value = value.replace("１", "1");
+		value = value.replace("２", "2");
+		value = value.replace("３", "3");
+		value = value.replace("４", "4");
+		value = value.replace("５", "5");
+		value = value.replace("６", "6");
+		value = value.replace("７", "7");
+		value = value.replace("８", "8");
+		value = value.replace("９", "9");
+		value = value.replace("０", "0");
+
+		// Remove space in value
+		value = value.replace(" ", "");
+		
+		// 0.0<br/>
+		value = value.replace("<br/>", "");
+		// 0.0<br />
+		value = value.replace("<br />", "");
+		
+		return value;
+	}
+
 	public String getStringValue() {
 		if (kind == Kind.STRING) {
 			if (isNull) return null;
