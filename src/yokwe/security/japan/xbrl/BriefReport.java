@@ -31,7 +31,8 @@ public abstract class BriefReport {
 		TSE_ED_T_LABEL label();
 		Context[]      contextIncludeAll()   default {};
 		Context[]      contextExcludeAny()   default {};
-		boolean        acceptNull()          default false;
+		boolean        acceptNull()          default true;
+		boolean		   treatEmptyAsNull()    default true;
 	}
 	// type of field can be InlineXBRL, String, Boolean, BigDecimal, boolean, int, long, float, double
 	
@@ -104,6 +105,7 @@ public abstract class BriefReport {
 		final Context[] contextIncludeAll;
 		final Context[] contextExcludeAny;
 		final boolean   acceptNull;
+		final boolean   treatEmptyAsNull;
 
 		FieldInfo(Field field, Value annotation) {
 			this.field            = field;
@@ -116,6 +118,7 @@ public abstract class BriefReport {
 			this.contextIncludeAll = annotation.contextIncludeAll();
 			this.contextExcludeAny = annotation.contextExcludeAny();
 			this.acceptNull        = annotation.acceptNull();
+			this.treatEmptyAsNull  = annotation.treatEmptyAsNull();
 		}
 	}
 	
@@ -271,24 +274,39 @@ public abstract class BriefReport {
 			final Context[] contextIncludeAll = fieldInfo.contextIncludeAll;
 			final Context[] contextExcludeAny = fieldInfo.contextExcludeAny;
 			final boolean   acceptNull        = fieldInfo.acceptNull;
+			final boolean   treatEmptyAsNull  = fieldInfo.treatEmptyAsNull;
 			
 			List<InlineXBRL> list = ixDoc.getStream(qName).filter(InlineXBRL.contextIncludeAll(contextIncludeAll)).filter(InlineXBRL.contextExcludeAny(contextExcludeAny)).collect(Collectors.toList());
 			int size = list.size();
 			
 			try {
 				if (size == 0) {
-					// doesn't exist
-					logger.error("No matching entry");
-					logger.error("   namespace         {}", qName.namespace);
-					logger.error("   name              {}", qName.value);
-					logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
-					logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-					throw new UnexpectedException("No matching entry");
+					if (treatEmptyAsNull) {
+						if (fieldIsPrimitive) {
+							logger.error("No matching entry");
+							logger.error("Field is primitive   {}", fieldName);
+							logger.error("   namespace         {}", qName.namespace);
+							logger.error("   name              {}", qName.value);
+							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
+							logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+							throw new UnexpectedException("No matching entry");
+						} else {
+							field.set(this, null);
+						}
+					} else {
+						// doesn't exist
+						logger.error("No matching entry");
+						logger.error("   namespace         {}", qName.namespace);
+						logger.error("   name              {}", qName.value);
+						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
+						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+						throw new UnexpectedException("No matching entry");
+					}
 				} else if (list.size() == 1) {
 					InlineXBRL ix = list.get(0);
 					if (ix.isNull) {
 						if (acceptNull) {
-							logger.info("  {}  value = *NULL*", fieldName);
+// FIXME							logger.info("  {}  value = *NULL*", fieldName);
 							
 							if (fieldIsPrimitive) {
 								logger.error("Field cannot be null {}", fieldName);
@@ -309,7 +327,7 @@ public abstract class BriefReport {
 						}
 					} else {
 						// not null
-						logger.info("  {}  value = {} {}", fieldName, ix.kind, ix.value);
+// FIXME						logger.info("  {}  value = {} {}", fieldName, ix.kind, ix.value);
 						
 						switch(ix.kind) {
 						case STRING:
