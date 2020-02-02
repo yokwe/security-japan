@@ -15,13 +15,13 @@ import yokwe.util.CSVUtil;
 import yokwe.util.XMLUtil;
 
 //
-// Make DividendBriefReport for download file from ufocatch 
+// Make Dividend for download file from ufocatch 
 //
 
 public class UpdateDividend {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividend.class);
 	
-	public static final String PATH_FILE = "tmp/diviednd.csv";
+	public static final String PATH_FILE = "tmp/dividend.csv";
 	
 	public static void main(String[] args) {
 		logger.info("START");
