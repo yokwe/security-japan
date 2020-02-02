@@ -3,17 +3,14 @@ package yokwe.security.japan.xbrl;
 import static yokwe.security.japan.xbrl.InlineXBRL.Context.CURRENT_YEAR_DURATION;
 import static yokwe.security.japan.xbrl.InlineXBRL.Context.FIRST_QUARTER_MEMBER;
 import static yokwe.security.japan.xbrl.InlineXBRL.Context.LOWER_MEMBER;
-import static yokwe.security.japan.xbrl.InlineXBRL.Context.RESULT_MEMBER;
 import static yokwe.security.japan.xbrl.InlineXBRL.Context.SECOND_QUARTER_MEMBER;
 import static yokwe.security.japan.xbrl.InlineXBRL.Context.THIRD_QUARTER_MEMBER;
 import static yokwe.security.japan.xbrl.InlineXBRL.Context.UPPER_MEMBER;
 import static yokwe.security.japan.xbrl.InlineXBRL.Context.YEAR_END_MEMBER;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.COMPANY_NAME;
-import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.COMMEMORATIVE_DIVIDEND;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DIVIDEND_PAYABLE_DATE_AS_PLANNED;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DIVIDEND_PER_SHARE;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DOCUMENT_NAME;
-import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.EXTRA_DIVIDEND;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.FILING_DATE;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.FISCAL_YEAR_END;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.QUARTERLY_PERIOD;
@@ -25,7 +22,9 @@ import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
 
-public class DividendBriefReport extends BriefReport {
+import yokwe.UnexpectedException;
+
+public class DividendBriefReport extends BriefReport implements Comparable<DividendBriefReport> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendBriefReport.class);
 
 	@Value(label = DOCUMENT_NAME)
@@ -77,40 +76,46 @@ public class DividendBriefReport extends BriefReport {
 			acceptNull = true)
 	public BigDecimal dividendPerShareQ4; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 	
-//	@Value(label = EXTRA_DIVIDEND,
-//			contextIncludeAll = {RESULT_MEMBER},
-//			acceptNull = true)
-//	public BigDecimal extraDividend; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
-//
-//	@Value(label = COMMEMORATIVE_DIVIDEND,
-//			contextIncludeAll = {RESULT_MEMBER},
-//			acceptNull = true)
-//	public BigDecimal commemorativeDividend; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
+	public BigDecimal dividendPerShare;
+	
+	public static DividendBriefReport getInstance(InlineXBRL.Document document) {
+		DividendBriefReport ret = BriefReport.getInstance(DividendBriefReport.class, document);
 
-	public BigDecimal getDividendPerShare() {
-		final BigDecimal dividendPerShare;
-		switch(this.quarterlyPeriod) {
-		case 1:
-			dividendPerShare = dividendPerShareQ1;
-			break;
-		case 2:
-			dividendPerShare = dividendPerShareQ2;
-			break;
-		case 3:
-			dividendPerShare = dividendPerShareQ3;
-			break;
-		case 4:
-			dividendPerShare = dividendPerShareQ4;
-			break;
-		default:
-			logger.info("Unknown quarterlyPeriod {}", this.quarterlyPeriod);
-			dividendPerShare = null;
+		if (ret.quarterlyPeriod == null) {
+			ret.dividendPerShare = ret.dividendPerShareQ4;
+			ret.quarterlyPeriod  = 4;
+		} else {
+			switch(ret.quarterlyPeriod) {
+			case 1:
+				ret.dividendPerShare = ret.dividendPerShareQ1;
+				break;
+			case 2:
+				ret.dividendPerShare = ret.dividendPerShareQ2;
+				break;
+			case 3:
+				ret.dividendPerShare = ret.dividendPerShareQ3;
+				break;
+			default:
+				logger.error("Unexpected quarterlyPeriod {}", ret.quarterlyPeriod);
+				throw new UnexpectedException("Unexpected quarterlyPeriod");
+			}
 		}
-		
-		return dividendPerShare;
+
+		return ret;
 	}
+	
 	@Override
 	public String toString() {
-		return String.format("%s %d %s %6s %s", securitiesCode, quarterlyPeriod, dividendPayableDateAsPlanned, getDividendPerShare(), companyName);
+		return String.format("%s %s %s %d %s %6s %s", securitiesCode, filingDate, fiscalYearEnd, quarterlyPeriod, dividendPayableDateAsPlanned, dividendPerShare, companyName);
+	}
+
+	// Define natural ordering of DividendBriefReport
+	@Override
+	public int compareTo(DividendBriefReport that) {
+		int ret = this.securitiesCode.compareTo(that.securitiesCode);
+		if (ret == 0) ret = this.fiscalYearEnd.compareTo(that.fiscalYearEnd);
+		if (ret == 0) ret = this.quarterlyPeriod - that.quarterlyPeriod;
+		if (ret == 0) ret = this.filingDate.compareTo(that.filingDate);
+		return ret;
 	}
 }
