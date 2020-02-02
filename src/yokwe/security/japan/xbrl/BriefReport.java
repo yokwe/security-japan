@@ -306,8 +306,6 @@ public abstract class BriefReport {
 					InlineXBRL ix = list.get(0);
 					if (ix.isNull) {
 						if (acceptNull) {
-// FIXME							logger.info("  {}  value = *NULL*", fieldName);
-							
 							if (fieldIsPrimitive) {
 								logger.error("Field cannot be null {}", fieldName);
 								logger.error("   namespace         {}", qName.namespace);
@@ -327,8 +325,6 @@ public abstract class BriefReport {
 						}
 					} else {
 						// not null
-// FIXME						logger.info("  {}  value = {} {}", fieldName, ix.kind, ix.value);
-						
 						switch(ix.kind) {
 						case STRING:
 							assignField(fieldInfo, (InlineXBRL.StringValue)ix);
@@ -350,15 +346,49 @@ public abstract class BriefReport {
 					}
 				} else {
 					// multiple hit
-					logger.error("More than one matching entry");
-					logger.error("   namespace         {}", qName.namespace);
-					logger.error("   name              {}", qName.value);
-					logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
-					logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-					for(int i = 0; i < list.size(); i++) {
-						logger.error("  {}  {}", i, list.get(i));
+					boolean isAllNull = true;
+					for(InlineXBRL e: list) {
+						if (!e.isNull) isAllNull = false;
 					}
-					throw new UnexpectedException("More than one matching entry");
+					if (isAllNull) {
+						// Special case for multiple null
+						if (acceptNull) {
+							if (fieldIsPrimitive) {
+								logger.error("Field cannot be null {}", fieldName);
+								logger.error("   namespace         {}", qName.namespace);
+								logger.error("   name              {}", qName.value);
+								logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
+								logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+								throw new UnexpectedException("Field cannot be null");
+							}
+							logger.warn("More than one matching entry");
+							logger.warn("   namespace         {}", qName.namespace);
+							logger.warn("   name              {}", qName.value);
+							logger.warn("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
+							logger.warn("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+							for(int i = 0; i < list.size(); i++) {
+								logger.warn("  {}  {}", i, list.get(i));
+							}
+							field.set(this, null);
+						} else {
+							logger.error("Entry is null");
+							logger.error("   namespace         {}", qName.namespace);
+							logger.error("   name              {}", qName.value);
+							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
+							logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+							throw new UnexpectedException("Entry is null");
+						}
+					} else {
+						logger.error("More than one matching entry");
+						logger.error("   namespace         {}", qName.namespace);
+						logger.error("   name              {}", qName.value);
+						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
+						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+						for(int i = 0; i < list.size(); i++) {
+							logger.error("  {}  {}", i, list.get(i));
+						}
+						throw new UnexpectedException("More than one matching entry");
+					}
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				String exceptionName = e.getClass().getSimpleName();
