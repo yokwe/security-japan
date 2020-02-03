@@ -43,7 +43,8 @@ public class DownloadAll {
 		logger.info("START");
 		
 		Map<String, File> existingFileMap = Atom.getExistingFileMap();
-		
+		logger.info("existingFileMap {}", existingFileMap.size());
+
 		String rootPage = Atom.query(Atom.Kind.TDNETX, "");
 		Feed rootFeed = JAXB.unmarshal(new StringReader(rootPage), Feed.class);
 				
