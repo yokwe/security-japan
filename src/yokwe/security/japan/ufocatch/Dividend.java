@@ -11,12 +11,15 @@ public class Dividend implements Comparable<Dividend> {
 	public String     date;
 	public BigDecimal value;
 	
-	Dividend(DividendBriefReport data) {
+	public String     file; // file name of data source
+	
+	Dividend(DividendBriefReport data, String file) {
 		this.code     = data.securitiesCode;
 		this.yearEnd  = data.fiscalYearEnd;
 		this.quarter  = data.quarterlyPeriod;
 		this.date     = data.dividendPayableDateAsPlanned;
 		this.value    = data.dividendPerShare;
+		this.file     = file;
 	}
 	
 	@Override
@@ -26,6 +29,7 @@ public class Dividend implements Comparable<Dividend> {
 		} else {
 			if (o instanceof Dividend) {
 				Dividend that = (Dividend)o;
+				// Don't consider field file.
 				return
 					this.code.equals(that.code) &&
 					this.yearEnd.equals(that.yearEnd) &&
@@ -39,7 +43,7 @@ public class Dividend implements Comparable<Dividend> {
 	}
 	@Override
 	public String toString() {
-		return String.format("{%s %s %s %s %s}", code, yearEnd, quarter, date, value);
+		return String.format("{%s %s %s %s %s %s}", code, yearEnd, quarter, date, value, file);
 	}
 	@Override
 	public int compareTo(Dividend that) {
