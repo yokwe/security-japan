@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import yokwe.util.DoubleUtil;
-import yokwe.util.Market;
+import yokwe.util.JapanHoliday;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
 import yokwe.util.stats.HV;
@@ -22,7 +22,7 @@ import yokwe.util.stats.RSI;
 public class UpdateStats {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStats.class);
 	
-	private static final LocalDate DATE_LAST  = Market.getLastTradingDate();
+	private static final LocalDate DATE_LAST  = JapanHoliday.getLastTradingDate();
 	private static final String STRING_DATE_LAST  = DATE_LAST.toString();
 	private static final String STRING_DATE_FIRST = DATE_LAST.minusYears(1).toString();
 
