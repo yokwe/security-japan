@@ -1,4 +1,4 @@
-package yokwe.security.japan.ufocatch;
+package yokwe.security.japan.data;
 
 import java.util.ArrayList;
 import java.util.Collection;

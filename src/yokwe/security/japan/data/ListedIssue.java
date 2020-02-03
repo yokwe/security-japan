@@ -1,4 +1,4 @@
-package yokwe.security.japan.jpx;
+package yokwe.security.japan.data;
 
 import java.util.ArrayList;
 import java.util.Collection;

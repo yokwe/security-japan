@@ -1,4 +1,4 @@
-package yokwe.security.japan.ufocatch;
+package yokwe.security.japan.data;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.security.japan.ufocatch.Atom;
 import yokwe.security.japan.xbrl.DividendBriefReport;
 import yokwe.security.japan.xbrl.InlineXBRL;
 import yokwe.util.XMLUtil;
