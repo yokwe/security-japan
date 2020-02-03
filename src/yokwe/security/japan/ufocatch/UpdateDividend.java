@@ -55,7 +55,7 @@ public class UpdateDividend {
 			Map<String, Dividend> map = new TreeMap<>();
 			
 			for(Dividend newValue: list) {
-				String key = String.format("%s %s %s", newValue.code, newValue.yearEnd, newValue.quarter);
+				String key = String.format("%s %s %s", newValue.stockCode, newValue.yearEnd, newValue.quarter);
 				if (map.containsKey(key)) {
 					Dividend oldValue = map.get(key);
 					if (newValue.equals(oldValue)) continue;
