@@ -21,7 +21,7 @@ import yokwe.util.XMLUtil;
 public class UpdateDividend {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividend.class);
 	
-	public static final String PATH_FILE = "tmp/dividend.csv";
+	public static final String PATH_FILE = "tmp/data/dividend.csv";
 	
 	public static void main(String[] args) {
 		logger.info("START");
@@ -45,7 +45,7 @@ public class UpdateDividend {
 				if (briefReport.dividendPayableDateAsPlanned == null) continue;
 				if (briefReport.dividendPerShare == null) continue;
 				
-				list.add(new Dividend(briefReport));
+				list.add(new Dividend(briefReport, file.getName()));
 			}
 			Collections.sort(list);
 		}
