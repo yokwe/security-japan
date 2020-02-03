@@ -60,7 +60,7 @@ ifneq (,$(wildcard tmp/data/stats.csv))
 	rm -rf tmp/data/stats-OLD.csv
 	mv     tmp/data/stats.csv      tmp/data/stats-OLD.csv
 endif
-	ant update-dividend
+	ant update-stats
 	cp tmp/data/stats.csv ~/Dropbox/Trade/stats-jp.csv
 
 #
