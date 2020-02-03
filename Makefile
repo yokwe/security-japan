@@ -41,7 +41,7 @@ endif
 	ant update-stock-price
 
 update-dividend-all:
-ifneq (,$(wildcard tmp/data/dividend.csv))
+ifneq (,$(wildcard tmp/data/dividend-all.csv))
 	rm -f tmp/data/dividend-all-OLD.csv
 	cp -p tmp/data/dividend-all.csv     tmp/data/dividend-all-OLD.csv
 endif
@@ -53,8 +53,15 @@ ifneq (,$(wildcard tmp/data/dividend))
 	mv     tmp/data/dividend      tmp/data/dividend-OLD
 	mkdir  tmp/data/dividend
 endif
-	ant update-dividend-all
+	ant update-dividend
 
+update-stats:
+ifneq (,$(wildcard tmp/data/stats.csv))
+	rm -rf tmp/data/stats-OLD.csv
+	mv     tmp/data/stats.csv      tmp/data/stats-OLD.csv
+endif
+	ant update-dividend
+	cp tmp/data/stats.csv ~/Dropbox/Trade/stats-jp.csv
 
 #
 # Taxonomy file
