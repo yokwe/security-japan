@@ -40,12 +40,20 @@ ifneq (,$(wildcard tmp/data/stock.csv))
 endif
 	ant update-stock-price
 
-update-dividend:
+update-dividend-all:
 ifneq (,$(wildcard tmp/data/dividend.csv))
-	rm -f tmp/data/dividend-OLD.csv
-	cp -p tmp/data/dividend.csv     tmp/data/dividend-OLD.csv
+	rm -f tmp/data/dividend-all-OLD.csv
+	cp -p tmp/data/dividend-all.csv     tmp/data/dividend-all-OLD.csv
 endif
-	ant update-dividend
+	ant update-dividend-all
+
+update-dividend:
+ifneq (,$(wildcard tmp/data/dividend))
+	rm -rf tmp/data/dividend-OLD
+	mv     tmp/data/dividend      tmp/data/dividend-OLD
+	mkdir  tmp/data/dividend
+endif
+	ant update-dividend-all
 
 
 #

@@ -17,8 +17,8 @@ import yokwe.util.HttpUtil;
 import yokwe.util.JapanHoliday;
 import yokwe.util.StringUtil;
 
-public class UpdateStockPrice {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockPrice.class);
+public class UpdatePrice {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdatePrice.class);
 
 	private static String getPage(String stockCode) {
 		String url = String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode);
@@ -235,7 +235,7 @@ public class UpdateStockPrice {
 	
 	private static final int MAX_COUNT_NO_DATA = 10;
 	
-	private static void updateStockPrice(List<ListedIssue> list) {
+	private static void updatePrice(List<ListedIssue> list) {
 		// Create parent folder if not exists
 		{
 			String path = getPagePath("0000");
@@ -391,7 +391,7 @@ public class UpdateStockPrice {
 		Collections.shuffle(list);
 
 		// update stock and price
-		updateStockPrice(list);
+		updatePrice(list);
 		
 		logger.info("STOP");
 		System.exit(0);

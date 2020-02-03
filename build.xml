@@ -71,6 +71,15 @@
                  </java>
         </target>
 
+        <target name="update-dividend-all">
+                <java classname="yokwe.security.japan.data.UpdateDividendAll" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                 </java>
+        </target>
+
         <target name="update-dividend">
                 <java classname="yokwe.security.japan.data.UpdateDividend" fork="true">
                         <classpath location="${jar.security-japan}" />

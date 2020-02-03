@@ -4,10 +4,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import org.slf4j.LoggerFactory;
+
+import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
 
 public class ListedIssue implements Comparable<ListedIssue> {	
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(ListedIssue.class);
+
 	public static final String URL_DOWNLOAD  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	public static final String PATH_DOWNLOAD = "tmp/download/listed-issue.xls";
 	public static final String PATH_DATA     = "tmp/data/listed-issue.csv";
@@ -16,6 +23,21 @@ public class ListedIssue implements Comparable<ListedIssue> {
 	
 	public static List<ListedIssue> load() {
 		return CSVUtil.read(ListedIssue.class).file(PATH_DATA);
+	}
+	public static Map<String, ListedIssue> getMap() {
+		List<ListedIssue> list = load();
+		
+		Map<String, ListedIssue> ret = new TreeMap<>();
+		for(ListedIssue e: list) {
+			String stockCode = e.stockCode;
+			if (ret.containsKey(stockCode)) {
+				logger.error("Duplicate stockCode {}", stockCode);
+				throw new UnexpectedException("Duplicate stockCode");
+			} else {
+				ret.put(stockCode, e);
+			}
+		}
+		return ret;
 	}
 	public static void save(Collection<ListedIssue> collection) {
 		save(new ArrayList<>(collection));
