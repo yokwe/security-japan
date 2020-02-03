@@ -40,6 +40,14 @@ ifneq (,$(wildcard tmp/data/stock.csv))
 endif
 	ant update-stock-price
 
+update-dividend:
+ifneq (,$(wildcard tmp/data/dividend.csv))
+	rm -f tmp/data/dividend-OLD.csv
+	cp -p tmp/data/dividend.csv     tmp/data/dividend-OLD.csv
+endif
+	ant update-dividend
+
+
 #
 # Taxonomy file
 #
