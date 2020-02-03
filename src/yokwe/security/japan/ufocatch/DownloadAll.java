@@ -46,10 +46,23 @@ public class DownloadAll {
 		
 		String rootPage = Atom.query(Atom.Kind.TDNETX, "");
 		Feed rootFeed = JAXB.unmarshal(new StringReader(rootPage), Feed.class);
-		
+				
 		int countEntry = 0;
 		int countEDJP  = 0;
+		
+		boolean stopAtFirstSkip = false;
+		
 		Feed feed = rootFeed;
+		{
+			Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);
+			Link first = linkMap.get(Link.Relation.FIRST);
+			Link last  = linkMap.get(Link.Relation.LAST);
+			Link self  = linkMap.get(Link.Relation.SELF);
+
+			logger.info("FIRST {}", first.href);
+			logger.info("LAST  {}", last.href);
+			logger.info("SELF  {}", self.href);
+		}
 		for(;;) {
 			int count = 0;
 			int entryListSize = feed.entryList.size();
@@ -68,6 +81,9 @@ public class DownloadAll {
 							if (existingFileMap.containsKey(fileName)) {
 								// Skip
 								logger.info("{} / {}  Skip file {}", count, entryListSize, fileName);
+								stopAtFirstSkip = true;
+								logger.info("stop at first skip");
+								break;
 							} else {
 								HttpUtil.Result result = HttpUtil.getInstance().download(link.href);
 								if (result.result == null) {
@@ -80,18 +96,22 @@ public class DownloadAll {
 						}
 					}
 				}
+				if (stopAtFirstSkip) break;
 			}
+			if (stopAtFirstSkip) break;
 			
-			Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);			
-			Link self = linkMap.get(Link.Relation.SELF);
-			logger.info("{}  {}  {}", self.href, countEntry, countEDJP);
+			{
+				Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);			
+				Link self = linkMap.get(Link.Relation.SELF);
+				logger.info("SELF  {}", self.href);
 
-			//
-			if (linkMap.containsKey(Link.Relation.NEXT)) {
-				Link next = linkMap.get(Link.Relation.NEXT);
-				HttpUtil.Result result = HttpUtil.getInstance().download(next.href);
-				feed = JAXB.unmarshal(new StringReader(result.result), Feed.class);
-				continue;
+				//
+				if (linkMap.containsKey(Link.Relation.NEXT)) {
+					Link next = linkMap.get(Link.Relation.NEXT);
+					HttpUtil.Result result = HttpUtil.getInstance().download(next.href);
+					feed = JAXB.unmarshal(new StringReader(result.result), Feed.class);
+					continue;
+				}
 			}
 			
 			break;
