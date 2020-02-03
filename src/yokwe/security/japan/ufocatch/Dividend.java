@@ -1,19 +1,45 @@
 package yokwe.security.japan.ufocatch;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import yokwe.security.japan.xbrl.DividendBriefReport;
+import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
 
 public class Dividend implements Comparable<Dividend> {
-	public String stockCode;
-	public String yearEnd;
+	public static final String PATH_FILE = "tmp/data/dividend.csv";
+
+	public static List<Dividend> load() {
+		return CSVUtil.read(Dividend.class).file(PATH_FILE);
+	}
+	public static void save(Collection<Dividend> collection) {
+		List<Dividend> list = new ArrayList<>(collection);
+		save(list);
+	}
+	public static void save(List<Dividend> list) {
+		// Sort before save
+		Collections.sort(list);
+		CSVUtil.write(Dividend.class).file(PATH_FILE, list);
+	}
+
+
+	public String stockCode; // Can be four or five digits
+	public String yearEnd;   // YYYY-MM-DD
 	public int    quarter;
-	public String date;
+	public String date;      // YYYY-MM-DD
 	public double value;
 	
 	public String     file; // file name of data source
 	
 	Dividend(DividendBriefReport data, String file) {
 		this.stockCode = data.securitiesCode;
+		// Trim stockCode to 4 digits if possible.
+		if (stockCode.length() == 5 && stockCode.charAt(4) == '0') {
+			this.stockCode = this.stockCode.substring(0, 4);
+		}
 		this.yearEnd   = data.fiscalYearEnd;
 		this.quarter   = data.quarterlyPeriod;
 		this.date      = data.dividendPayableDateAsPlanned;

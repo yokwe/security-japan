@@ -2,7 +2,6 @@ package yokwe.security.japan.ufocatch;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.security.japan.xbrl.DividendBriefReport;
 import yokwe.security.japan.xbrl.InlineXBRL;
-import yokwe.util.CSVUtil;
 import yokwe.util.XMLUtil;
 
 //
@@ -20,8 +18,6 @@ import yokwe.util.XMLUtil;
 
 public class UpdateDividend {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividend.class);
-	
-	public static final String PATH_FILE = "tmp/data/dividend.csv";
 	
 	public static void main(String[] args) {
 		logger.info("START");
@@ -47,7 +43,6 @@ public class UpdateDividend {
 				
 				list.add(new Dividend(briefReport, file.getName()));
 			}
-			Collections.sort(list);
 		}
 		
 		logger.info("list {}", list.size());
@@ -68,10 +63,9 @@ public class UpdateDividend {
 				map.put(key, newValue);
 			}
 			List<Dividend> dividendList = new ArrayList<>(map.values());
-			Collections.sort(dividendList);
 			
-			logger.info("save {}  {}", PATH_FILE, dividendList.size());
-			CSVUtil.write(Dividend.class).file(PATH_FILE, dividendList);
+			logger.info("save {}  {}", Dividend.PATH_FILE, dividendList.size());
+			Dividend.save(dividendList);
 		}
 
 		logger.info("STOP");
