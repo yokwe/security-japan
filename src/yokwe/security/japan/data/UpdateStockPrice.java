@@ -17,8 +17,8 @@ import yokwe.util.HttpUtil;
 import yokwe.util.JapanHoliday;
 import yokwe.util.StringUtil;
 
-public class UpdatePrice {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdatePrice.class);
+public class UpdateStockPrice {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockPrice.class);
 
 	private static String getPage(String stockCode) {
 		String url = String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode);

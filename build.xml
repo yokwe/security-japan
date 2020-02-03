@@ -53,8 +53,8 @@
                  </java>
         </target>
 
-        <target name="update-price">
-                <java classname="yokwe.security.japan.data.UpdatePrice" fork="true">
+        <target name="update-stock-price">
+                <java classname="yokwe.security.japan.data.UpdateStockPrice" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
