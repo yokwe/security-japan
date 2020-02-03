@@ -1,25 +1,24 @@
 package yokwe.security.japan.ufocatch;
 
-import java.math.BigDecimal;
-
 import yokwe.security.japan.xbrl.DividendBriefReport;
+import yokwe.util.DoubleUtil;
 
 public class Dividend implements Comparable<Dividend> {
-	public String     code;
-	public String     yearEnd;
-	public Integer    quarter;
-	public String     date;
-	public BigDecimal value;
+	public String stockCode;
+	public String yearEnd;
+	public int    quarter;
+	public String date;
+	public double value;
 	
 	public String     file; // file name of data source
 	
 	Dividend(DividendBriefReport data, String file) {
-		this.code     = data.securitiesCode;
-		this.yearEnd  = data.fiscalYearEnd;
-		this.quarter  = data.quarterlyPeriod;
-		this.date     = data.dividendPayableDateAsPlanned;
-		this.value    = data.dividendPerShare;
-		this.file     = file;
+		this.stockCode = data.securitiesCode;
+		this.yearEnd   = data.fiscalYearEnd;
+		this.quarter   = data.quarterlyPeriod;
+		this.date      = data.dividendPayableDateAsPlanned;
+		this.value     = data.dividendPerShare.doubleValue();
+		this.file      = file;
 	}
 	
 	@Override
@@ -31,11 +30,11 @@ public class Dividend implements Comparable<Dividend> {
 				Dividend that = (Dividend)o;
 				// Don't consider field file.
 				return
-					this.code.equals(that.code) &&
+					this.stockCode.equals(that.stockCode) &&
 					this.yearEnd.equals(that.yearEnd) &&
-					this.quarter.equals(that.quarter) &&
+					this.quarter == that.quarter &&
 					this.date.equals(that.date) &&
-					this.value.equals(that.value);
+					DoubleUtil.isAlmostEqual(this.value, that.value);
 			} else {
 				return false;
 			}
@@ -43,13 +42,13 @@ public class Dividend implements Comparable<Dividend> {
 	}
 	@Override
 	public String toString() {
-		return String.format("{%s %s %s %s %s %s}", code, yearEnd, quarter, date, value, file);
+		return String.format("{%s %s %d %s %.2f %s}", stockCode, yearEnd, quarter, date, value, file);
 	}
 	@Override
 	public int compareTo(Dividend that) {
-		int ret = this.code.compareTo(that.code);
+		int ret = this.stockCode.compareTo(that.stockCode);
 		if (ret == 0) ret = this.yearEnd.compareTo(that.yearEnd);
-		if (ret == 0) ret = this.quarter.compareTo(that.quarter);
+		if (ret == 0) ret = this.quarter - that.quarter;
 		return ret;
 	}
 }
