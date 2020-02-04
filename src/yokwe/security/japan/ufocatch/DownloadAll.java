@@ -13,8 +13,7 @@ import javax.xml.bind.JAXB;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.TDNET;
-import yokwe.security.japan.jpx.TDNET.EarningDigest;
+import yokwe.security.japan.jpx.TDNET.FinancialSummary;
 import yokwe.security.japan.ufocatch.atom.Entry;
 import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.security.japan.ufocatch.atom.Link;
@@ -28,7 +27,7 @@ public class DownloadAll {
 	// Download atom feed of ufocatch
 	//
 	
-	private static String getFileName(String href) {
+	private static String getFilename(String href) {
 		try {
 			URL url = new URL(href);
 			Path path = Paths.get(url.getPath());
@@ -42,16 +41,18 @@ public class DownloadAll {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		Map<String, File> existingFileMap = Atom.getExistingFileMap();
-		logger.info("existingFileMap {}", existingFileMap.size());
+		Map<FinancialSummary, File> fileMap = Atom.getFileMap();
+		logger.info("fileMap {}", fileMap.size());
 
 		String rootPage = Atom.query(Atom.Kind.TDNETX, "");
 		Feed rootFeed = JAXB.unmarshal(new StringReader(rootPage), Feed.class);
+		
+		HttpUtil httpUtil = HttpUtil.getInstance();
 				
 		int countEntry = 0;
 		int countEDJP  = 0;
 		
-		boolean stopAtFirstSkip = false;
+//		boolean stopAtFirstSkip = false;
 		
 		Feed feed = rootFeed;
 		{
@@ -72,34 +73,31 @@ public class DownloadAll {
 				count++;
 				countEntry++;
 				for(Link link: entry.linkList) {
-					EarningDigest earningDigest = EarningDigest.getInstance(link.href);
-					if (earningDigest != null) {
-						if (earningDigest.category == TDNET.Category.EDJP) {
-//							logger.info("    link  {} {} {}", link.rel, String.format("%-4s", link.type), link.href);
-							countEDJP++;
-							
-							String fileName = getFileName(link.href);
-							if (existingFileMap.containsKey(fileName)) {
-								// Skip
-								logger.info("{} / {}  Skip file {}", count, entryListSize, fileName);
-								stopAtFirstSkip = true;
-								logger.info("stop at first skip");
-								break;
+					String filename = getFilename(link.href);
+					FinancialSummary financialSummary = FinancialSummary.getInstance(filename);
+					if (financialSummary != null) {
+						if (fileMap.containsKey(financialSummary)) {
+							// Skip
+							logger.info("{} / {}  Skip file {}", count, entryListSize, filename);
+//							stopAtFirstSkip = true;
+//							logger.info("stop at first skip");
+//							break;
+						} else {
+							logger.info("{} / {}  Save file {}", count, entryListSize, filename);
+							HttpUtil.Result result = httpUtil.download(link.href);
+							if (result.result == null) {
+								logger.error("Unable to download {}", link.href);
+								throw new UnexpectedException("Unable to download");
 							} else {
-								HttpUtil.Result result = HttpUtil.getInstance().download(link.href);
-								if (result.result == null) {
-									logger.error("Unable to download {}", link.href);
-								} else {
-									logger.info("{} / {}  Save file {}", count, entryListSize, fileName);
-									FileUtil.write().file(Atom.getPath(fileName), result.result);
-								}
+								FileUtil.write().file(Atom.getPath(filename), result.result);
 							}
 						}
 					}
+// FIXME			if (stopAtFirstSkip) break;
 				}
-				if (stopAtFirstSkip) break;
+// FIXME		if (stopAtFirstSkip) break;
 			}
-			if (stopAtFirstSkip) break;
+// FIXME	if (stopAtFirstSkip) break;
 			
 			{
 				Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);			
@@ -109,7 +107,7 @@ public class DownloadAll {
 				//
 				if (linkMap.containsKey(Link.Relation.NEXT)) {
 					Link next = linkMap.get(Link.Relation.NEXT);
-					HttpUtil.Result result = HttpUtil.getInstance().download(next.href);
+					HttpUtil.Result result = httpUtil.download(next.href);
 					feed = JAXB.unmarshal(new StringReader(result.result), Feed.class);
 					continue;
 				}

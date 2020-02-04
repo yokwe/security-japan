@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBException;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.security.japan.jpx.TDNET.Category;
 import yokwe.security.japan.xbrl.InlineXBRL;
 import yokwe.util.StringUtil;
 import yokwe.util.XMLUtil;
@@ -23,7 +24,7 @@ public class GenerateContext {
 		
 		Set<String> all = new TreeSet<>();
 		
-		for(File file: Atom.getExistingFileList()) {
+		for(File file : Atom.getFileList(Category.EDJP)) {
 			logger.info("File {}", file.getPath());
 			InlineXBRL.Document document = InlineXBRL.Document.getInstance(XMLUtil.buildStream(file));
 			

@@ -145,21 +145,22 @@ public class TDNET {
 	// 決算短信サマリー情報及び予想修正報告
 	// インラインXBRLファイル名
     //   tse-{報告書}[{報告書詳細区分}]-{証券コード}-{開示番号}-ixbrl.htm
-	// 報告書   :=  [{期区分}{連結・非連結区分}]{報告区分｝
+	// 報告書   :=  [{期区分}{連結・非連結区分}]{報告区分}
 	// 開示番号　:=  {提出日 8 桁}{3 から開始する連番 1桁}{証券コード 5 桁}
 	//   tse-qcedjpsm-71770-20170725371770-ixbrl.htm
-	public static class EarningDigest {
+	//   tse-rvfc-82270-20191222439755-ixbrl.htm
+	public static class FinancialSummary implements Comparable<FinancialSummary> {
 		private static final Pattern PAT = Pattern.compile("tse-(?<period>[asq]?)(?<consolidate>[cn]?)(?<category>[a-z]{4})(?<detail>(sm|fr)?)-(?<tdnetCode>[0-9]{5})-(?<id>[0-9]{14})-ixbrl.htm");
 		
-		private static final StringUtil.MatcherFunction<EarningDigest> OP = (m -> new EarningDigest(
+		private static final StringUtil.MatcherFunction<FinancialSummary> OP = (m -> new FinancialSummary(
 				m.group("period"),
 				m.group("consolidate"),
 				m.group("category"),
 				m.group("detail"),
 				m.group("tdnetCode"),
 				m.group("id")));
-		public static EarningDigest getInstance(String string) {
-			List<EarningDigest> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
+		public static FinancialSummary getInstance(String string) {
+			List<FinancialSummary> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
 			if (list.size() == 0) return null;
 			if (list.size() == 1) return list.get(0);
 			logger.error("Unexpected value %s!", list);
@@ -172,20 +173,64 @@ public class TDNET {
 		public final Detail      detail;
 		public final String      tdnetCode;
 		public final String      id;
+		public final String      string;
 		
-		public EarningDigest(String period, String consolidate, String category, String detail, String tdnetCode, String id) {
+		public FinancialSummary(String period, String consolidate, String category, String detail, String tdnetCode, String id) {
 			this.period      = Period.getInstance(period);
 			this.consolidate = Consolidate.getInstance(consolidate);
 			this.category    = Category.getInstance(category);
 			this.detail      = Detail.getInstance(detail);
 			this.tdnetCode   = tdnetCode;
 			this.id          = id;
+			
+			{
+				//   tse-qcedjpsm-71770-20170725371770-ixbrl.htm
+				StringBuffer sb = new StringBuffer();
+//				sb.append("tse-");
+				if (this.period != null) {
+					sb.append(this.period.value);
+				}
+				if (this.consolidate != null) {
+					sb.append(this.consolidate.value);
+				}
+				sb.append(this.category.value);
+				if (this.detail != null) {
+					sb.append(this.detail.value);
+				}
+				sb.append("-");
+				sb.append(this.tdnetCode);
+				sb.append("-");
+				sb.append(this.id);
+//				sb.append("-ixbrl.htm");
+				
+				this.string = sb.toString();
+			}
 		}
 		
 		@Override
-		public String toString() {
-			return String.format("{%s %s %s %s %s %s}", period, consolidate, category, detail, tdnetCode, id);
+		public boolean equals(Object o) {
+			if (o == null) return false;
+			if (o instanceof FinancialSummary) {
+				FinancialSummary that = (FinancialSummary)o;
+				return this.string.equals(that.string);
+			} else {
+				return false;
+			}
 		}
+		@Override
+		public String toString() {
+			return string;
+		}
+
+		@Override
+		public int compareTo(FinancialSummary that) {
+			int ret = this.tdnetCode.compareTo(that.tdnetCode);
+			if (ret == 0) ret = this.id.compareTo(that.id);
+			if (ret == 0) ret = this.category.value.compareTo(that.category.value);
+			if (ret == 0) ret = this.string.compareTo(that.string);
+			return ret;
+		}
+		
 	}
 	
 	

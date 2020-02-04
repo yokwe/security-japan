@@ -26,7 +26,7 @@ public class UpdateDividendAll {
 		List<DividendAll> list = new ArrayList<>();
 		
 		{
-			List<File> fileList = Atom.getExistingFileList();
+			List<File> fileList = Atom.getFileList();
 			logger.info("fileList {}", fileList.size());
 			
 			int count = 0;

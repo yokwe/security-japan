@@ -7,7 +7,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.jpx.TDNET.Category;
+import yokwe.security.japan.jpx.TDNET.FinancialSummary;
 import yokwe.security.japan.ufocatch.atom.Link;
 import yokwe.util.FileUtil;
 import yokwe.util.HttpUtil;
@@ -25,52 +27,56 @@ public class Atom {
 
 	public static final String DIR_BASE = "tmp/ufocatch";
 	
-	public static String getSubDirectory(String filename) {
-		String[] token = filename.split("-");
-		
-		// tse-qcedjpsm-39160-20190214339160-ixbrl.htm
-		//   0        1     2              3         4
-		if (token.length == 5 && token[0].equals("tse") && token[4].equals("ixbrl.htm")) {
-			return token[2];
-		} else {
+	public static String getPath(String filename) {
+		FinancialSummary financialSumary = FinancialSummary.getInstance(filename);
+		if (financialSumary == null) {
 			logger.error("Unexpected filename {}", filename);
 			throw new UnexpectedException("Unexpected filename");
 		}
-	}
-	public static String getPath(String filename) {
-		String subDir = getSubDirectory(filename);
-		return String.format("%s/%s/%s", DIR_BASE, subDir, filename);
+		return String.format("%s/%s/%s", DIR_BASE, financialSumary.tdnetCode, filename);
 	}
 	
-	private static int compareFile(File a, File b) {
-		// tse-qcedjpsm-39160-20190214339160-ixbrl.htm
-		//   0        1     2              3
-		String[] nameA = a.getName().split("-");
-		String[] nameB = b.getName().split("-");
-		
-		int ret = nameA[2].compareTo(nameB[2]);
-		if (ret == 0) ret = nameA[1].compareTo(nameB[1]);
-		if (ret == 0) ret = nameA[3].compareTo(nameB[3]);
-		return ret;
-	}
-	public static List<File> getExistingFileList() {
-		File dir = new File(DIR_BASE);
-		if (!dir.exists()) {
-			dir.mkdirs();
+	private static List<File> fileList = null;
+	public static List<File> getFileList() {
+		if (fileList == null) {
+			fileList = new ArrayList<>(getFileMap().values());
 		}
 		
-		List<File> ret = FileUtil.listFile(dir);
-		Collections.sort(ret, Atom::compareFile);
+		return fileList;
+	}
+	public static List<File> getFileList(Category category) {
+		List<File> ret = new ArrayList<>();
+		for(Map.Entry<FinancialSummary, File> entry: getFileMap().entrySet()) {
+			FinancialSummary financialSummary = entry.getKey();
+			File             file             = entry.getValue();
+			if (financialSummary.category == category) {
+				ret.add(file);
+			}
+		}
 		return ret;
 	}
-	public static Map<String, File> getExistingFileMap() {
-		Map<String, File> ret = new TreeMap<>();
-		for(File file: getExistingFileList()) {
-			String name = file.getName();
-			ret.put(name, file);
+
+	private static Map<FinancialSummary, File> fileMap = null;
+	public static Map<FinancialSummary, File> getFileMap() {
+		if (fileMap == null) {
+			fileMap = new TreeMap<>();
+			File dir = new File(DIR_BASE);
+			for(File file: FileUtil.listFile(dir)) {
+				FinancialSummary key = FinancialSummary.getInstance(file.getName());
+				if (key == null) continue;
+				
+				if (fileMap.containsKey(key)) {
+					logger.error("Duplicate key {}", key);
+					logger.error("  new {}", file.getName());
+					logger.error("  old {}", fileMap.get(key).getName());
+					throw new UnexpectedException("Duplicate key");
+				} else {
+					fileMap.put(key, file);
+				}
+			}
 		}
 		
-		return ret;
+		return fileMap;
 	}
 	private static String getFilename(String href) {
 		try {
