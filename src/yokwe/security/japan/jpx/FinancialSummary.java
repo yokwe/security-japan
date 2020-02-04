@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.slf4j.LoggerFactory;
+
 import yokwe.UnexpectedException;
 import yokwe.util.StringUtil;
 
@@ -15,6 +17,8 @@ import yokwe.util.StringUtil;
 	//   tse-qcedjpsm-71770-20170725371770-ixbrl.htm
 	//   tse-rvfc-82270-20191222439755-ixbrl.htm
 	public class FinancialSummary implements Comparable<FinancialSummary> {
+		private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FinancialSummary.class);
+
 		private static final Pattern PAT = Pattern.compile("tse-(?<period>[asq]?)(?<consolidate>[cn]?)(?<category>[a-z]{4})(?<detail>(sm|fr)?)-(?<tdnetCode>[0-9]{5})-(?<id>[0-9]{14})-ixbrl.htm");
 		
 		private static final StringUtil.MatcherFunction<FinancialSummary> OP = (m -> new FinancialSummary(
@@ -28,7 +32,7 @@ import yokwe.util.StringUtil;
 			List<FinancialSummary> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
 			if (list.size() == 0) return null;
 			if (list.size() == 1) return list.get(0);
-			TDNET.logger.error("Unexpected value %s!", list);
+			logger.error("Unexpected value %s!", list);
 			throw new UnexpectedException("Unexpected value");
 		}
 

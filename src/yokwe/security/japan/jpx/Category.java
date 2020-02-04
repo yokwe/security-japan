@@ -1,5 +1,7 @@
 package yokwe.security.japan.jpx;
 
+import org.slf4j.LoggerFactory;
+
 import yokwe.UnexpectedException;
 
 // 報告区分
@@ -17,13 +19,15 @@ public enum Category {
 	RRDF   ("rrdf", "分配予想の修正に関するお知らせ"),      // 分配予想の修正に関するお知らせ
 	RRFC   ("rrfc", "運用状況の予想の修正に関するお知らせ"); // 運用状況の予想の修正に関するお知らせ
 	
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Category.class);
+	
 	private static final Category[] VALUES = Category.values();
 	public static Category getInstance(String value) {
 		if (value == null || value.isEmpty()) return null;
 		for(Category category: VALUES) {
 			if (value.equals(category.value)) return category;
 		}
-		TDNET.logger.error("Unknown value {}!", value);
+		logger.error("Unknown value {}!", value);
 		throw new UnexpectedException("Unknown value");
 	}
 	

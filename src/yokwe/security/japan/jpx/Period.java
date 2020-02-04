@@ -1,5 +1,7 @@
 package yokwe.security.japan.jpx;
 
+import org.slf4j.LoggerFactory;
+
 import yokwe.UnexpectedException;
 
 // 期区分
@@ -8,13 +10,15 @@ public enum Period {
 	HALF   ("s", "中間期"), // 特定事業会社第２四半期／中間期
 	QUATER ("q", "四半期"); // 四半期
 	
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Period.class);
+
 	private static final Period[] VALUES = Period.values();
 	public static Period getInstance(String value) {
 		if (value == null || value.isEmpty()) return null;
 		for(Period period: VALUES) {
 			if (value.equals(period.value)) return period;
 		}
-		TDNET.logger.error("Unknown value {}!", value);
+		logger.error("Unknown value {}!", value);
 		throw new UnexpectedException("Unknown value");
 	}
 	

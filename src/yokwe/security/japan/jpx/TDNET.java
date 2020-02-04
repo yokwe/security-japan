@@ -1,10 +1,6 @@
 package yokwe.security.japan.jpx;
 
-import org.slf4j.LoggerFactory;
-
 public class TDNET {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(TDNET.class);
-
 	// 適時開示システム タクソノミ設定規約書
 	//   https://www.jpx.co.jp/equities/listing/xbrl/03.html
 
