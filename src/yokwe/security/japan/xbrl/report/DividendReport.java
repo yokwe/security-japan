@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.xbrl.inline.Document;
 
-public class DividendBriefReport extends BriefReport implements Comparable<DividendBriefReport> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendBriefReport.class);
+public class DividendReport extends FinancialSummaryReport implements Comparable<DividendReport> {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendReport.class);
 
 	@Value(label = DOCUMENT_NAME)
 	public String documentName;
@@ -79,8 +79,8 @@ public class DividendBriefReport extends BriefReport implements Comparable<Divid
 	
 	public BigDecimal dividendPerShare;
 	
-	public static DividendBriefReport getInstance(Document document) {
-		DividendBriefReport ret = BriefReport.getInstance(DividendBriefReport.class, document);
+	public static DividendReport getInstance(Document document) {
+		DividendReport ret = FinancialSummaryReport.getInstance(DividendReport.class, document);
 
 		if (ret.quarterlyPeriod == null) {
 			ret.dividendPerShare = ret.dividendPerShareQ4;
@@ -112,7 +112,7 @@ public class DividendBriefReport extends BriefReport implements Comparable<Divid
 
 	// Define natural ordering of DividendBriefReport
 	@Override
-	public int compareTo(DividendBriefReport that) {
+	public int compareTo(DividendReport that) {
 		int ret = this.securitiesCode.compareTo(that.securitiesCode);
 		if (ret == 0) ret = this.fiscalYearEnd.compareTo(that.fiscalYearEnd);
 		if (ret == 0) ret = this.quarterlyPeriod - that.quarterlyPeriod;

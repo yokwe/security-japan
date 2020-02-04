@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import yokwe.security.japan.xbrl.report.DividendBriefReport;
+import yokwe.security.japan.xbrl.report.DividendReport;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
 
@@ -43,7 +43,7 @@ public class DividendAll implements Comparable<DividendAll> {
 		file      = null;
 	}
 	
-	DividendAll(DividendBriefReport data, String file) {
+	DividendAll(DividendReport data, String file) {
 		this.stockCode = data.securitiesCode;
 		// Trim stockCode to 4 digits if possible.
 		if (stockCode.length() == 5 && stockCode.charAt(4) == '0') {

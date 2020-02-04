@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.security.japan.ufocatch.Atom;
 import yokwe.security.japan.xbrl.inline.Document;
-import yokwe.security.japan.xbrl.report.DividendBriefReport;
+import yokwe.security.japan.xbrl.report.DividendReport;
 import yokwe.util.XMLUtil;
 
 //
@@ -38,7 +38,7 @@ public class UpdateDividendAll {
 
 //				logger.info("File {}", file.getPath());
 				Document document = Document.getInstance(XMLUtil.buildStream(file));
-				DividendBriefReport briefReport = DividendBriefReport.getInstance(document);
+				DividendReport briefReport = DividendReport.getInstance(document);
 				if (briefReport.dividendPayableDateAsPlanned == null) continue;
 				if (briefReport.dividendPerShare == null) continue;
 				
