@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.xbrl.taxonomy.LabelData;
 import yokwe.util.XMLUtil.QValue;
 import yokwe.util.XMLUtil.XMLAttribute;
 import yokwe.util.XMLUtil.XMLElement;
@@ -625,14 +624,6 @@ public abstract class InlineXBRL {
 		}
 		public Stream<InlineXBRL> getStream(QValue qName) {
 			List<InlineXBRL> list = getList(qName);
-			return list.stream();
-		}
-		
-		public List<InlineXBRL> getList(LabelData labelData) {
-			return getList(labelData.qName);
-		}
-		public Stream<InlineXBRL> getStream(LabelData labelData) {
-			List<InlineXBRL> list = getList(labelData);
 			return list.stream();
 		}
 		
