@@ -59,16 +59,26 @@ public class DownloadAll {
 			Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);
 			Link first = linkMap.get(Link.Relation.FIRST);
 			Link last  = linkMap.get(Link.Relation.LAST);
-			Link self  = linkMap.get(Link.Relation.SELF);
 
 			logger.info("FIRST {}", first.href);
 			logger.info("LAST  {}", last.href);
-			logger.info("SELF  {}", self.href);
 		}
 		for(;;) {
 			int count = 0;
 			int entryListSize = feed.entryList.size();
 			
+			String selfString;
+			String lastString;
+			{
+				Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);
+				Link self = linkMap.get(Link.Relation.SELF);
+				Link last = linkMap.get(Link.Relation.LAST);
+
+				selfString = self.href.substring(self.href.lastIndexOf("/") + 1);
+				lastString = last.href.substring(last.href.lastIndexOf("/") + 1);
+			}
+			logger.info("{}", String.format("%3s / %3s", selfString, lastString));
+
 			for(Entry entry: feed.entryList) {
 				count++;
 				countEntry++;
@@ -78,12 +88,13 @@ public class DownloadAll {
 					if (financialSummary != null) {
 						if (fileMap.containsKey(financialSummary)) {
 							// Skip
-							logger.info("{} / {}  Skip file {}", count, entryListSize, filename);
+//							logger.info("{}  Skip file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
+
 //							stopAtFirstSkip = true;
 //							logger.info("stop at first skip");
 //							break;
 						} else {
-							logger.info("{} / {}  Save file {}", count, entryListSize, filename);
+							logger.info("{}  Save file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
 							HttpUtil.Result result = httpUtil.download(link.href);
 							if (result.result == null) {
 								logger.error("Unable to download {}", link.href);
@@ -101,10 +112,6 @@ public class DownloadAll {
 			
 			{
 				Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);			
-				Link self = linkMap.get(Link.Relation.SELF);
-				logger.info("SELF  {}", self.href);
-
-				//
 				if (linkMap.containsKey(Link.Relation.NEXT)) {
 					Link next = linkMap.get(Link.Relation.NEXT);
 					HttpUtil.Result result = httpUtil.download(next.href);
