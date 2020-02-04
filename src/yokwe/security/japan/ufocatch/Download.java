@@ -20,8 +20,8 @@ import yokwe.security.japan.ufocatch.atom.Link;
 import yokwe.util.FileUtil;
 import yokwe.util.HttpUtil;
 
-public class DownloadAll {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadAll.class);
+public class Download {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Download.class);
 	
 	//
 	// Download atom feed of ufocatch

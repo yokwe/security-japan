@@ -62,8 +62,8 @@
                  </java>
         </target>
 
-        <target name="download-all">
-                <java classname="yokwe.security.japan.ufocatch.DownloadAll" fork="true">
+        <target name="download">
+                <java classname="yokwe.security.japan.ufocatch.Download" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
