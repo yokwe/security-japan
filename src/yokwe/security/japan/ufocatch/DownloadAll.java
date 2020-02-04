@@ -13,7 +13,7 @@ import javax.xml.bind.JAXB;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.TDNET.FinancialSummary;
+import yokwe.security.japan.jpx.FinancialSummary;
 import yokwe.security.japan.ufocatch.atom.Entry;
 import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.security.japan.ufocatch.atom.Link;

@@ -11,7 +11,7 @@ import javax.xml.bind.JAXBException;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.TDNET.Category;
+import yokwe.security.japan.jpx.Category;
 import yokwe.security.japan.xbrl.InlineXBRL;
 import yokwe.util.StringUtil;
 import yokwe.util.XMLUtil;
