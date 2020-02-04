@@ -49,8 +49,9 @@ public class DownloadAll {
 		
 		HttpUtil httpUtil = HttpUtil.getInstance();
 				
-		int countEntry = 0;
-		int countEDJP  = 0;
+		int countSave = 0;
+		int countSkip = 0;
+		int countPass = 0;
 		
 //		boolean stopAtFirstSkip = false;
 		
@@ -81,12 +82,12 @@ public class DownloadAll {
 
 			for(Entry entry: feed.entryList) {
 				count++;
-				countEntry++;
 				for(Link link: entry.linkList) {
 					String filename = getFilename(link.href);
 					FinancialSummary financialSummary = FinancialSummary.getInstance(filename);
 					if (financialSummary != null) {
 						if (fileMap.containsKey(financialSummary)) {
+							countSkip++;
 							// Skip
 //							logger.info("{}  Skip file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
 
@@ -94,6 +95,7 @@ public class DownloadAll {
 //							logger.info("stop at first skip");
 //							break;
 						} else {
+							countSave++;
 							logger.info("{}  Save file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
 							HttpUtil.Result result = httpUtil.download(link.href);
 							if (result.result == null) {
@@ -103,6 +105,8 @@ public class DownloadAll {
 								FileUtil.write().file(Atom.getPath(filename), result.result);
 							}
 						}
+					} else {
+						countPass++;
 					}
 // FIXME			if (stopAtFirstSkip) break;
 				}
@@ -122,8 +126,9 @@ public class DownloadAll {
 			
 			break;
 		}
-		logger.info("countEntry {}", countEntry);
-		logger.info("countEDJP  {}", countEDJP);
+		logger.info("countSave {}", countSave);
+		logger.info("countSkip {}", countSkip);
+		logger.info("countPass {}", countPass);
 		logger.info("STOP");
 	}
 }
