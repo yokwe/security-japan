@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.xbrl.inline.Document;
 
-public class DividendReport extends FinancialSummaryReport implements Comparable<DividendReport> {
+public class DividendReport extends AbstractReport implements Comparable<DividendReport> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendReport.class);
 
 	@Value(label = DOCUMENT_NAME)
@@ -80,7 +80,7 @@ public class DividendReport extends FinancialSummaryReport implements Comparable
 	public BigDecimal dividendPerShare;
 	
 	public static DividendReport getInstance(Document document) {
-		DividendReport ret = FinancialSummaryReport.getInstance(DividendReport.class, document);
+		DividendReport ret = AbstractReport.getInstance(DividendReport.class, document);
 
 		if (ret.quarterlyPeriod == null) {
 			ret.dividendPerShare = ret.dividendPerShareQ4;

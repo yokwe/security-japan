@@ -28,8 +28,8 @@ import yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL;
 import yokwe.util.XMLUtil.QValue;
 import yokwe.util.XMLUtil.XMLElement;
 
-public abstract class FinancialSummaryReport {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(FinancialSummaryReport.class);
+public abstract class AbstractReport {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractReport.class);
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
@@ -49,7 +49,7 @@ public abstract class FinancialSummaryReport {
 		final String                       className;
 		final List<FieldInfo>              fieldInfoList;
 		
-		static ClassInfo get(Class<? extends FinancialSummaryReport> clazz) {
+		static ClassInfo get(Class<? extends AbstractReport> clazz) {
 			String className = clazz.getName();
 			if (cache.containsKey(className)) {
 				return cache.get(className);
@@ -60,7 +60,7 @@ public abstract class FinancialSummaryReport {
 			}
 		}
 		
-		ClassInfo(Class<? extends FinancialSummaryReport> clazz) {
+		ClassInfo(Class<? extends AbstractReport> clazz) {
 			this.className     = clazz.getName();
 			this.fieldInfoList = new ArrayList<>();
 			
@@ -404,7 +404,7 @@ public abstract class FinancialSummaryReport {
 		}
 	}
 
-	public static <E extends FinancialSummaryReport> E getInstance(Class<E> clazz, Document ixDoc) {
+	public static <E extends AbstractReport> E getInstance(Class<E> clazz, Document ixDoc) {
 		try {
 			E ret = clazz.newInstance();
 			ret.init(ixDoc);
@@ -416,7 +416,7 @@ public abstract class FinancialSummaryReport {
 		}
 	}
 	
-	public static <E extends FinancialSummaryReport> E getinstance(Class<E> clazz, Stream<XMLElement> stream) {
+	public static <E extends AbstractReport> E getinstance(Class<E> clazz, Stream<XMLElement> stream) {
 		Document document = Document.getInstance(stream);
 		return getInstance(clazz, document);
 	}
