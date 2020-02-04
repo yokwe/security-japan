@@ -1,12 +1,12 @@
-package yokwe.security.japan.xbrl;
+package yokwe.security.japan.xbrl.report;
 
-import static yokwe.security.japan.xbrl.InlineXBRL.Context.CURRENT_YEAR_DURATION;
-import static yokwe.security.japan.xbrl.InlineXBRL.Context.FIRST_QUARTER_MEMBER;
-import static yokwe.security.japan.xbrl.InlineXBRL.Context.LOWER_MEMBER;
-import static yokwe.security.japan.xbrl.InlineXBRL.Context.SECOND_QUARTER_MEMBER;
-import static yokwe.security.japan.xbrl.InlineXBRL.Context.THIRD_QUARTER_MEMBER;
-import static yokwe.security.japan.xbrl.InlineXBRL.Context.UPPER_MEMBER;
-import static yokwe.security.japan.xbrl.InlineXBRL.Context.YEAR_END_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.CURRENT_YEAR_DURATION;
+import static yokwe.security.japan.xbrl.inline.Context.FIRST_QUARTER_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.LOWER_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.SECOND_QUARTER_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.THIRD_QUARTER_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.UPPER_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.YEAR_END_MEMBER;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.COMPANY_NAME;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DIVIDEND_PAYABLE_DATE_AS_PLANNED;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DIVIDEND_PER_SHARE;
@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.xbrl.inline.Document;
 
 public class DividendBriefReport extends BriefReport implements Comparable<DividendBriefReport> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendBriefReport.class);
@@ -78,7 +79,7 @@ public class DividendBriefReport extends BriefReport implements Comparable<Divid
 	
 	public BigDecimal dividendPerShare;
 	
-	public static DividendBriefReport getInstance(InlineXBRL.Document document) {
+	public static DividendBriefReport getInstance(Document document) {
 		DividendBriefReport ret = BriefReport.getInstance(DividendBriefReport.class, document);
 
 		if (ret.quarterlyPeriod == null) {

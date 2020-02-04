@@ -1,16 +1,11 @@
 package yokwe.security.japan.data;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
-
-import yokwe.util.CSVUtil;
 
 public class UpdateDividend {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividend.class);

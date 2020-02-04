@@ -19,6 +19,10 @@ import yokwe.util.FileUtil;
 public class UpdateLabel {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateLabel.class);
 
+	//
+	// Update tmp/data/label.csv
+	//
+	
 	private static class PathInfo {
 		final String namespace;
 		final String path;

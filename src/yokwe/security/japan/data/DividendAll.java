@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import yokwe.security.japan.xbrl.DividendBriefReport;
+import yokwe.security.japan.xbrl.report.DividendBriefReport;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
 

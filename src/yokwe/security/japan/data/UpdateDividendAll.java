@@ -9,8 +9,8 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import yokwe.security.japan.ufocatch.Atom;
-import yokwe.security.japan.xbrl.DividendBriefReport;
-import yokwe.security.japan.xbrl.InlineXBRL;
+import yokwe.security.japan.xbrl.inline.Document;
+import yokwe.security.japan.xbrl.report.DividendBriefReport;
 import yokwe.util.XMLUtil;
 
 //
@@ -37,7 +37,7 @@ public class UpdateDividendAll {
 				count++;
 
 //				logger.info("File {}", file.getPath());
-				InlineXBRL.Document document = InlineXBRL.Document.getInstance(XMLUtil.buildStream(file));
+				Document document = Document.getInstance(XMLUtil.buildStream(file));
 				DividendBriefReport briefReport = DividendBriefReport.getInstance(document);
 				if (briefReport.dividendPayableDateAsPlanned == null) continue;
 				if (briefReport.dividendPerShare == null) continue;

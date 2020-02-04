@@ -1,4 +1,4 @@
-package yokwe.security.japan.xbrl;
+package yokwe.security.japan.xbrl.report;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,7 +17,13 @@ import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.xbrl.InlineXBRL.Context;
+import yokwe.security.japan.xbrl.inline.BooleanValue;
+import yokwe.security.japan.xbrl.inline.Context;
+import yokwe.security.japan.xbrl.inline.DateValue;
+import yokwe.security.japan.xbrl.inline.Document;
+import yokwe.security.japan.xbrl.inline.InlineXBRL;
+import yokwe.security.japan.xbrl.inline.NumberValue;
+import yokwe.security.japan.xbrl.inline.StringValue;
 import yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL;
 import yokwe.util.XMLUtil.QValue;
 import yokwe.util.XMLUtil.XMLElement;
@@ -122,7 +128,7 @@ public abstract class BriefReport {
 		}
 	}
 	
-	private void assignField(FieldInfo fieldInfo, InlineXBRL.StringValue value) throws IllegalArgumentException, IllegalAccessException {
+	private void assignField(FieldInfo fieldInfo, StringValue value) throws IllegalArgumentException, IllegalAccessException {
 		final Field  field         = fieldInfo.field;
 		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
@@ -141,7 +147,7 @@ public abstract class BriefReport {
 			throw new UnexpectedException("Unexpected field type");
 		}
 	}
-	private void assignField(FieldInfo fieldInfo, InlineXBRL.BooleanValue value) throws IllegalArgumentException, IllegalAccessException {
+	private void assignField(FieldInfo fieldInfo, BooleanValue value) throws IllegalArgumentException, IllegalAccessException {
 		final Field  field         = fieldInfo.field;
 		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
@@ -161,7 +167,7 @@ public abstract class BriefReport {
 			throw new UnexpectedException("Unexpected field type");
 		}
 	}
-	private void assignField(FieldInfo fieldInfo, InlineXBRL.NumberValue value) throws IllegalArgumentException, IllegalAccessException {
+	private void assignField(FieldInfo fieldInfo, NumberValue value) throws IllegalArgumentException, IllegalAccessException {
 		final Field  field         = fieldInfo.field;
 		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
@@ -239,7 +245,7 @@ public abstract class BriefReport {
 			throw new UnexpectedException("Unexpected field type");
 		}
 	}
-	private void assignField(FieldInfo fieldInfo, InlineXBRL.DateValue value) throws IllegalArgumentException, IllegalAccessException {
+	private void assignField(FieldInfo fieldInfo, DateValue value) throws IllegalArgumentException, IllegalAccessException {
 		final Field  field         = fieldInfo.field;
 		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
@@ -262,7 +268,7 @@ public abstract class BriefReport {
 		}
 	}
 	
-	protected void init(InlineXBRL.Document ixDoc) {
+	protected void init(Document ixDoc) {
 		// use reflection to initialize annotated variable in class
 		ClassInfo classInfo = ClassInfo.get(this.getClass());
 		for(FieldInfo fieldInfo: classInfo.fieldInfoList) {
@@ -327,16 +333,16 @@ public abstract class BriefReport {
 						// not null
 						switch(ix.kind) {
 						case STRING:
-							assignField(fieldInfo, (InlineXBRL.StringValue)ix);
+							assignField(fieldInfo, (StringValue)ix);
 							break;
 						case BOOLEAN:
-							assignField(fieldInfo, (InlineXBRL.BooleanValue)ix);
+							assignField(fieldInfo, (BooleanValue)ix);
 							break;
 						case NUMBER:
-							assignField(fieldInfo, (InlineXBRL.NumberValue)ix);
+							assignField(fieldInfo, (NumberValue)ix);
 							break;
 						case DATE:
-							assignField(fieldInfo, (InlineXBRL.DateValue)ix);
+							assignField(fieldInfo, (DateValue)ix);
 							break;
 						default:
 							logger.error("Unexpected kind");
@@ -398,7 +404,7 @@ public abstract class BriefReport {
 		}
 	}
 
-	public static <E extends BriefReport> E getInstance(Class<E> clazz, InlineXBRL.Document ixDoc) {
+	public static <E extends BriefReport> E getInstance(Class<E> clazz, Document ixDoc) {
 		try {
 			E ret = clazz.newInstance();
 			ret.init(ixDoc);
@@ -411,7 +417,7 @@ public abstract class BriefReport {
 	}
 	
 	public static <E extends BriefReport> E getinstance(Class<E> clazz, Stream<XMLElement> stream) {
-		InlineXBRL.Document document = InlineXBRL.Document.getInstance(stream);
+		Document document = Document.getInstance(stream);
 		return getInstance(clazz, document);
 	}
 }

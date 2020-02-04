@@ -1,4 +1,4 @@
-package yokwe.security.japan.ufocatch;
+package yokwe.security.japan.xbrl.inline;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import javax.xml.bind.JAXBException;
 import org.slf4j.LoggerFactory;
 
 import yokwe.security.japan.jpx.Category;
-import yokwe.security.japan.xbrl.InlineXBRL;
+import yokwe.security.japan.ufocatch.Atom;
 import yokwe.util.StringUtil;
 import yokwe.util.XMLUtil;
 
@@ -26,7 +26,7 @@ public class GenerateContext {
 		
 		for(File file : Atom.getFileList(Category.EDJP)) {
 			logger.info("File {}", file.getPath());
-			InlineXBRL.Document document = InlineXBRL.Document.getInstance(XMLUtil.buildStream(file));
+			Document document = Document.getInstance(XMLUtil.buildStream(file));
 			
 			all.addAll(document.getContextSet());
 		}
