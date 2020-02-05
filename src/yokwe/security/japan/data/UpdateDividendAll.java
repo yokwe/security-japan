@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.security.japan.jpx.Category;
 import yokwe.security.japan.ufocatch.Atom;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.report.DividendReport;
@@ -26,7 +27,7 @@ public class UpdateDividendAll {
 		List<DividendAll> list = new ArrayList<>();
 		
 		{
-			List<File> fileList = Atom.getFileList();
+			List<File> fileList = Atom.getFileList(Category.EDJP);
 			logger.info("fileList {}", fileList.size());
 			
 			int count = 0;
