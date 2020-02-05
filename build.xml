@@ -68,6 +68,17 @@
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="stopAtFirstSkip" value="true"/>
+                </java>
+        </target>
+
+        <target name="download-all">
+                <java classname="yokwe.security.japan.ufocatch.Download" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="stopAtFirstSkip" value="false"/>
                  </java>
         </target>
 
