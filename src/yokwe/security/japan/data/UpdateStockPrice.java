@@ -1,10 +1,14 @@
 package yokwe.security.japan.data;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -236,13 +240,40 @@ public class UpdateStockPrice {
 	private static final int MAX_COUNT_NO_DATA = 10;
 	
 	private static void updatePrice(List<ListedIssue> list) {
-		// Create parent folder if not exists
+		// delist if necessary
 		{
-			String path = getPagePath("0000");
-			File file = new File(path);
-			File parent = file.getParentFile();
-			if (!parent.exists()) {
-				parent.mkdirs();
+			Set<String> stockCodeSet = list.stream().map(o -> o.stockCode).collect(Collectors.toSet());
+			
+			List<File> fileList = FileUtil.listFile(new File(Price.PATH_DIR_DATA));
+			
+			File dirDeslist = new File(Price.PATH_DIR_DATA_DELIST);
+			if (!dirDeslist.exists()) {
+				dirDeslist.mkdirs();
+			}
+			
+			String suffix;
+			{
+				LocalDateTime localDateTime = LocalDateTime.now();
+				suffix = String.format("%4d%02d%02d-%02d%02d%02d",
+						localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(),
+						localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond());
+			}
+			
+			try {
+				for(File file: fileList) {
+					String stockCode = file.getName().replace(".csv", "");
+					if (!stockCodeSet.contains(stockCode)) {
+						// move file to delist
+						File newFile = new File(dirDeslist, String.format("%s.csv-%s", stockCode, suffix));
+						
+						logger.info("delist {} -> {}",file.getPath(), newFile.getPath());
+						Files.move(file.toPath(), newFile.toPath());
+					}
+				}
+			} catch (IOException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e);
+				throw new UnexpectedException(exceptionName, e);
 			}
 		}
 		
