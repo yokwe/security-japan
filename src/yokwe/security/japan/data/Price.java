@@ -19,6 +19,8 @@ public class Price implements Comparable<Price> {
 	public static String getPath(String stockCode) {
 		return String.format("%s/%s.csv", PATH_DIR_DATA, stockCode);
 	}
+	public static final String PATH_DIR_DATA_DELIST = "tmp/data/price-delist";
+
 
 	public static List<Price> load(String stockCode) {
 		String path = getPath(stockCode);
