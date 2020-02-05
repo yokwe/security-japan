@@ -3,7 +3,9 @@ package yokwe.security.japan.data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +14,9 @@ public class UpdateDividend {
 	
 	public static void main(String[] args) {
 		logger.info("START");
+		
+		Set<String> stockCodeSet = ListedIssue.load().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		logger.info("stockCodeSet {}", stockCodeSet.size());
 		
 		Map<String, List<Dividend>> map = new TreeMap<>();
 		{
@@ -32,12 +37,25 @@ public class UpdateDividend {
 		}
 		
 		logger.info("map {}", map.size());
+		List<String> delist = new ArrayList<>();
+		int countSave  = 0;
+		int countDelist = 0;
 		for(Map.Entry<String, List<Dividend>> entry: map.entrySet()) {
 			String         stockCode = entry.getKey();
 			List<Dividend> list      = entry.getValue();
 			
-			Dividend.save(stockCode, list);
+			// Save dividend of stockCode that appeared in stockCodeSet
+			if (stockCodeSet.contains(stockCode)) {
+				Dividend.save(stockCode, list);
+				countSave++;
+			} else {
+				delist.add(stockCode);
+				countDelist++;
+			}
 		}
+		logger.info("countSave  {}", countSave);
+		logger.info("countDelist {}", countDelist);
+		logger.info("delist {} {}", delist.size(), delist);
 		
 		logger.info("STOP");
 	}
