@@ -41,6 +41,9 @@ public class Download {
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		boolean stopAtFirstSkip = Boolean.getBoolean("stopAtFirstSkip");
+		logger.info("stopAtFirstSkip {}", stopAtFirstSkip);
+
 		Map<FinancialSummary, File> fileMap = Atom.getFileMap();
 		logger.info("fileMap {}", fileMap.size());
 
@@ -52,9 +55,7 @@ public class Download {
 		int countSave = 0;
 		int countSkip = 0;
 		int countPass = 0;
-		
-//		boolean stopAtFirstSkip = false;
-		
+				
 		Feed feed = rootFeed;
 		{
 			Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);
@@ -64,6 +65,8 @@ public class Download {
 			logger.info("FIRST {}", first.href);
 			logger.info("LAST  {}", last.href);
 		}
+		
+main_loop:
 		for(;;) {
 			int count = 0;
 			int entryListSize = feed.entryList.size();
@@ -89,11 +92,11 @@ public class Download {
 						if (fileMap.containsKey(financialSummary)) {
 							countSkip++;
 							// Skip
-//							logger.info("{}  Skip file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
-
-//							stopAtFirstSkip = true;
-//							logger.info("stop at first skip");
-//							break;
+							if (stopAtFirstSkip) {
+								logger.info("{}  Skip file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
+								logger.info("stop at first skip");
+								break main_loop;
+							}
 						} else {
 							countSave++;
 							logger.info("{}  Save file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
@@ -107,12 +110,13 @@ public class Download {
 						}
 					} else {
 						countPass++;
+						if (filename.startsWith("tse-") && filename.endsWith("-ixbrl.htm")) {
+							logger.error("Unexpected filename pattern {}", filename);
+							throw new UnexpectedException("Unexpected filename pattern");
+						}
 					}
-// FIXME			if (stopAtFirstSkip) break;
 				}
-// FIXME		if (stopAtFirstSkip) break;
 			}
-// FIXME	if (stopAtFirstSkip) break;
 			
 			{
 				Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);			
