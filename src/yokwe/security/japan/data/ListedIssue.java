@@ -21,23 +21,30 @@ public class ListedIssue implements Comparable<ListedIssue> {
 	
 	public static final String MARKET_ETF    = "ETF・ETN";
 	
+	private static List<ListedIssue> all = null;
 	public static List<ListedIssue> load() {
-		return CSVUtil.read(ListedIssue.class).file(PATH_DATA);
+		if (all == null) {
+			all = CSVUtil.read(ListedIssue.class).file(PATH_DATA);
+		}
+		return all;
 	}
+	private static Map<String, ListedIssue> map = null;
 	public static Map<String, ListedIssue> getMap() {
-		List<ListedIssue> list = load();
-		
-		Map<String, ListedIssue> ret = new TreeMap<>();
-		for(ListedIssue e: list) {
-			String stockCode = e.stockCode;
-			if (ret.containsKey(stockCode)) {
-				logger.error("Duplicate stockCode {}", stockCode);
-				throw new UnexpectedException("Duplicate stockCode");
-			} else {
-				ret.put(stockCode, e);
+		if (map == null) {
+			List<ListedIssue> list = load();
+			
+			map = new TreeMap<>();
+			for(ListedIssue e: list) {
+				String stockCode = e.stockCode;
+				if (map.containsKey(stockCode)) {
+					logger.error("Duplicate stockCode {}", stockCode);
+					throw new UnexpectedException("Duplicate stockCode");
+				} else {
+					map.put(stockCode, e);
+				}
 			}
 		}
-		return ret;
+		return map;
 	}
 	public static void save(Collection<ListedIssue> collection) {
 		save(new ArrayList<>(collection));
