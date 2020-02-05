@@ -194,13 +194,13 @@ public class UpdateStockPrice {
 		
 		double lastClose = -1;
 		Map<String, Price> map = new TreeMap<>();
-		for(PriceVolume priveVolume: priceVolumeList) {
-			String date   = String.format("%s-%s-%s", priveVolume.yyyy, priveVolume.mm, priveVolume.dd);
+		for(PriceVolume priceVolume: priceVolumeList) {
+			String date   = String.format("%s-%s-%s", priceVolume.yyyy, priceVolume.mm, priceVolume.dd);
 			double open;
 			double low;
 			double high;
 			double close;
-			long   volume = Long.parseLong(priveVolume.volume);
+			long   volume = Long.parseLong(priceVolume.volume);
 			if (volume == 0) {
 				if (lastClose == -1) {
 //					logger.warn("No lastClose {} {}", stockCode, date);
@@ -209,10 +209,10 @@ public class UpdateStockPrice {
 					open = low = high = close = lastClose;
 				}
 			} else {
-				open   = Double.parseDouble(priveVolume.open);
-				low    = Double.parseDouble(priveVolume.low);
-				high   = Double.parseDouble(priveVolume.high);
-				close  = Double.parseDouble(priveVolume.close);
+				open   = Double.parseDouble(priceVolume.open);
+				low    = Double.parseDouble(priceVolume.low);
+				high   = Double.parseDouble(priceVolume.high);
+				close  = Double.parseDouble(priceVolume.close);
 				lastClose = close;
 			}
 			
