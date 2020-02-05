@@ -41,8 +41,8 @@ public class Download {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		boolean stopAtFirstSkip = Boolean.getBoolean("stopAtFirstSkip");
-		logger.info("stopAtFirstSkip {}", stopAtFirstSkip);
+		boolean stopAtSkip = Boolean.getBoolean("stopAtSkip");
+		logger.info("stopAtSkip {}", stopAtSkip);
 
 		Map<FinancialSummary, File> fileMap = Atom.getFileMap();
 		logger.info("fileMap {}", fileMap.size());
@@ -83,6 +83,7 @@ main_loop:
 			}
 			logger.info("{}", String.format("%3s / %3s", selfString, lastString));
 
+			int lastCountSave = countSave;
 			for(Entry entry: feed.entryList) {
 				count++;
 				for(Link link: entry.linkList) {
@@ -91,12 +92,6 @@ main_loop:
 					if (financialSummary != null) {
 						if (fileMap.containsKey(financialSummary)) {
 							countSkip++;
-							// Skip
-							if (stopAtFirstSkip) {
-								logger.info("{}  Skip file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
-								logger.info("stop at first skip");
-								break main_loop;
-							}
 						} else {
 							countSave++;
 							logger.info("{}  Save file {}", String.format("%3s / %3s - %3d / %3d",selfString, lastString, count, entryListSize), filename);
@@ -115,6 +110,12 @@ main_loop:
 							throw new UnexpectedException("Unexpected filename pattern");
 						}
 					}
+				}
+			}
+			if (lastCountSave == countSave) {
+				if (stopAtSkip) {
+					logger.info("stop at skip");
+					break main_loop;
 				}
 			}
 			

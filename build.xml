@@ -68,7 +68,7 @@
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
-                        <sysproperty key="stopAtFirstSkip" value="true"/>
+                        <sysproperty key="stopAtSkip" value="true"/>
                 </java>
         </target>
 
@@ -78,7 +78,7 @@
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
-                        <sysproperty key="stopAtFirstSkip" value="false"/>
+                        <sysproperty key="stopAtSkip" value="false"/>
                  </java>
         </target>
 
