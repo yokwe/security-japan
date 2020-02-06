@@ -1,14 +1,11 @@
 package yokwe.security.japan.ufocatch;
 
 import java.io.File;
-import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-
-import javax.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +44,7 @@ public class Download {
 		Map<FinancialSummary, File> fileMap = Atom.getFileMap();
 		logger.info("fileMap {}", fileMap.size());
 
-		String rootPage = Atom.query(Atom.Kind.TDNETX, "");
-		Feed rootFeed = JAXB.unmarshal(new StringReader(rootPage), Feed.class);
+		Feed rootFeed = Atom.getFeed(Atom.Kind.TDNETX);
 		
 		HttpUtil httpUtil = HttpUtil.getInstance();
 				
@@ -58,9 +54,8 @@ public class Download {
 				
 		Feed feed = rootFeed;
 		{
-			Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);
-			Link first = linkMap.get(Link.Relation.FIRST);
-			Link last  = linkMap.get(Link.Relation.LAST);
+			Link first = feed.linkMap.get(Link.Relation.FIRST);
+			Link last  = feed.linkMap.get(Link.Relation.LAST);
 
 			logger.info("FIRST {}", first.href);
 			logger.info("LAST  {}", last.href);
@@ -74,9 +69,8 @@ main_loop:
 			String selfString;
 			String lastString;
 			{
-				Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);
-				Link self = linkMap.get(Link.Relation.SELF);
-				Link last = linkMap.get(Link.Relation.LAST);
+				Link self = feed.linkMap.get(Link.Relation.SELF);
+				Link last = feed.linkMap.get(Link.Relation.LAST);
 
 				selfString = self.href.substring(self.href.lastIndexOf("/") + 1);
 				lastString = last.href.substring(last.href.lastIndexOf("/") + 1);
@@ -119,14 +113,10 @@ main_loop:
 				}
 			}
 			
-			{
-				Map<Link.Relation, Link> linkMap = Atom.getLinkMap(feed.linkList);			
-				if (linkMap.containsKey(Link.Relation.NEXT)) {
-					Link next = linkMap.get(Link.Relation.NEXT);
-					HttpUtil.Result result = httpUtil.download(next.href);
-					feed = JAXB.unmarshal(new StringReader(result.result), Feed.class);
-					continue;
-				}
+			if (feed.linkMap.containsKey(Link.Relation.NEXT)) {
+				Link next = feed.linkMap.get(Link.Relation.NEXT);
+				feed = Atom.getFeed(next.href);
+				continue;
 			}
 			
 			break;
