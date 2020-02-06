@@ -1,24 +1,24 @@
 package yokwe.security.japan.ufocatch;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+
+import javax.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.Category;
 import yokwe.security.japan.jpx.FinancialSummary;
-import yokwe.security.japan.ufocatch.atom.Link;
+import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.util.FileUtil;
 import yokwe.util.HttpUtil;
 
@@ -125,24 +125,20 @@ public class Atom {
 		}
 	}
 
-	// DividendPerShare
-	public static String query(Kind kind, String query) {
-		// GET /atom/{種別}/query/{クエリワード}
-		try {
-			String url = String.format("%s/%s/query/%s", URL_BASE, kind.url, URLEncoder.encode(query, "UTF-8"));
-			HttpUtil.Result result = HttpUtil.getInstance().download(url);
-			return result.result;
-		} catch (UnsupportedEncodingException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
+	public static String query(Kind kind) {
+		// GET /atom/{種別}
+		String url = String.format("%s/%s", URL_BASE, kind.url);
+		HttpUtil.Result result = HttpUtil.getInstance().download(url);
+		return result.result;
 	}
-	
-	private static Link.Relation getLinkMapKey(Link link) {
-		return link.rel;
+	public static Feed getFeed(Kind kind) {
+		// GET /atom/{種別}
+		String url = String.format("%s/%s", URL_BASE, kind.url);
+		return getFeed(url);
 	}
-	public static Map<Link.Relation, Link> getLinkMap(List<Link> list) {
-		return list.stream().collect(Collectors.toMap(Atom::getLinkMapKey, o -> (Link)o));
+	public static Feed getFeed(String url) {
+		HttpUtil.Result result = HttpUtil.getInstance().download(url);
+		Feed ret = JAXB.unmarshal(new StringReader(result.result), Feed.class);
+		return ret;
 	}
 }
