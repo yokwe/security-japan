@@ -33,14 +33,16 @@ public class Link {
 		XML,
 		@XmlEnumValue("text/html")
 		HTML,
-		@XmlEnumValue("application/zip")
-		ZIP,
 		@XmlEnumValue("image/gif")
 		GIF,
 		@XmlEnumValue("image/png")
 		PNG,
 		@XmlEnumValue("image/jpeg")
 		JPG,
+		@XmlEnumValue("application/zip")
+		ZIP,
+		@XmlEnumValue("application/pdf")
+		PDF,
 	}
 	
 	@XmlAttribute
