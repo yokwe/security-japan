@@ -35,6 +35,12 @@ public class Link {
 		HTML,
 		@XmlEnumValue("application/zip")
 		ZIP,
+		@XmlEnumValue("image/gif")
+		GIF,
+		@XmlEnumValue("image/png")
+		PNG,
+		@XmlEnumValue("image/jpeg")
+		JPG,
 	}
 	
 	@XmlAttribute
