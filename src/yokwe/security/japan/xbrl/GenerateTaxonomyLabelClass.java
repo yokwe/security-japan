@@ -76,16 +76,18 @@ public class GenerateTaxonomyLabelClass {
 			out.println("public static final String NAMESPACE = \"%s\";", namespace);
 			out.println();
 			
-			out.println("public final QValue qName;");
-			out.println("public final String en;");
-			out.println("public final String ja;");
+			out.println("public final QValue    qName;");
+			out.println("public final String    en;");
+			out.println("public final String    ja;");
+			out.println("public final LabelData labelData;");
 			out.println();
 			
 			out.println("%s (String name, String en, String ja) {", className);
 			
-			out.println("this.qName = new QValue(NAMESPACE, name);");
-			out.println("this.en = en;");
-			out.println("this.ja = ja;");
+			out.println("this.qName     = new QValue(NAMESPACE, name);");
+			out.println("this.en        = en;");
+			out.println("this.ja        = ja;");
+			out.println("this.labelData = new LabelData(qName, en, ja);");
 
 			out.println("}");
 			out.println();

@@ -3810,15 +3810,17 @@ public enum TSE_ED_T_LABEL {
 
     public static final String NAMESPACE = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/ed/t/2014-01-12";
 
-    public final QValue qName;
-    public final String en;
-    public final String ja;
+    public final QValue    qName;
+    public final String    en;
+    public final String    ja;
+    public final LabelData labelData;
 
     TSE_ED_T_LABEL (String name, String en, String ja) {
-        this.qName = new QValue(NAMESPACE, name);
-        this.en = en;
-        this.ja = ja;
-        }
+        this.qName     = new QValue(NAMESPACE, name);
+        this.en        = en;
+        this.ja        = ja;
+        this.labelData = new LabelData(qName, en, ja);
+    }
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TSE_ED_T_LABEL.class);
     private static final Map<QValue, TSE_T_CG_LABEL> all = new TreeMap<>();
@@ -3828,19 +3830,19 @@ public enum TSE_ED_T_LABEL {
             if (all.containsKey(key)) {
                 logger.error("Unknow key {}", key);
                 throw new UnexpectedException("Duplicate key");
-                } else {
+            } else {
                 all.put(key, e);
-                }
             }
         }
+    }
 
     public static TSE_T_CG_LABEL get(QValue qName) {
         if (all.containsKey(qName)) {
             return  all.get(qName);
-            } else {
+        } else {
             logger.error("Unknow key {}", qName);
             throw new UnexpectedException("Unknow key");
-            }
         }
-
     }
+
+}
