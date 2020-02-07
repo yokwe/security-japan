@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.util.IndentPrintWriter;
+import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
 
 public class GenerateTaxonomyLabelClass {
@@ -36,18 +36,17 @@ public class GenerateTaxonomyLabelClass {
 		}
 		String path = String.format("%s/%s.java", PATH_DIR, className);
 		logger.info("generate {} {}", entryMap.size(), path);
-		try (IndentPrintWriter out = new IndentPrintWriter(new PrintWriter(path))) {
-			out.indent().println("package yokwe.security.japan.xbrl.taxonomy;");
-			out.indent().println();
-			out.indent().println("import java.util.Map;");
-			out.indent().println("import java.util.TreeMap;");
-			out.indent().println();
-			out.indent().println("import yokwe.UnexpectedException;");
-			out.indent().println("import yokwe.util.XMLUtil.QValue;");
-			out.indent().println();
+		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(path))) {
+			out.println("package yokwe.security.japan.xbrl.taxonomy;");
+			out.println();
+			out.println("import java.util.Map;");
+			out.println("import java.util.TreeMap;");
+			out.println();
+			out.println("import yokwe.UnexpectedException;");
+			out.println("import yokwe.util.XMLUtil.QValue;");
+			out.println();
 			
-			out.indent().format("public enum %s {", className).println();
-			out.nest();
+			out.println("public enum %s {", className);
 			
 			List<Entry> entryList = new ArrayList<>(entryMap.values());
 			int entryListSize = entryList.size();
@@ -64,85 +63,65 @@ public class GenerateTaxonomyLabelClass {
 				String jaValue = (ja == null) ? "null" : String.format("\"%s\"", ja);
 				String comma   = (i == (entryListSize - 1)) ? ";" : ",";
 				
-				out.indent().format("%s(", constName).println();
-				out.nest();
+				out.println("%s(", constName);
 				
-				out.indent().format("%s,",  nameValue).println();
-				out.indent().format("%s,",  enValue).println();
-				out.indent().format("%s)%s", jaValue, comma).println();
-				out.unnest();
+				out.println("%s,",  nameValue);
+				out.println("%s,",  enValue);
+				out.println("%s)%s", jaValue, comma);
 				
-				out.indent().println();
+				out.println();
 			}
 
-			out.indent().println();
-			out.indent().format("public static final String NAMESPACE = \"%s\";", namespace).println();
-			out.indent().println();
+			out.println();
+			out.println("public static final String NAMESPACE = \"%s\";", namespace);
+			out.println();
 			
-			out.indent().println("public final QValue qName;");
-			out.indent().println("public final String en;");
-			out.indent().println("public final String ja;");
-			out.indent().println();
+			out.println("public final QValue qName;");
+			out.println("public final String en;");
+			out.println("public final String ja;");
+			out.println();
 			
-			out.indent().format("%s (String name, String en, String ja) {", className).println();
-			out.nest();
+			out.println("%s (String name, String en, String ja) {", className);
 			
-			out.indent().println("this.qName = new QValue(NAMESPACE, name);");
-			out.indent().println("this.en = en;");
-			out.indent().println("this.ja = ja;");
+			out.println("this.qName = new QValue(NAMESPACE, name);");
+			out.println("this.en = en;");
+			out.println("this.ja = ja;");
 
-			out.unnest();
-			out.indent().println("}");
-			out.indent().println();
+			out.println("}");
+			out.println();
 
-			out.indent().format("private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(%s.class);", className).println();
-			out.indent().println();
+			out.println("private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(%s.class);", className);
 
-			out.indent().println("private static final Map<QValue, TSE_T_CG_LABEL> all = new TreeMap<>();");
-			out.indent().println("static {");
-			out.nest();
+			out.println("private static final Map<QValue, TSE_T_CG_LABEL> all = new TreeMap<>();");
+			out.println("static {");
 
-			out.indent().println("for(TSE_T_CG_LABEL e: TSE_T_CG_LABEL.class.getEnumConstants()) {");
-			out.nest();
+			out.println("for(TSE_T_CG_LABEL e: TSE_T_CG_LABEL.class.getEnumConstants()) {");
 
-			out.indent().println("QValue key = e.qName;");
-			out.indent().println("if (all.containsKey(key)) {");
-			out.nest();
-			out.indent().println("logger.error(\"Unknow key {}\", key);");
-			out.indent().println("throw new UnexpectedException(\"Duplicate key\");");
-			out.unnest();
-			out.indent().println("} else {");
-			out.nest();
-			out.indent().println("all.put(key, e);");
-			out.unnest();
-			out.indent().println("}");
+			out.println("QValue key = e.qName;");
+			out.println("if (all.containsKey(key)) {");
+			out.println("logger.error(\"Unknow key {}\", key);");
+			out.println("throw new UnexpectedException(\"Duplicate key\");");
+			out.println("} else {");
+			out.println("all.put(key, e);");
+			out.println("}");
 			
-			out.unnest();
-			out.indent().println("}");
+			out.println("}");
 
-			out.unnest();
-			out.indent().println("}");
-			out.indent().println();
+			out.println("}");
+			out.println();
 
-			out.indent().println("public static TSE_T_CG_LABEL get(QValue qName) {");
-			out.nest();
-			out.indent().println("if (all.containsKey(qName)) {");
-			out.nest();
-			out.indent().println("return  all.get(qName);");
-			out.unnest();
-			out.indent().println("} else {");
-			out.nest();
-			out.indent().println("logger.error(\"Unknow key {}\", qName);");
-			out.indent().println("throw new UnexpectedException(\"Unknow key\");");
-			out.unnest();
-			out.indent().println("}");
-			out.unnest();
-			out.indent().println("}");
-			out.indent().println();
+			out.println("public static TSE_T_CG_LABEL get(QValue qName) {");
+			out.println("if (all.containsKey(qName)) {");
+			out.println("return  all.get(qName);");
+			out.println("} else {");
+			out.println("logger.error(\"Unknow key {}\", qName);");
+			out.println("throw new UnexpectedException(\"Unknow key\");");
+			out.println("}");
+			out.println("}");
+			out.println();
 
 			
-			out.unnest();
-			out.indent().println("}");
+			out.println("}");
 		} catch (FileNotFoundException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
