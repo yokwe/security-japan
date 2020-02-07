@@ -25,6 +25,7 @@ import yokwe.security.japan.xbrl.inline.InlineXBRL;
 import yokwe.security.japan.xbrl.inline.NumberValue;
 import yokwe.security.japan.xbrl.inline.StringValue;
 import yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL;
+import yokwe.security.japan.xbrl.taxonomy.TSE_RE_T_LABEL;
 import yokwe.util.XMLUtil.QValue;
 import yokwe.util.XMLUtil.XMLElement;
 
@@ -33,8 +34,17 @@ public abstract class AbstractReport {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	public static @interface Value {
+	public static @interface TSE_ED {
 		TSE_ED_T_LABEL label();
+		Context[]      contextIncludeAll()   default {};
+		Context[]      contextExcludeAny()   default {};
+		boolean        acceptNull()          default true;
+		boolean		   treatEmptyAsNull()    default true;
+	}
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	public static @interface TSE_RE {
+		TSE_RE_T_LABEL label();
 		Context[]      contextIncludeAll()   default {};
 		Context[]      contextExcludeAny()   default {};
 		boolean        acceptNull()          default true;
@@ -65,8 +75,8 @@ public abstract class AbstractReport {
 			this.fieldInfoList = new ArrayList<>();
 			
 			for(Field field: clazz.getDeclaredFields()) {
-				if (field.isAnnotationPresent(Value.class)) {
-					Value annotation = field.getDeclaredAnnotation(Value.class);
+				if (field.isAnnotationPresent(TSE_ED.class)) {
+					TSE_ED annotation = field.getDeclaredAnnotation(TSE_ED.class);
 					FieldInfo fieldInfo = new FieldInfo(field, annotation);
 					
 					// Sanity check
@@ -113,7 +123,7 @@ public abstract class AbstractReport {
 		final boolean   acceptNull;
 		final boolean   treatEmptyAsNull;
 
-		FieldInfo(Field field, Value annotation) {
+		FieldInfo(Field field, TSE_ED annotation) {
 			this.field            = field;
 			this.fieldName        = field.getName();
 			this.fieldType        = field.getType();

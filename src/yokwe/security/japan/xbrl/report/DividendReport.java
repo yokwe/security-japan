@@ -28,50 +28,50 @@ import yokwe.security.japan.xbrl.inline.Document;
 public class DividendReport extends AbstractReport implements Comparable<DividendReport> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendReport.class);
 
-	@Value(label = DOCUMENT_NAME)
+	@TSE_ED(label = DOCUMENT_NAME)
 	public String documentName;
 	
-	@Value(label = FILING_DATE)
+	@TSE_ED(label = FILING_DATE)
 	public LocalDate filingDate;
 	
-	@Value(label = COMPANY_NAME)
+	@TSE_ED(label = COMPANY_NAME)
 	public String companyName;
 	
-	@Value(label = SECURITIES_CODE)
+	@TSE_ED(label = SECURITIES_CODE)
 	public String securitiesCode;
 	
-	@Value(label = FISCAL_YEAR_END)
+	@TSE_ED(label = FISCAL_YEAR_END)
 	public String fiscalYearEnd;
 
-	@Value(label = QUARTERLY_STATEMENT_FILING_DATE_AS_PLANNED)
+	@TSE_ED(label = QUARTERLY_STATEMENT_FILING_DATE_AS_PLANNED)
 	public String quarterlyStatementFilingDateAsPlanned;
 	
-	@Value(label = QUARTERLY_PERIOD)
+	@TSE_ED(label = QUARTERLY_PERIOD)
 	public Integer quarterlyPeriod;
 	
 	
-	@Value(label = DIVIDEND_PAYABLE_DATE_AS_PLANNED)
+	@TSE_ED(label = DIVIDEND_PAYABLE_DATE_AS_PLANNED)
 	public String dividendPayableDateAsPlanned;
 	
-	@Value(label = DIVIDEND_PER_SHARE,
+	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, FIRST_QUARTER_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
 			acceptNull = true)
 	public BigDecimal dividendPerShareQ1; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
-	@Value(label = DIVIDEND_PER_SHARE,
+	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, SECOND_QUARTER_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
 			acceptNull = true)
 	public BigDecimal dividendPerShareQ2; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
-	@Value(label = DIVIDEND_PER_SHARE,
+	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, THIRD_QUARTER_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
 			acceptNull = true)
 	public BigDecimal dividendPerShareQ3; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
-	@Value(label = DIVIDEND_PER_SHARE,
+	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, YEAR_END_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
 			acceptNull = true)
