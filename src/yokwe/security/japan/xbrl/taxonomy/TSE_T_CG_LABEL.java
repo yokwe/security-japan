@@ -1,9 +1,5 @@
 package yokwe.security.japan.xbrl.taxonomy;
 
-import java.util.Map;
-import java.util.TreeMap;
-
-import yokwe.UnexpectedException;
 import yokwe.util.XMLUtil.QValue;
 
 public enum TSE_T_CG_LABEL {
@@ -2438,36 +2434,13 @@ public enum TSE_T_CG_LABEL {
     public final QValue    qName;
     public final String    en;
     public final String    ja;
-    public final LabelData labelData;
 
     TSE_T_CG_LABEL (String name, String en, String ja) {
         this.qName     = new QValue(NAMESPACE, name);
         this.en        = en;
         this.ja        = ja;
-        this.labelData = new LabelData(qName, en, ja);
-    }
 
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TSE_T_CG_LABEL.class);
-    private static final Map<QValue, TSE_T_CG_LABEL> all = new TreeMap<>();
-    static {
-        for(TSE_T_CG_LABEL e: TSE_T_CG_LABEL.class.getEnumConstants()) {
-            QValue key = e.qName;
-            if (all.containsKey(key)) {
-                logger.error("Unknow key {}", key);
-                throw new UnexpectedException("Duplicate key");
-            } else {
-                all.put(key, e);
-            }
-        }
-    }
-
-    public static TSE_T_CG_LABEL get(QValue qName) {
-        if (all.containsKey(qName)) {
-            return  all.get(qName);
-        } else {
-            logger.error("Unknow key {}", qName);
-            throw new UnexpectedException("Unknow key");
-        }
+        LabelData.add(qName, en, ja, this);
     }
 
 }

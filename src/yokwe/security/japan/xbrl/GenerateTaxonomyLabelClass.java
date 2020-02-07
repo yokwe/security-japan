@@ -39,10 +39,10 @@ public class GenerateTaxonomyLabelClass {
 		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(path))) {
 			out.println("package yokwe.security.japan.xbrl.taxonomy;");
 			out.println();
-			out.println("import java.util.Map;");
-			out.println("import java.util.TreeMap;");
-			out.println();
-			out.println("import yokwe.UnexpectedException;");
+//			out.println("import java.util.Map;");
+//			out.println("import java.util.TreeMap;");
+//			out.println();
+//			out.println("import yokwe.UnexpectedException;");
 			out.println("import yokwe.util.XMLUtil.QValue;");
 			out.println();
 			
@@ -79,7 +79,6 @@ public class GenerateTaxonomyLabelClass {
 			out.println("public final QValue    qName;");
 			out.println("public final String    en;");
 			out.println("public final String    ja;");
-			out.println("public final LabelData labelData;");
 			out.println();
 			
 			out.println("%s (String name, String en, String ja) {", className);
@@ -87,41 +86,40 @@ public class GenerateTaxonomyLabelClass {
 			out.println("this.qName     = new QValue(NAMESPACE, name);");
 			out.println("this.en        = en;");
 			out.println("this.ja        = ja;");
-			out.println("this.labelData = new LabelData(qName, en, ja);");
-
+			out.println();
+			out.println("LabelData.add(qName, en, ja, this);");
 			out.println("}");
 			out.println();
 
-			out.println("private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(%s.class);", className);
-
-			out.println("private static final Map<QValue, TSE_T_CG_LABEL> all = new TreeMap<>();");
-			out.println("static {");
-
-			out.println("for(TSE_T_CG_LABEL e: TSE_T_CG_LABEL.class.getEnumConstants()) {");
-
-			out.println("QValue key = e.qName;");
-			out.println("if (all.containsKey(key)) {");
-			out.println("logger.error(\"Unknow key {}\", key);");
-			out.println("throw new UnexpectedException(\"Duplicate key\");");
-			out.println("} else {");
-			out.println("all.put(key, e);");
-			out.println("}");
-			
-			out.println("}");
-
-			out.println("}");
-			out.println();
-
-			out.println("public static TSE_T_CG_LABEL get(QValue qName) {");
-			out.println("if (all.containsKey(qName)) {");
-			out.println("return  all.get(qName);");
-			out.println("} else {");
-			out.println("logger.error(\"Unknow key {}\", qName);");
-			out.println("throw new UnexpectedException(\"Unknow key\");");
-			out.println("}");
-			out.println("}");
-			out.println();
-
+//			out.println("private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(%s.class);", className);
+//
+//			out.println("private static final Map<QValue, TSE_T_CG_LABEL> all = new TreeMap<>();");
+//			out.println("static {");
+//
+//			out.println("for(TSE_T_CG_LABEL e: TSE_T_CG_LABEL.class.getEnumConstants()) {");
+//
+//			out.println("QValue key = e.qName;");
+//			out.println("if (all.containsKey(key)) {");
+//			out.println("logger.error(\"Unknow key {}\", key);");
+//			out.println("throw new UnexpectedException(\"Duplicate key\");");
+//			out.println("} else {");
+//			out.println("all.put(key, e);");
+//			out.println("}");
+//			
+//			out.println("}");
+//
+//			out.println("}");
+//			out.println();
+//
+//			out.println("public static TSE_T_CG_LABEL get(QValue qName) {");
+//			out.println("if (all.containsKey(qName)) {");
+//			out.println("return  all.get(qName);");
+//			out.println("} else {");
+//			out.println("logger.error(\"Unknow key {}\", qName);");
+//			out.println("throw new UnexpectedException(\"Unknow key\");");
+//			out.println("}");
+//			out.println("}");
+//			out.println();
 			
 			out.println("}");
 		} catch (FileNotFoundException e) {
