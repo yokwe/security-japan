@@ -106,6 +106,39 @@ public abstract class AbstractReport {
 
 					fieldInfoList.add(fieldInfo);
 				}
+				
+				if (field.isAnnotationPresent(TSE_RE.class)) {
+					TSE_RE annotation = field.getDeclaredAnnotation(TSE_RE.class);
+					FieldInfo fieldInfo = new FieldInfo(field, annotation);
+					
+					// Sanity check
+					{
+						String   fieldName = fieldInfo.fieldName;
+						Class<?> fieldType = fieldInfo.fieldType;
+						int      modifiers = field.getModifiers();
+						
+						if (Modifier.isStatic(modifiers)) {
+							logger.error("Unexpected modifiers static  {} {}", className, fieldName);
+							throw new UnexpectedException("Unexpected modifiers static");
+						}
+						if (Modifier.isFinal(modifiers)) {
+							logger.error("Unexpected modifiers final  {} {}", className, fieldName);
+							throw new UnexpectedException("Unexpected modifiers final");
+						}
+						if (!Modifier.isPublic(modifiers)) {
+							logger.error("Unexpected modifiers not public  {} {}", className, fieldName);
+							throw new UnexpectedException("Unexpected modifiers not public");
+						}
+						
+						if (fieldType.isArray()) {
+							logger.error("Unexpected field is array  {} {}", className, fieldName);
+							throw new UnexpectedException("Unexpected field is array");
+						}
+					}
+
+					fieldInfoList.add(fieldInfo);
+				}
+
 			}
 		}
 	}
@@ -124,6 +157,19 @@ public abstract class AbstractReport {
 		final boolean   treatEmptyAsNull;
 
 		FieldInfo(Field field, TSE_ED annotation) {
+			this.field            = field;
+			this.fieldName        = field.getName();
+			this.fieldType        = field.getType();
+			this.fieldTypeName    = fieldType.getName();
+			this.fieldIsPrimitive = fieldType.isPrimitive();
+			
+			this.qName             = annotation.label().qName;
+			this.contextIncludeAll = annotation.contextIncludeAll();
+			this.contextExcludeAny = annotation.contextExcludeAny();
+			this.acceptNull        = annotation.acceptNull();
+			this.treatEmptyAsNull  = annotation.treatEmptyAsNull();
+		}
+		FieldInfo(Field field, TSE_RE annotation) {
 			this.field            = field;
 			this.fieldName        = field.getName();
 			this.fieldType        = field.getType();
