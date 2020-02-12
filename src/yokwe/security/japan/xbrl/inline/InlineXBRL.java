@@ -152,7 +152,7 @@ public abstract class InlineXBRL {
 		}
 	}
 	
-	static String normalizeNumberCharacter(String value) {
+	public static String normalizeNumberCharacter(String value) {
 		// １２３４５６７８９０
 		value = value.replace("１", "1");
 		value = value.replace("２", "2");
