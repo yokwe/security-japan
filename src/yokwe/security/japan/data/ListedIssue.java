@@ -20,6 +20,7 @@ public class ListedIssue implements Comparable<ListedIssue> {
 	public static final String PATH_DATA     = "tmp/data/listed-issue.csv";
 	
 	public static final String MARKET_ETF    = "ETF・ETN";
+	public static final String MARKET_REIT   = "REIT・ベンチャーファンド・カントリーファンド・インフラファンド";
 	
 	private static List<ListedIssue> all = null;
 	public static List<ListedIssue> load() {
