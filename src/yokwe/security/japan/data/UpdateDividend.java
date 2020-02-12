@@ -21,7 +21,7 @@ public class UpdateDividend {
 		Map<String, List<Dividend>> map = new TreeMap<>();
 		{
 			List<DividendAll> list = DividendAll.load();
-			logger.info("list {}", list.size());
+			logger.info("DividendAll {}", list.size());
 			for(DividendAll e: list) {
 				String stockCode = e.stockCode;
 				
@@ -33,6 +33,22 @@ public class UpdateDividend {
 					map.put(stockCode, dividendList);
 				}
 				dividendList.add(new Dividend(e.date, e.stockCode, e.dividend));
+			}
+		}
+		{
+			List<DistributionAll> list = DistributionAll.load();
+			logger.info("DistributionAll {}", list.size());
+			for(DistributionAll e: list) {
+				String stockCode = e.stockCode;
+				
+				List<Dividend> dividendList;
+				if (map.containsKey(stockCode)) {
+					dividendList = map.get(stockCode);
+				} else {
+					dividendList = new ArrayList<>();
+					map.put(stockCode, dividendList);
+				}
+				dividendList.add(new Dividend(e.date, e.stockCode, e.distribution + e.distributionExcess));
 			}
 		}
 		
