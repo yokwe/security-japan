@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.Category;
 import yokwe.security.japan.ufocatch.Atom;
 import yokwe.security.japan.xbrl.inline.Document;
@@ -39,11 +40,17 @@ public class UpdateDividendAll {
 
 //				logger.info("File {}", file.getPath());
 				Document document = Document.getInstance(XMLUtil.buildStream(file));
-				DividendReport briefReport = DividendReport.getInstance(document);
-				if (briefReport.dividendPayableDateAsPlanned == null) continue;
-				if (briefReport.dividendPerShare == null) continue;
-				
-				list.add(new DividendAll(briefReport, file.getName()));
+				try {
+					DividendReport briefReport = DividendReport.getInstance(document);
+					
+					DividendAll divideneAll = new DividendAll(briefReport, file.getName());
+					if (divideneAll.date.isEmpty()) continue;
+					
+					list.add(divideneAll);
+				} catch(UnexpectedException e) {
+					logger.error("file {}", file.getName());
+					throw e;
+				}
 			}
 		}
 		
