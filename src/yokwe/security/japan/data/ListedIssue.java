@@ -119,4 +119,11 @@ public class ListedIssue implements Comparable<ListedIssue> {
 		if (ret == 0) ret = this.stockCode.compareTo(that.stockCode);
 		return ret;
 	}
+	
+	public boolean isETF() {
+		return market.equals(MARKET_ETF);
+	}
+	public boolean isREIT() {
+		return market.equals(MARKET_REIT);
+	}
 }
