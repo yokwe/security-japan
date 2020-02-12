@@ -14,6 +14,6 @@ public class Entry {
 	
 	@Override
 	public String toString() {
-		return String.format("{etnry %s %s %s %s}", title, id, updated, linkList);
+		return String.format("{entry %s %s %s %s}", title, id, updated, linkList);
 	}
 }
