@@ -37,6 +37,22 @@ public class UpdateStats {
 		ListedIssue listedIssue = map.get(ret.stockCode);
 		ret.name     = listedIssue.name;
 		
+		if (listedIssue.sector33.equals("-") && listedIssue.sector17.equals("-")) {
+			if (listedIssue.market.equals(ListedIssue.MARKET_ETF)) {
+				ret.sector33 = "ETF";
+				ret.sector17 = "ETF";
+			} else if (listedIssue.market.equals(ListedIssue.MARKET_REIT)) {
+				ret.sector33 = "REIT";
+				ret.sector17 = "REIT";
+			} else {
+				ret.sector33 = listedIssue.market;
+				ret.sector17 = listedIssue.market;
+			}
+		} else {
+			ret.sector33 = listedIssue.sector33;
+			ret.sector17 = listedIssue.sector17;
+		}
+		
 		{
 			Price lastPrice = priceList.get(priceList.size() - 1);
 			ret.date  = lastPrice.date;

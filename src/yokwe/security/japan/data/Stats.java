@@ -30,6 +30,15 @@ public class Stats extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
 	public String name;
 	
+	@ColumnName("sector33") // 33業種区分
+	@NumberFormat(SpreadSheet.FORMAT_STRING)
+	public String sector33;
+	
+	@ColumnName("sector17") // 17業種区分
+	@NumberFormat(SpreadSheet.FORMAT_STRING)
+	public String sector17;
+	
+	
 	// last values
 	@ColumnName("date")
 	@NumberFormat(SpreadSheet.FORMAT_DATE)
