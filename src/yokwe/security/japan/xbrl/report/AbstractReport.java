@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,8 +39,7 @@ public abstract class AbstractReport {
 		TSE_ED_T_LABEL label();
 		Context[]      contextIncludeAll()   default {};
 		Context[]      contextExcludeAny()   default {};
-		boolean        acceptNull()          default true;
-		boolean		   treatEmptyAsNull()    default true;
+		boolean        acceptNullOrEmpty()   default false;
 	}
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
@@ -47,8 +47,7 @@ public abstract class AbstractReport {
 		TSE_RE_T_LABEL label();
 		Context[]      contextIncludeAll()   default {};
 		Context[]      contextExcludeAny()   default {};
-		boolean        acceptNull()          default true;
-		boolean		   treatEmptyAsNull()    default true;
+		boolean        acceptNullOrEmpty()   default false;
 	}
 	// type of field can be InlineXBRL, String, Boolean, BigDecimal, boolean, int, long, float, double
 	
@@ -148,39 +147,33 @@ public abstract class AbstractReport {
 		final String   fieldName;
 		final Class<?> fieldType;
 		final String   fieldTypeName;
-		final boolean  fieldIsPrimitive;
 		
 		final QValue    qName;
 		final Context[] contextIncludeAll;
 		final Context[] contextExcludeAny;
-		final boolean   acceptNull;
-		final boolean   treatEmptyAsNull;
+		final boolean   acceptNullOrEmpty;
 
 		FieldInfo(Field field, TSE_ED annotation) {
 			this.field            = field;
 			this.fieldName        = field.getName();
 			this.fieldType        = field.getType();
 			this.fieldTypeName    = fieldType.getName();
-			this.fieldIsPrimitive = fieldType.isPrimitive();
 			
 			this.qName             = annotation.label().qName;
 			this.contextIncludeAll = annotation.contextIncludeAll();
 			this.contextExcludeAny = annotation.contextExcludeAny();
-			this.acceptNull        = annotation.acceptNull();
-			this.treatEmptyAsNull  = annotation.treatEmptyAsNull();
+			this.acceptNullOrEmpty = annotation.acceptNullOrEmpty();
 		}
 		FieldInfo(Field field, TSE_RE annotation) {
 			this.field            = field;
 			this.fieldName        = field.getName();
 			this.fieldType        = field.getType();
 			this.fieldTypeName    = fieldType.getName();
-			this.fieldIsPrimitive = fieldType.isPrimitive();
 			
 			this.qName             = annotation.label().qName;
 			this.contextIncludeAll = annotation.contextIncludeAll();
 			this.contextExcludeAny = annotation.contextExcludeAny();
-			this.acceptNull        = annotation.acceptNull();
-			this.treatEmptyAsNull  = annotation.treatEmptyAsNull();
+			this.acceptNullOrEmpty = annotation.acceptNullOrEmpty();
 		}
 	}
 	
@@ -323,38 +316,75 @@ public abstract class AbstractReport {
 			throw new UnexpectedException("Unexpected field type");
 		}
 	}
+	private void assignFieldZeroOrEmptyString(FieldInfo fieldInfo) throws IllegalArgumentException, IllegalAccessException {
+		final Field  field         = fieldInfo.field;
+		final String fieldName     = fieldInfo.fieldName;
+		final String fieldTypeName = fieldInfo.fieldTypeName;
+		
+		switch(fieldTypeName) {
+		case "java.lang.String":
+			field.set(this, "");
+			break;
+		
+		// BigDecimal
+		case "java.math.BigDecimal":
+			field.set(this, BigDecimal.ZERO);
+			break;
+			
+		// FLOAT
+		case "float":
+		case "java.lang.Float":
+			field.set(this, (float)0);
+			break;
+		// DOUBLE
+		case "double":
+		case "java.lang.Double":
+			field.set(this, (double)0);
+			break;
+		// INT INTEGER
+		case "int":
+		case "java.lang.Integer":
+			field.set(this, (int)0);
+			break;
+
+		// LONG
+		case "long":
+		case "java.lang.Long":
+			field.set(this, (long)0);
+			break;
+
+//		case "java.time.LocalDate":
+//			field.set(this, null);
+//			break;
+//		case "yokwe.security.japan.xbrl.InlineXBRL":
+//			field.set(this, null);
+//			break;
+			
+		default:
+			logger.error("Unexpected field type");
+			logger.error("   fieldName     {}", fieldName);
+			logger.error("   fieldTypeName {}", fieldTypeName);
+			throw new UnexpectedException("Unexpected field type");
+		}
+	}
+
 	
 	protected void init(Document ixDoc) {
 		// use reflection to initialize annotated variable in class
 		ClassInfo classInfo = ClassInfo.get(this.getClass());
 		for(FieldInfo fieldInfo: classInfo.fieldInfoList) {
-			final Field    field            = fieldInfo.field;
-			final String   fieldName        = fieldInfo.fieldName;
-			final boolean  fieldIsPrimitive = fieldInfo.fieldIsPrimitive;
-			
 			final QValue    qName             = fieldInfo.qName;
 			final Context[] contextIncludeAll = fieldInfo.contextIncludeAll;
 			final Context[] contextExcludeAny = fieldInfo.contextExcludeAny;
-			final boolean   acceptNull        = fieldInfo.acceptNull;
-			final boolean   treatEmptyAsNull  = fieldInfo.treatEmptyAsNull;
+			final boolean   acceptNullOrEmpty = fieldInfo.acceptNullOrEmpty;
 			
 			List<InlineXBRL> list = ixDoc.getStream(qName).filter(InlineXBRL.contextIncludeAll(contextIncludeAll)).filter(InlineXBRL.contextExcludeAny(contextExcludeAny)).collect(Collectors.toList());
 			int size = list.size();
 			
 			try {
 				if (size == 0) {
-					if (treatEmptyAsNull) {
-						if (fieldIsPrimitive) {
-							logger.error("No matching entry");
-							logger.error("Field is primitive   {}", fieldName);
-							logger.error("   namespace         {}", qName.namespace);
-							logger.error("   name              {}", qName.value);
-							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
-							logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-							throw new UnexpectedException("No matching entry");
-						} else {
-							field.set(this, null);
-						}
+					if (acceptNullOrEmpty) {
+						assignFieldZeroOrEmptyString(fieldInfo);
 					} else {
 						// doesn't exist
 						logger.error("No matching entry");
@@ -367,16 +397,8 @@ public abstract class AbstractReport {
 				} else if (list.size() == 1) {
 					InlineXBRL ix = list.get(0);
 					if (ix.isNull) {
-						if (acceptNull) {
-							if (fieldIsPrimitive) {
-								logger.error("Field cannot be null {}", fieldName);
-								logger.error("   namespace         {}", qName.namespace);
-								logger.error("   name              {}", qName.value);
-								logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
-								logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-								throw new UnexpectedException("Field cannot be null");
-							}
-							field.set(this, null);
+						if (acceptNullOrEmpty) {
+							assignFieldZeroOrEmptyString(fieldInfo);
 						} else {
 							logger.error("Entry is null");
 							logger.error("   namespace         {}", qName.namespace);
@@ -414,15 +436,7 @@ public abstract class AbstractReport {
 					}
 					if (isAllNull) {
 						// Special case for multiple null
-						if (acceptNull) {
-							if (fieldIsPrimitive) {
-								logger.error("Field cannot be null {}", fieldName);
-								logger.error("   namespace         {}", qName.namespace);
-								logger.error("   name              {}", qName.value);
-								logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
-								logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-								throw new UnexpectedException("Field cannot be null");
-							}
+						if (acceptNullOrEmpty) {
 							logger.warn("More than one matching entry");
 							logger.warn("   namespace         {}", qName.namespace);
 							logger.warn("   name              {}", qName.value);
@@ -431,7 +445,7 @@ public abstract class AbstractReport {
 							for(int i = 0; i < list.size(); i++) {
 								logger.warn("  {}  {}", i, list.get(i));
 							}
-							field.set(this, null);
+							assignFieldZeroOrEmptyString(fieldInfo);
 						} else {
 							logger.error("Entry is null");
 							logger.error("   namespace         {}", qName.namespace);
