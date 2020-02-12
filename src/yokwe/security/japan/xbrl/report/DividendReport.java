@@ -18,7 +18,6 @@ import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.QUARTERLY_STATEM
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.SECURITIES_CODE;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +30,9 @@ public class DividendReport extends AbstractReport implements Comparable<Dividen
 	@TSE_ED(label = DOCUMENT_NAME)
 	public String documentName;
 	
-	@TSE_ED(label = FILING_DATE)
-	public LocalDate filingDate;
+	@TSE_ED(label = FILING_DATE,
+			acceptNullOrEmpty = true)
+	public String filingDate;
 	
 	@TSE_ED(label = COMPANY_NAME)
 	public String companyName;
@@ -43,38 +43,41 @@ public class DividendReport extends AbstractReport implements Comparable<Dividen
 	@TSE_ED(label = FISCAL_YEAR_END)
 	public String fiscalYearEnd;
 
-	@TSE_ED(label = QUARTERLY_STATEMENT_FILING_DATE_AS_PLANNED)
+	@TSE_ED(label = QUARTERLY_STATEMENT_FILING_DATE_AS_PLANNED,
+			acceptNullOrEmpty = true)
 	public String quarterlyStatementFilingDateAsPlanned;
 	
-	@TSE_ED(label = QUARTERLY_PERIOD)
+	@TSE_ED(label = QUARTERLY_PERIOD,
+			acceptNullOrEmpty = true)
 	public Integer quarterlyPeriod;
 	
 	
-	@TSE_ED(label = DIVIDEND_PAYABLE_DATE_AS_PLANNED)
+	@TSE_ED(label = DIVIDEND_PAYABLE_DATE_AS_PLANNED,
+			acceptNullOrEmpty = true)
 	public String dividendPayableDateAsPlanned;
 	
 	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, FIRST_QUARTER_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
-			acceptNull = true)
+			acceptNullOrEmpty = true)
 	public BigDecimal dividendPerShareQ1; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
 	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, SECOND_QUARTER_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
-			acceptNull = true)
+			acceptNullOrEmpty = true)
 	public BigDecimal dividendPerShareQ2; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
 	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, THIRD_QUARTER_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
-			acceptNull = true)
+			acceptNullOrEmpty = true)
 	public BigDecimal dividendPerShareQ3; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 
 	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, YEAR_END_MEMBER},
 			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
-			acceptNull = true)
+			acceptNullOrEmpty = true)
 	public BigDecimal dividendPerShareQ4; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
 	
 	public BigDecimal dividendPerShare;
@@ -82,24 +85,28 @@ public class DividendReport extends AbstractReport implements Comparable<Dividen
 	public static DividendReport getInstance(Document document) {
 		DividendReport ret = AbstractReport.getInstance(DividendReport.class, document);
 
-		if (ret.quarterlyPeriod == null) {
+		switch(ret.quarterlyPeriod) {
+		case 0:
 			ret.dividendPerShare = ret.dividendPerShareQ4;
 			ret.quarterlyPeriod  = 4;
-		} else {
-			switch(ret.quarterlyPeriod) {
-			case 1:
-				ret.dividendPerShare = ret.dividendPerShareQ1;
-				break;
-			case 2:
-				ret.dividendPerShare = ret.dividendPerShareQ2;
-				break;
-			case 3:
-				ret.dividendPerShare = ret.dividendPerShareQ3;
-				break;
-			default:
-				logger.error("Unexpected quarterlyPeriod {}", ret.quarterlyPeriod);
-				throw new UnexpectedException("Unexpected quarterlyPeriod");
-			}
+			break;
+		case 1:
+			ret.dividendPerShare = ret.dividendPerShareQ1;
+			break;
+		case 2:
+			ret.dividendPerShare = ret.dividendPerShareQ2;
+			break;
+		case 3:
+			ret.dividendPerShare = ret.dividendPerShareQ3;
+			break;
+		default:
+			logger.error("Unexpected quarterlyPeriod {}", ret.quarterlyPeriod);
+			throw new UnexpectedException("Unexpected quarterlyPeriod");
+		}
+
+		// Sanity check
+		if (ret.filingDate.isEmpty()) {
+			logger.warn("filingDate is empty  {}", ret);
 		}
 
 		return ret;
