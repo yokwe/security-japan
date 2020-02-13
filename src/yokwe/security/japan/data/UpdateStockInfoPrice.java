@@ -178,7 +178,7 @@ public class UpdateStockInfoPrice {
 		}
 	}
 
-	private static StockInfo getStock(String stockCode, String page) {
+	private static StockInfo getStockInfo(String stockCode, String page) {
 		BasicInfo      basicInfo           = BasicInfo.getInstance(page);
 		NumberOfIssued numerOfIssuedString = NumberOfIssued.getInstance(page);	
 		TradeUnit      tradeUnitString     = TradeUnit.getInstance(page);
@@ -287,7 +287,7 @@ public class UpdateStockInfoPrice {
 		int countTotal   = list.size();
 		
 		// Build newStockMap from old data
-		Map<String, StockInfo> newStockMap = new TreeMap<>();
+		Map<String, StockInfo> newStockInfoMap = new TreeMap<>();
 
 		List<String> listNotExist = new ArrayList<>();
 		List<String> listNoData   = new ArrayList<>();
@@ -307,7 +307,8 @@ public class UpdateStockInfoPrice {
 			if (oldPriceMap.containsKey(lastTradingDate)) {
 				// price is already updated, skip this stockCode
 				countAlready++;
-//				continue;
+				// FIXME If you want to force create stock-info.csv, comment out line below.
+				continue;
 			} else {
 				String path = getPagePath(stockCode);
 				File   file = new File(path);
@@ -375,33 +376,32 @@ public class UpdateStockInfoPrice {
 			
 			// Update newStockMap
 			{
-				StockInfo newStock = getStock(stockCode, page);
-				newStockMap.put(stockCode, newStock);
+				StockInfo newStockInfo = getStockInfo(stockCode, page);
+				newStockInfoMap.put(stockCode, newStockInfo);
 			}
 
 		}
 		
 		// Update stock
 		{
-//			if (countUpdate != 0) {
-				Map<String, StockInfo> oldStockMap = StockInfo.getStockMap();
-				oldStockMap = new TreeMap<>();
+			if (countUpdate != 0) {
+				Map<String, StockInfo> oldStockInfoMap = StockInfo.getStockInfoMap();
 				logger.info("----", countTotal);
-				logger.info("oldStockMap   {}", oldStockMap.size());
-				logger.info("newStockMap   {}", newStockMap.size());
+				logger.info("oldStockInfoMap   {}", oldStockInfoMap.size());
+				logger.info("newStockInfoMap   {}", newStockInfoMap.size());
 				
 				// update newStockMap with key of oldStockMap
-				for(String stockCode: oldStockMap.keySet()) {
-					StockInfo oldStock = oldStockMap.get(stockCode);
-					if (newStockMap.containsKey(stockCode)) {
+				for(String stockCode: oldStockInfoMap.keySet()) {
+					StockInfo oldStock = oldStockInfoMap.get(stockCode);
+					if (newStockInfoMap.containsKey(stockCode)) {
 						//
 					} else {
-						newStockMap.put(stockCode, oldStock);
+						newStockInfoMap.put(stockCode, oldStock);
 					}
 				}
-				logger.info("save {} {}", StockInfo.PATH_DATA, newStockMap.size());
-				StockInfo.save(newStockMap.values());
-//			}
+				logger.info("save {} {}", StockInfo.PATH_DATA, newStockInfoMap.size());
+				StockInfo.save(newStockInfoMap.values());
+			}
 		}
 		
 		// Sort list
