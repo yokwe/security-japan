@@ -86,8 +86,8 @@ public class GenerateTaxonomyLabelClass {
 			out.println("this.qName     = new QValue(NAMESPACE, name);");
 			out.println("this.en        = en;");
 			out.println("this.ja        = ja;");
-			out.println();
-			out.println("LabelData.add(qName, en, ja, this);");
+//			out.println();
+//			out.println("LabelData.add(qName, en, ja, this);");
 			out.println("}");
 			out.println();
 

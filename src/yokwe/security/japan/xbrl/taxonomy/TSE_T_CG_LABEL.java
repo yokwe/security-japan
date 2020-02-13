@@ -2439,8 +2439,6 @@ public enum TSE_T_CG_LABEL {
         this.qName     = new QValue(NAMESPACE, name);
         this.en        = en;
         this.ja        = ja;
-
-        LabelData.add(qName, en, ja, this);
     }
 
 }

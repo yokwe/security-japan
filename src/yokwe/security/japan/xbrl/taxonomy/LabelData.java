@@ -12,8 +12,16 @@ public class LabelData {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(LabelData.class);
 
 	private static final Map<QValue, LabelData> all = new TreeMap<>();
+	static {
+		for(TSE_ED_T_LABEL e: TSE_ED_T_LABEL.values()) {
+			add(e.qName, e.en, e.ja, e);
+		}
+		for(TSE_RE_T_LABEL e: TSE_RE_T_LABEL.values()) {
+			add(e.qName, e.en, e.ja, e);
+		}
+	}
 	
-	public static void add(QValue qName, String en, String ja, Enum<?> e) {
+	private static void add(QValue qName, String en, String ja, Enum<?> e) {
 		LabelData value = new LabelData(qName, en, ja, e);
 		QValue    key   = value.qName;
 		
