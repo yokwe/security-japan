@@ -307,7 +307,7 @@ public class UpdateStockInfoPrice {
 			if (oldPriceMap.containsKey(lastTradingDate)) {
 				// price is already updated, skip this stockCode
 				countAlready++;
-				continue;
+//				continue;
 			} else {
 				String path = getPagePath(stockCode);
 				File   file = new File(path);
