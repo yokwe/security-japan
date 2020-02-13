@@ -28,7 +28,7 @@ public class StockInfo implements Comparable<StockInfo> {
 		Collections.sort(list);
 		CSVUtil.write(StockInfo.class).file(PATH_DATA, list);
 	}
-	public static Map<String, StockInfo> getStockMap() {
+	public static Map<String, StockInfo> getStockInfoMap() {
 		List<StockInfo> stockList = load();
 		if (stockList == null) return null;
 		
