@@ -44,7 +44,7 @@ public class Download {
 		Map<FinancialSummary, File> fileMap = Atom.getFileMap();
 		logger.info("fileMap {}", fileMap.size());
 
-		Feed rootFeed = Atom.getFeed(Atom.Kind.TDNETX);
+		Feed rootFeed = Atom.getFeed(Kind.TDNETX);
 		
 		HttpUtil httpUtil = HttpUtil.getInstance();
 				

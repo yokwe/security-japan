@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.security.japan.jpx.Stock;
 import yokwe.util.DoubleUtil;
 import yokwe.util.JapanHoliday;
 import yokwe.util.stats.DoubleArray;
@@ -26,31 +26,28 @@ public class UpdateStats {
 	private static final String STRING_DATE_LAST  = DATE_LAST.toString();
 	private static final String STRING_DATE_FIRST = DATE_LAST.minusYears(1).toString();
 
-	private static Stats getInstance(ListedIssue stock, List<Price> priceList, List<Dividend> dividendList) {
-		Map<String, ListedIssue>  map = ListedIssue.getMap();
+	private static Stats getInstance(Stock stock, List<Price> priceList, List<Dividend> dividendList) {
 		
 		Stats ret = new Stats();
 		
 //		this.exchange = stock.exchange;
-		ret.stockCode   = stock.stockCode;
+		ret.stockCode = stock.stockCode;
 		
-		ListedIssue listedIssue = map.get(ret.stockCode);
-		ret.name     = listedIssue.name;
-		
-		if (listedIssue.sector33.equals("-") && listedIssue.sector17.equals("-")) {
-			if (listedIssue.market.equals(ListedIssue.MARKET_ETF)) {
+		ret.name      = stock.name;
+		if (stock.sector33.equals("-") && stock.sector17.equals("-")) {
+			if (stock.isETF()) {
 				ret.sector33 = "ETF";
 				ret.sector17 = "ETF";
-			} else if (listedIssue.market.equals(ListedIssue.MARKET_REIT)) {
+			} else if (stock.isREIT()) {
 				ret.sector33 = "REIT";
 				ret.sector17 = "REIT";
 			} else {
-				ret.sector33 = listedIssue.market;
-				ret.sector17 = listedIssue.market;
+				ret.sector33 = stock.market;
+				ret.sector17 = stock.market;
 			}
 		} else {
-			ret.sector33 = listedIssue.sector33;
-			ret.sector17 = listedIssue.sector17;
+			ret.sector33 = stock.sector33;
+			ret.sector17 = stock.sector17;
 		}
 		
 		{
@@ -59,7 +56,7 @@ public class UpdateStats {
 			ret.price = DoubleUtil.round(lastPrice.close, 2);
 			ret.vol   = lastPrice.volume;
 		}
-		
+
 		{
 			// Limit to 1 year
 			double[] priceArray = priceList.stream().mapToDouble(o -> o.close).toArray();
@@ -165,20 +162,20 @@ public class UpdateStats {
 		
 		List<Stats> statsList = new ArrayList<>();
 		
-		Collection<ListedIssue> listedIssueList = ListedIssue.load();
+		Collection<Stock> stockList = Stock.load();
 		
 //		Collection<Stock> stockCollection = new ArrayList<>();
 //		stockCollection.add(StockUtil.get("IBM"));
 //		stockCollection.add(StockUtil.get("NYT"));
 //		stockCollection.add(StockUtil.get("PEP"));
 		
-		int total = listedIssueList.size();
+		int total = stockList.size();
 		int count = 0;
 		
 		int showInterval = 10000;
 		boolean showOutput;
 		int lastOutputCount = -1;
-		for(ListedIssue stock: listedIssueList) {
+		for(Stock stock: stockList) {
 			String stockCode = stock.stockCode;
 
 			int outputCount = count / showInterval;
@@ -277,7 +274,7 @@ public class UpdateStats {
 			}
 			
 			Stats stats = getInstance(stock, priceList, dividendList);
-			if (stats != null) statsList.add(getInstance(stock, priceList, dividendList));
+			if (stats != null) statsList.add(stats);
 		}
 		Stats.save(statsList);
 		logger.info("stats  {}", String.format("%4d", statsList.size()));

@@ -23,17 +23,19 @@ import yokwe.util.FileUtil;
 import yokwe.util.HttpUtil;
 
 public class Atom {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Atom.class);
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Atom.class);
 
-	public static final String DIR_BASE = "tmp/ufocatch";
+	private static final String DIR_BASE = "tmp/ufocatch";
 	
 	public static String getPath(String filename) {
-		FinancialSummary financialSumary = FinancialSummary.getInstance(filename);
-		if (financialSumary == null) {
-			logger.error("Unexpected filename {}", filename);
-			throw new UnexpectedException("Unexpected filename");
+		{
+			FinancialSummary financialSumary = FinancialSummary.getInstance(filename);
+			if (financialSumary != null) {
+				return String.format("%s/tdnet/%s/%s", DIR_BASE, financialSumary.tdnetCode, filename);
+			}
 		}
-		return String.format("%s/%s/%s", DIR_BASE, financialSumary.tdnetCode, filename);
+		logger.error("Unexpected filename {}", filename);
+		throw new UnexpectedException("Unexpected filename");
 	}
 	
 	private static List<File> fileList = null;
@@ -112,29 +114,6 @@ public class Atom {
 	
 	public static final String URL_BASE   = "https://resource.ufocatch.com/atom";
 	
-	public static enum Kind {
-		EDINET ("edinet"),  // EDINET情報配信サービス
-		EDINETX("edinetx"), // EDINET情報配信サービス(XBRL情報があるもの)
-		TDNET  ("tdnet"),   // 適時開示情報配信サービス
-		TDNETX ("tdnetx"),  // 適時開示情報配信サービス(XBRL情報があるもの)
-		CG     ("cg");      // コーポレート・ガバナンス情報配信サービス
-		
-		private static final Kind[] values = Kind.values();
-		public static Kind getInstance(String string) {
-			for(Kind kind: values) {
-				if (kind.url.equals(string)) {
-					return kind;
-				}
-			}
-			logger.error("Unextected string {}!", string);
-			throw new UnexpectedException("Unextected string");
-		}
-		public final String url;
-		Kind(String url) {
-			this.url = url;
-		}
-	}
-
 	public static String query(Kind kind) {
 		// GET /atom/{種別}
 		String url = String.format("%s/%s", URL_BASE, kind.url);

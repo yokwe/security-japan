@@ -22,23 +22,23 @@ copy-misc-lib-files:
 build-misc-lib:
 	pushd ../misc-lib/; ant build ; popd; make copy-misc-lib-files
 
-update-listed-issue:
-ifneq (,$(wildcard tmp/data/listed-issue.csv))
-	rm -f tmp/data/listed-issue-OLD.csv
-	cp -p tmp/data/listed-issue.csv     tmp/data/listed-issue-OLD.csv
+update-stock:
+ifneq (,$(wildcard tmp/data/stock.csv))
+	rm -f tmp/data/stock-OLD.csv
+	cp -p tmp/data/stock.csv     tmp/data/stock-OLD.csv
 endif
-	ant update-listed-issue
+	ant update-stock
 
-update-stock-price:
+update-stock-info-price:
 ifneq (,$(wildcard tmp/data/price))
 	rm -rf tmp/data/price-OLD
 	cp -rp tmp/data/price      tmp/data/price-OLD
 endif
-ifneq (,$(wildcard tmp/data/stock.csv))
-	rm -f tmp/data/stock-OLD.csv
-	cp -p tmp/data/stock.csv  tmp/data/stock-OLD.csv
+ifneq (,$(wildcard tmp/data/stock-info.csv))
+	rm -f tmp/data/stock-info-OLD.csv
+	cp -p tmp/data/stock-info.csv  tmp/data/stock-info-OLD.csv
 endif
-	ant update-stock-price
+	ant update-stock-info-price
 
 update-dividend-all:
 ifneq (,$(wildcard tmp/data/dividend-all.csv))

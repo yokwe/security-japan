@@ -9,13 +9,15 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.security.japan.jpx.Stock;
+
 public class UpdateDividend {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividend.class);
 	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		Set<String> stockCodeSet = ListedIssue.load().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		Set<String> stockCodeSet = Stock.load().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCodeSet {}", stockCodeSet.size());
 		
 		Map<String, List<Dividend>> map = new TreeMap<>();

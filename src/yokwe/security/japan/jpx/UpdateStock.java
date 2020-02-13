@@ -1,4 +1,4 @@
-package yokwe.security.japan.data;
+package yokwe.security.japan.jpx;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -15,8 +15,8 @@ import yokwe.util.StringUtil;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
-public class UpdateListedIssue {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateListedIssue.class);
+public class UpdateStock {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStock.class);
 	
 	@Sheet.SheetName("Sheet1")
 	@Sheet.HeaderRow(0)
@@ -60,17 +60,17 @@ public class UpdateListedIssue {
 
 	
 	private static void processRequest() {
-		logger.info("download {}", ListedIssue.URL_DOWNLOAD);
+		logger.info("download {}", Stock.URL_DOWNLOAD);
 		HttpUtil http = HttpUtil.getInstance().withRawData(true);
-		HttpUtil.Result result = http.download(ListedIssue.URL_DOWNLOAD);
+		HttpUtil.Result result = http.download(Stock.URL_DOWNLOAD);
 		
 		// Check file and download contents
 		{
 			boolean needsWrite = true;
-			File file = new File(ListedIssue.PATH_DOWNLOAD);
+			File file = new File(Stock.PATH_DOWNLOAD);
 			if (file.exists()) {
 				final String hashOfDownload       = StringUtil.toHexString(HashCode.getHashCode(result.rawData));
-				final String hashOfDownlaodedFile = StringUtil.toHexString(HashCode.getHashCode(new File(ListedIssue.PATH_DOWNLOAD)));
+				final String hashOfDownlaodedFile = StringUtil.toHexString(HashCode.getHashCode(new File(Stock.PATH_DOWNLOAD)));
 
 				if (hashOfDownlaodedFile.equals(hashOfDownload)) {
 					logger.info("Download same contents {}", hashOfDownload);
@@ -83,14 +83,14 @@ public class UpdateListedIssue {
 			}
 			
 			if (needsWrite) {
-				logger.info("write {} {}", ListedIssue.PATH_DOWNLOAD, result.rawData.length);
-				FileUtil.rawWrite().file(ListedIssue.PATH_DOWNLOAD, result.rawData);
+				logger.info("write {} {}", Stock.PATH_DOWNLOAD, result.rawData.length);
+				FileUtil.rawWrite().file(Stock.PATH_DOWNLOAD, result.rawData);
 			}
 		}
 
 		String url;
 		try {
-			url = new File(ListedIssue.PATH_DOWNLOAD).toURI().toURL().toString();
+			url = new File(Stock.PATH_DOWNLOAD).toURI().toURL().toString();
 		} catch (MalformedURLException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
@@ -98,16 +98,16 @@ public class UpdateListedIssue {
 		}
 		logger.info("open {}", url);
 		
-		List<ListedIssue> newList = new ArrayList<>();
+		List<Stock> newList = new ArrayList<>();
 		
 		// Build newList
-		try (SpreadSheet docListedIssue = new SpreadSheet(url, true)) {
-			List<RawData> rawDataList = Sheet.extractSheet(docListedIssue, RawData.class);
+		try (SpreadSheet spreadSheet = new SpreadSheet(url, true)) {
+			List<RawData> rawDataList = Sheet.extractSheet(spreadSheet, RawData.class);
 			logger.info("read {}", rawDataList.size());
 			
 			// Trim space
 			for(RawData value: rawDataList) {
-				ListedIssue newValue = new ListedIssue();
+				Stock newValue = new Stock();
 				
 				String date = value.date.trim();
 				if (date.length() != 8) {
@@ -141,7 +141,7 @@ public class UpdateListedIssue {
 				boolean sameData = false;
 				String  newDate  = newList.get(0).date;
 				
-				List<ListedIssue> oldList = ListedIssue.load();
+				List<Stock> oldList = Stock.load();
 				if (oldList == null) {
 					sameData = false;
 				} else {
@@ -153,8 +153,8 @@ public class UpdateListedIssue {
 				if (sameData) {
 					logger.warn("same data  {}  {}", newDate, newList.size());
 				} else {
-					logger.info("write {}  {}  {}", newDate, newList.size(), ListedIssue.PATH_DATA);
-					ListedIssue.save(newList);
+					logger.info("write {}  {}  {}", newDate, newList.size(), Stock.PATH_DATA);
+					Stock.save(newList);
 				}
 			}
 		}

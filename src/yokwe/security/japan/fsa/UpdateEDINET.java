@@ -40,22 +40,24 @@ public class UpdateEDINET {
 		        
 		        if (!name.endsWith(".csv")) continue;
 
-		        try (InputStreamReader isr = new InputStreamReader(zipFile.getInputStream(entry), EDINET.CHARSET_DOWNLOAD)) {
-		        	// Skip first line
-		        	for(;;) {
-		        		int c = isr.read();
-		        		if (c == -1) break;
-		        		if (c == '\n') break;
-		        	}
-		        	
-		        	List<EDINET> list = CSVUtil.read(EDINET.class).file(isr);
-		        	
-					// Sort before write
-					Collections.sort(list);
-					
-					String path = String.format("tmp/data/%s", name);
-					logger.info("write {}  {}", path, list.size());
-					CSVUtil.write(EDINET.class).file(path, list);
+		        if (name.equals(EDINET.ENTRY_NAME)) {
+			        try (InputStreamReader isr = new InputStreamReader(zipFile.getInputStream(entry), EDINET.CHARSET_DOWNLOAD)) {
+			        	// Skip first line
+			        	for(;;) {
+			        		int c = isr.read();
+			        		if (c == -1) break;
+			        		if (c == '\n') break;
+			        	}
+			        	
+			        	List<EDINET> list = CSVUtil.read(EDINET.class).file(isr);
+			        	
+						// Sort before write
+						Collections.sort(list);
+						
+						String path = EDINET.PATH_DATA;
+						logger.info("write  {}   {}", path, list.size());
+						CSVUtil.write(EDINET.class).file(path, list);
+			        }
 		        }
 		    }
 		}

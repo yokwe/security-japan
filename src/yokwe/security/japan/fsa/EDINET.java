@@ -8,8 +8,9 @@ public class EDINET implements Comparable<EDINET> {
 	public static final String URL_DOWNLOAD     = "https://disclosure.edinet-fsa.go.jp/E01EW/download?uji.verb=W1E62071EdinetCodeDownload&uji.bean=ee.bean.W1E62071.EEW1E62071Bean&TID=W1E62071&PID=W1E62071&SESSIONKEY=9999&downloadFileName=&lgKbn=2&dflg=0&iflg=0&dispKbn=1";
 	public static final String CHARSET_DOWNLOAD = "MS932";
 	
-	public static final String PATH_DOWNLOAD    = "tmp/download/Edinetcode.zip";
-	public static final String PATH_DATA        = "tmp/data/EdinetcodeDlInfo.csv";
+	public static final String PATH_DOWNLOAD = "tmp/download/Edinetcode.zip";
+	public static final String PATH_DATA     = "tmp/data/edinet.csv";
+	public static final String ENTRY_NAME    = "EdinetcodeDlInfo.csv";
 	
 	public static List<EDINET> load() {
 		return CSVUtil.read(EDINET.class).file(PATH_DATA);
@@ -22,7 +23,7 @@ public class EDINET implements Comparable<EDINET> {
 	public String category;
 
 	@CSVUtil.ColumnName("上場区分")
-	public String listedIssue;
+	public String listingType;
 
 	@CSVUtil.ColumnName("連結の有無")
 	public String hasConsolidateSubsidary;
@@ -57,7 +58,7 @@ public class EDINET implements Comparable<EDINET> {
 	@Override
 	public String toString() {
 		return String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s",
-				edinetCode, category, listedIssue, hasConsolidateSubsidary, capital, closingDate,
+				edinetCode, category, listingType, hasConsolidateSubsidary, capital, closingDate,
 				name, nameEnglish, nameRuby, address, sector, stockCode, corporateCode);
 	}
 	

@@ -44,8 +44,8 @@
 	
 	
 	<!-- application -->
-        <target name="update-listed-issue">
-                <java classname="yokwe.security.japan.data.UpdateListedIssue" fork="true">
+        <target name="update-stock">
+                <java classname="yokwe.security.japan.jpx.UpdateStock" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
@@ -53,8 +53,8 @@
                  </java>
         </target>
 
-        <target name="update-stock-price">
-                <java classname="yokwe.security.japan.data.UpdateStockPrice" fork="true">
+        <target name="update-stock-info-price">
+                <java classname="yokwe.security.japan.data.UpdateStockInfoPrice" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>

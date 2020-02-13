@@ -16,13 +16,14 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.jpx.Stock;
 import yokwe.util.FileUtil;
 import yokwe.util.HttpUtil;
 import yokwe.util.JapanHoliday;
 import yokwe.util.StringUtil;
 
-public class UpdateStockPrice {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockPrice.class);
+public class UpdateStockInfoPrice {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockInfoPrice.class);
 
 	private static String getPage(String stockCode) {
 		String url = String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode);
@@ -177,7 +178,7 @@ public class UpdateStockPrice {
 		}
 	}
 
-	private static Stock getStock(String stockCode, String page) {
+	private static StockInfo getStock(String stockCode, String page) {
 		BasicInfo      basicInfo           = BasicInfo.getInstance(page);
 		NumberOfIssued numerOfIssuedString = NumberOfIssued.getInstance(page);	
 		TradeUnit      tradeUnitString     = TradeUnit.getInstance(page);
@@ -191,7 +192,7 @@ public class UpdateStockPrice {
 		int    tradeUnit      = Integer.parseInt(tradeUnitString.tradeUnit);
 		long   numberOfIssued = Long.parseLong(numerOfIssuedString.numberOfIssued);
 
-		return new Stock(stockCode, isinCode, tradeUnit, numberOfIssued);
+		return new StockInfo(stockCode, isinCode, tradeUnit, numberOfIssued);
 	}
 	private static Map<String, Price> getPriceMap(String stockCode, String page) {
 		List<PriceVolume> priceVolumeList = PriceVolume.getInstance(page);
@@ -239,7 +240,7 @@ public class UpdateStockPrice {
 	
 	private static final int MAX_COUNT_NO_DATA = 10;
 	
-	private static void updatePrice(List<ListedIssue> list) {
+	private static void updatePrice(List<Stock> list) {
 		// delist if necessary
 		{
 			Set<String> stockCodeSet = list.stream().map(o -> o.stockCode).collect(Collectors.toSet());
@@ -286,12 +287,12 @@ public class UpdateStockPrice {
 		int countTotal   = list.size();
 		
 		// Build newStockMap from old data
-		Map<String, Stock> newStockMap = new TreeMap<>();
+		Map<String, StockInfo> newStockMap = new TreeMap<>();
 
 		List<String> listNotExist = new ArrayList<>();
 		List<String> listNoData   = new ArrayList<>();
 		List<String> listEmpty    = new ArrayList<>();
-		for(ListedIssue e: list) {
+		for(Stock e: list) {
 			String stockCode = e.stockCode;
 			
 			if ((count % 100) == 0) {
@@ -307,17 +308,20 @@ public class UpdateStockPrice {
 				// price is already updated, skip this stockCode
 				countAlready++;
 				continue;
+			} else {
+				String path = getPagePath(stockCode);
+				File   file = new File(path);
+				String page = getPage(stockCode);
+				FileUtil.write().file(file, page);
 			}
 			
 			String page;
-			// load page
 			{
 				String path = getPagePath(stockCode);
 				File   file = new File(path);
-				page = getPage(stockCode);
-				FileUtil.write().file(file, page);
+				page = FileUtil.read().file(file);
 			}
-
+			
 			// check page
 			if (page.contains("指定された銘柄が見つかりません")) {
 				// if page contains no data, skip this stockCode
@@ -337,7 +341,7 @@ public class UpdateStockPrice {
 			if (!newPriceMap.containsKey(lastTradingDate)) {
 				// no lastTradingDate in newPriceMap, skip this stockCode;
 				listNoData.add(stockCode);
-				logger.warn("priceMap contains no lastStradingDate data  {}", stockCode);
+				logger.warn("priceMap contains no lastTradingDate data  {}", stockCode);
 				
 				if (MAX_COUNT_NO_DATA <= listNoData.size()) {
 					logger.error("MAX_COUNT_NO_DATA <= listNoData.size()  {}", listNoData.size());
@@ -371,31 +375,33 @@ public class UpdateStockPrice {
 			
 			// Update newStockMap
 			{
-				Stock newStock = getStock(stockCode, page);
+				StockInfo newStock = getStock(stockCode, page);
 				newStockMap.put(stockCode, newStock);
 			}
+
 		}
 		
 		// Update stock
 		{
-			if (countUpdate != 0) {
-				Map<String, Stock> oldStockMap = Stock.getStockMap();
+//			if (countUpdate != 0) {
+				Map<String, StockInfo> oldStockMap = StockInfo.getStockMap();
+				oldStockMap = new TreeMap<>();
 				logger.info("----", countTotal);
 				logger.info("oldStockMap   {}", oldStockMap.size());
 				logger.info("newStockMap   {}", newStockMap.size());
 				
 				// update newStockMap with key of oldStockMap
 				for(String stockCode: oldStockMap.keySet()) {
-					Stock oldStock = oldStockMap.get(stockCode);
+					StockInfo oldStock = oldStockMap.get(stockCode);
 					if (newStockMap.containsKey(stockCode)) {
 						//
 					} else {
 						newStockMap.put(stockCode, oldStock);
 					}
 				}
-				logger.info("newStockMap   {}", newStockMap.size());
-				Stock.save(newStockMap.values());
-			}
+				logger.info("save {} {}", StockInfo.PATH_DATA, newStockMap.size());
+				StockInfo.save(newStockMap.values());
+//			}
 		}
 		
 		// Sort list
@@ -415,7 +421,7 @@ public class UpdateStockPrice {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<ListedIssue> list = ListedIssue.load();
+		List<Stock> list = Stock.load();
 		logger.info("list {}", list.size());
 		
 		// Randomize order of list

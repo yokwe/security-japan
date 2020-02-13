@@ -1,4 +1,4 @@
-package yokwe.security.japan.data;
+package yokwe.security.japan.jpx;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,30 +12,30 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
 
-public class ListedIssue implements Comparable<ListedIssue> {	
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(ListedIssue.class);
+public class Stock implements Comparable<Stock> {	
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Stock.class);
 
 	public static final String URL_DOWNLOAD  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	public static final String PATH_DOWNLOAD = "tmp/download/listed-issue.xls";
-	public static final String PATH_DATA     = "tmp/data/listed-issue.csv";
+	public static final String PATH_DATA     = "tmp/data/stock.csv";
 	
 	public static final String MARKET_ETF    = "ETF・ETN";
 	public static final String MARKET_REIT   = "REIT・ベンチャーファンド・カントリーファンド・インフラファンド";
 	
-	private static List<ListedIssue> all = null;
-	public static List<ListedIssue> load() {
+	private static List<Stock> all = null;
+	public static List<Stock> load() {
 		if (all == null) {
-			all = CSVUtil.read(ListedIssue.class).file(PATH_DATA);
+			all = CSVUtil.read(Stock.class).file(PATH_DATA);
 		}
 		return all;
 	}
-	private static Map<String, ListedIssue> map = null;
-	public static Map<String, ListedIssue> getMap() {
+	private static Map<String, Stock> map = null;
+	public static Map<String, Stock> getMap() {
 		if (map == null) {
-			List<ListedIssue> list = load();
+			List<Stock> list = load();
 			
 			map = new TreeMap<>();
-			for(ListedIssue e: list) {
+			for(Stock e: list) {
 				String stockCode = e.stockCode;
 				if (map.containsKey(stockCode)) {
 					logger.error("Duplicate stockCode {}", stockCode);
@@ -47,15 +47,15 @@ public class ListedIssue implements Comparable<ListedIssue> {
 		}
 		return map;
 	}
-	public static void save(Collection<ListedIssue> collection) {
+	public static void save(Collection<Stock> collection) {
 		save(new ArrayList<>(collection));
 	}
-	public static void save(List<ListedIssue> list) {
+	public static void save(List<Stock> list) {
 		if (list.isEmpty()) return;
 		
 		// Sort before save
 		Collections.sort(list);
-		CSVUtil.write(ListedIssue.class).file(PATH_DATA, list);
+		CSVUtil.write(Stock.class).file(PATH_DATA, list);
 	}
 
 	@CSVUtil.ColumnName("日付")
@@ -99,8 +99,8 @@ public class ListedIssue implements Comparable<ListedIssue> {
 	@Override
 	public boolean equals(Object o) {
 		if (o == null) return false;
-		if (o instanceof ListedIssue) {
-			ListedIssue that = (ListedIssue)o;
+		if (o instanceof Stock) {
+			Stock that = (Stock)o;
 			return this.date.equals(that.date) &&
 					this.stockCode.equals(that.stockCode) &&
 					this.name.equals(that.name) &&
@@ -114,7 +114,7 @@ public class ListedIssue implements Comparable<ListedIssue> {
 	}
 
 	@Override
-	public int compareTo(ListedIssue that) {
+	public int compareTo(Stock that) {
 		int ret = this.date.compareTo(that.date);
 		if (ret == 0) ret = this.stockCode.compareTo(that.stockCode);
 		return ret;

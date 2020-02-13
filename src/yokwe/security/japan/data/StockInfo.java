@@ -12,29 +12,29 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
 
-public class Stock implements Comparable<Stock> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Stock.class);
+public class StockInfo implements Comparable<StockInfo> {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockInfo.class);
 
-	public static final String PATH_DATA = "tmp/data/stock.csv";
+	public static final String PATH_DATA = "tmp/data/stock-info.csv";
 
-	public static List<Stock> load() {
-		return CSVUtil.read(Stock.class).file(PATH_DATA);
+	public static List<StockInfo> load() {
+		return CSVUtil.read(StockInfo.class).file(PATH_DATA);
 	}
-	public static void save(Collection<Stock> collection) {
+	public static void save(Collection<StockInfo> collection) {
 		save(new ArrayList<>(collection));
 	}
-	public static void save(List<Stock> list) {
+	public static void save(List<StockInfo> list) {
 		// Sort before save
 		Collections.sort(list);
-		CSVUtil.write(Stock.class).file(PATH_DATA, list);
+		CSVUtil.write(StockInfo.class).file(PATH_DATA, list);
 	}
-	public static Map<String, Stock> getStockMap() {
-		List<Stock> stockList = load();
+	public static Map<String, StockInfo> getStockMap() {
+		List<StockInfo> stockList = load();
 		if (stockList == null) return null;
 		
 		// key is stockCode
-		Map<String, Stock> ret = new TreeMap<>();
-		for(Stock stock: stockList) {
+		Map<String, StockInfo> ret = new TreeMap<>();
+		for(StockInfo stock: stockList) {
 			String stockCode = stock.stockCode;
 			if (ret.containsKey(stockCode)) {
 				logger.error("duplicate stockCode {}!", stockCode);
@@ -53,13 +53,13 @@ public class Stock implements Comparable<Stock> {
 	public int    tradeUnit;      // 売買単位
 	public long   numberOfIssued; // 発行済株式数
 	
-	public Stock(String stockCode, String isinCode, int tradeUnit, long numberOfIssued) {
+	public StockInfo(String stockCode, String isinCode, int tradeUnit, long numberOfIssued) {
 		this.stockCode      = stockCode;
 		this.isinCode       = isinCode;
 		this.tradeUnit      = tradeUnit;
 		this.numberOfIssued = numberOfIssued;
 	}
-	public Stock() {
+	public StockInfo() {
 		this(null, null, 0, 0);
 	}
 	
@@ -69,7 +69,7 @@ public class Stock implements Comparable<Stock> {
 	}
 	
 	@Override
-	public int compareTo(Stock that) {
+	public int compareTo(StockInfo that) {
 		int ret = this.stockCode.compareTo(that.stockCode);
 		return ret;
 	}
