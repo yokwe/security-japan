@@ -28,6 +28,7 @@ ifneq (,$(wildcard tmp/data/stock.csv))
 	cp -p tmp/data/stock.csv     tmp/data/stock-OLD.csv
 endif
 	ant update-stock
+	cp tmp/data/stock.csv ~/Dropbox/Trade/stock-jp.csv
 
 update-stock-info-price:
 ifneq (,$(wildcard tmp/data/price))
@@ -46,6 +47,13 @@ ifneq (,$(wildcard tmp/data/dividend-all.csv))
 	cp -p tmp/data/dividend-all.csv     tmp/data/dividend-all-OLD.csv
 endif
 	ant update-dividend-all
+
+update-distribution-all:
+ifneq (,$(wildcard tmp/data/distribution-all.csv))
+	rm -f tmp/data/distribution-all-OLD.csv
+	cp -p tmp/data/distribution-all.csv     tmp/data/distribution-all-OLD.csv
+endif
+	ant update-distribution-all
 
 update-dividend:
 ifneq (,$(wildcard tmp/data/dividend))
