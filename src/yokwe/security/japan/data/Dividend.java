@@ -46,13 +46,13 @@ public class Dividend implements Comparable<Dividend> {
 	
 	@Override
 	public String toString() {
-		return String.format("{%s %-9s %8.2f}", date, stockCode, dividend);
+		return String.format("{%s %5s %8.2f}", date, stockCode, dividend);
 	}
 
 	@Override
 	public int compareTo(Dividend that) {
-		int ret = this.date.compareTo(that.date);
-		if (ret == 0) ret = this.stockCode.compareTo(that.stockCode);
+		int ret = this.stockCode.compareTo(that.stockCode);
+		if (ret == 0) ret = this.date.compareTo(that.date);
 		return ret;
 	}
 }
