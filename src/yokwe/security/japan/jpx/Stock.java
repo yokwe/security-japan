@@ -90,7 +90,7 @@ public class Stock implements Comparable<Stock> {
 	
 	@Override
 	public String toString() {
-		if (market.compareTo(MARKET_ETF) == 0) {
+		if (this.isETF() || this.isREIT()) {
 			return String.format("%s %s %s %s", date, stockCode, name, market);
 		} else {
 			return String.format("%s %s %s %s %s %s %s %s %s %s", date, stockCode, name, market, sector33Code, sector33, sector17Code, sector17, scale, scaleCode);
