@@ -203,7 +203,7 @@ public class UpdateStats {
 		int total = stockList.size();
 		int count = 0;
 		
-		int showInterval = 10000;
+		int showInterval = 1000;
 		boolean showOutput;
 		int lastOutputCount = -1;
 		for(Stock stock: stockList) {
@@ -240,14 +240,6 @@ public class UpdateStats {
 				}
 				Collections.sort(list);
 				
-				// Sanity check
-				// date is not last trading date
-				{
-					LocalDate date = LocalDate.parse(priceList.get(priceList.size() - 1).date);
-					if (!date.equals(DATE_LAST)) {
-						logger.warn("{}  old    {}", String.format("%4d / %4d",  count, total), String.format("%-8s %s", stockCode, date));
-					}
-				}
 				{
 					if (priceList.size() != priceListCount) {
 						{
@@ -259,9 +251,9 @@ public class UpdateStats {
 								List<LocalDate> dateList = priceList.stream().map(o -> LocalDate.parse(o.date)).collect(Collectors.toList());
 								Collections.sort(dateList);
 								if (dateList.size() == 1) {
-									logger.warn("{}  small  {}  {}[{}]", String.format("%4d / %4d",  count, total), String.format("%-8s %4d %4d", stockCode, priceList.size(), priceListCount), String.format("%3d", dateList.size()), dateList.get(0));
+									logger.warn("{}  small  {}", String.format("%4d / %4d",  count, total), String.format("%5s %4d  %3d[%s]", stockCode, priceListCount, dateList.size(), dateList.get(0)));
 								} else {
-									logger.warn("{}  small  {}  {}[{} .. {}]", String.format("%4d / %4d",  count, total), String.format("%-8s %4d %4d", stockCode, priceList.size(), priceListCount), String.format("%3d", dateList.size()), dateList.get(0), dateList.get(dateList.size() - 1));
+									logger.warn("{}  small  {}", String.format("%4d / %4d",  count, total), String.format("%5s %4d  %3d[%s .. %s]", stockCode, priceListCount, dateList.size(), dateList.get(0), dateList.get(dateList.size() - 1)));
 								}
 							}
 						}
@@ -274,9 +266,9 @@ public class UpdateStats {
 								List<LocalDate> dateList = priceList.stream().map(o -> LocalDate.parse(o.date)).collect(Collectors.toList());
 								Collections.sort(dateList);
 								if (dateList.size() == 1) {
-									logger.warn("{}  SMALL  {}  {}[{}]", String.format("%4d / %4d",  count, total), String.format("%-8s %4d %4d", stockCode, priceList.size(), priceListCount), String.format("%3d", dateList.size()), dateList.get(0));
+									logger.warn("{}  SMALL  {}", String.format("%4d / %4d",  count, total), String.format("%5s %4d  %3d[%s]", stockCode, priceListCount, dateList.size()), dateList.get(0));
 								} else {
-									logger.warn("{}  SMALL  {}  {}[{} .. {}]", String.format("%4d / %4d",  count, total), String.format("%-8s %4d %4d", stockCode, priceList.size(), priceListCount), String.format("%3d", dateList.size()), dateList.get(0), dateList.get(dateList.size() - 1));
+									logger.warn("{}  SMALL  {}", String.format("%4d / %4d",  count, total), String.format("%5s %4d  %3d[%s .. %s]", stockCode, priceListCount, dateList.size()), dateList.get(0), dateList.get(dateList.size() - 1));
 								}
 							}
 						}
