@@ -55,6 +55,13 @@ ifneq (,$(wildcard tmp/data/distribution-all.csv))
 endif
 	ant update-distribution-all
 
+update-dividend-etf:
+ifneq (,$(wildcard tmp/data/dividend-etf.csv))
+	rm -f tmp/data/dividend-etf-OLD.csv
+	cp -p tmp/data/dividend-etf.csv     tmp/data/dividend-etf-OLD.csv
+endif
+	ant update-dividend-etf
+
 update-dividend:
 ifneq (,$(wildcard tmp/data/dividend))
 	rm -rf tmp/data/dividend-OLD
