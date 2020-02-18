@@ -5,7 +5,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -23,8 +26,6 @@ public class UpdateStats {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStats.class);
 	
 	private static final LocalDate DATE_LAST  = JapanHoliday.getLastTradingDate();
-	private static final String STRING_DATE_LAST  = DATE_LAST.toString();
-	private static final String STRING_DATE_FIRST = DATE_LAST.minusYears(1).toString();
 
 	private static Stats getInstance(Stock stock, List<Price> priceList, List<Dividend> dividendList) {
 		
@@ -160,6 +161,36 @@ public class UpdateStats {
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		final LocalDate firstPriceDate;
+		{
+			LocalDate date = DATE_LAST.minusYears(1).plusDays(1);
+			for(;;) {
+				if (JapanHoliday.isClosed(date)) {
+					date = date.plusDays(1);
+					continue;
+				}
+				break;
+			}
+			firstPriceDate = date;
+		}
+		final Set<LocalDate> priceListDateSet = new TreeSet<>();
+		{
+			LocalDate date = firstPriceDate;
+			for(;;) {
+				if (date.isAfter(DATE_LAST)) break;
+				
+				if (JapanHoliday.isClosed(date)) {
+					//
+				} else {
+					priceListDateSet.add(date);
+				}
+				date = date.plusDays(1);
+			}
+		}
+		final int priceListCount = priceListDateSet.size();
+
+		logger.info("date {} - {}  {}", firstPriceDate, DATE_LAST, priceListCount);
+
 		List<Stats> statsList = new ArrayList<>();
 		
 		Collection<Stock> stockList = Stock.load();
@@ -187,88 +218,92 @@ public class UpdateStats {
 			}
 
 			count++;
+			if (showOutput) logger.info("{}  update {}", String.format("%4d / %4d",  count, total), stockCode);
 			
 			File priceFile    = new File(Price.getPath(stockCode));
 			File dividendFile = new File(Dividend.getPath(stockCode));
 			
-			if (!priceFile.exists()) continue;
-			
-			// Skip zero data
-			List<Price> priceList = Price.load(stockCode).stream().filter(o -> (0 < o.open && 0 < o.high && 0 < o.low && 0 < o.close)).collect(Collectors.toList());
-			if (priceList.size() == 0) continue;
-			
-			// Order of data is very important to calculate statistics number
-			priceList.sort((a, b) -> a.date.compareTo(b.date));
-
-			// date is not last trading date
-			{
-				String date = priceList.get(priceList.size() - 1).date;
-				if (!date.equals(STRING_DATE_LAST)) {
-					logger.warn("{}  old    {}", String.format("%4d / %4d",  count, total), String.format("%-8s %s", stockCode, date));
+			List<Price> priceList;
+			if (priceFile.exists()) {
+				priceList = new ArrayList<>();
+				
+				List<Price> list = Price.load(stockCode);
+				Collections.sort(list);
+				
+				for(Price e: list) {
+					if (0 < e.open && 0 < e.high && 0 < e.low && 0 < e.close) {
+						LocalDate date = LocalDate.parse(e.date);
+						if (date.isEqual(firstPriceDate) || date.isAfter(firstPriceDate)) {
+							priceList.add(e);
+						}
+					}
 				}
+				Collections.sort(list);
+				
+				// Sanity check
+				// date is not last trading date
+				{
+					LocalDate date = LocalDate.parse(priceList.get(priceList.size() - 1).date);
+					if (!date.equals(DATE_LAST)) {
+						logger.warn("{}  old    {}", String.format("%4d / %4d",  count, total), String.format("%-8s %s", stockCode, date));
+					}
+				}
+				{
+					if (priceList.size() != priceListCount) {
+						{
+							Set<LocalDate> set = new TreeSet<>(priceListDateSet);
+							priceList.stream().forEach(o -> set.remove(LocalDate.parse(o.date)));
+							if (set.isEmpty()) {
+								//
+							} else {
+								List<LocalDate> dateList = priceList.stream().map(o -> LocalDate.parse(o.date)).collect(Collectors.toList());
+								Collections.sort(dateList);
+								if (dateList.size() == 1) {
+									logger.warn("{}  small  {}  {}[{}]", String.format("%4d / %4d",  count, total), String.format("%-8s %4d %4d", stockCode, priceList.size(), priceListCount), String.format("%3d", dateList.size()), dateList.get(0));
+								} else {
+									logger.warn("{}  small  {}  {}[{} .. {}]", String.format("%4d / %4d",  count, total), String.format("%-8s %4d %4d", stockCode, priceList.size(), priceListCount), String.format("%3d", dateList.size()), dateList.get(0), dateList.get(dateList.size() - 1));
+								}
+							}
+						}
+						{
+							Set<LocalDate> set = priceList.stream().map(o -> LocalDate.parse(o.date)).collect(Collectors.toSet());
+							priceListDateSet.stream().forEach(o -> set.remove(o));
+							if (set.isEmpty()) {
+								//
+							} else {
+								List<LocalDate> dateList = priceList.stream().map(o -> LocalDate.parse(o.date)).collect(Collectors.toList());
+								Collections.sort(dateList);
+								if (dateList.size() == 1) {
+									logger.warn("{}  SMALL  {}  {}[{}]", String.format("%4d / %4d",  count, total), String.format("%-8s %4d %4d", stockCode, priceList.size(), priceListCount), String.format("%3d", dateList.size()), dateList.get(0));
+								} else {
+									logger.warn("{}  SMALL  {}  {}[{} .. {}]", String.format("%4d / %4d",  count, total), String.format("%-8s %4d %4d", stockCode, priceList.size(), priceListCount), String.format("%3d", dateList.size()), dateList.get(0), dateList.get(dateList.size() - 1));
+								}
+							}
+						}
+					}
+				}
+			} else {
+				continue;
 			}
-			
-			// Ignore very small price stock
-			{
-				double minimumPrice = 0.01;
-				boolean tooSmall = false;
-				for(Price price: priceList) {
-					if (price.open <= minimumPrice) {
-						tooSmall = true;
-						logger.warn("{}  skip   {}", String.format("%4d / %4d",  count, total), String.format("%-8s TOO SMALL PRICE open  %s", stockCode, price.toString()));
-						break;
-					}
-					if (price.high <= minimumPrice) {
-						tooSmall = true;
-						logger.warn("{}  skip   {}", String.format("%4d / %4d",  count, total), String.format("%-8s TOO SMALL PRICE high  %s", stockCode, price.toString()));
-						break;
-					}
-					if (price.low <= minimumPrice) {
-						tooSmall = true;
-						logger.warn("{}  skip   {}", String.format("%4d / %4d",  count, total), String.format("%-8s TOO SMALL PRICE low   %s", stockCode, price.toString()));
-						break;
-					}
-					if (price.close <= minimumPrice) {
-						tooSmall = true;
-						logger.warn("{}  skip   {}", String.format("%4d / %4d",  count, total), String.format("%-8s TOO SMALL PRICE close %s", stockCode, price.toString()));
-						break;
-					}
-					if (tooSmall) break;
-				}
-				if (tooSmall) {
-					continue;
-				}
-			}
-						
-			// Ignore penny stock
-//			{
-//				boolean penyyStock = false;
-//				for(Price price: priceList) {
-//					if (price.close < 1.0) {
-//						penyyStock = true;
-//						break;
-//					}
-//				}
-//				if (penyyStock) {
-////					logger.warn("{}  skip   {}", String.format("%4d / %4d",  count, total), String.format("%-8s PENNY STOCK", stockCode));
-//					continue;
-//				}
-//			}
-			
-			// Ignore too small sample stock to prevent error and prevent get abnormal statistics value
-//			if (priceList.size() <= 5) {
-//				logger.warn("{}  small  {}", String.format("%4d / %4d",  count, total), String.format("%-8s %2d", stockCode, priceList.size()));
-//				continue;
-//			}
-			
-			if (showOutput) logger.info("{}  update {}", String.format("%4d / %4d",  count, total), stockCode);
 			
 			List<Dividend> dividendList;
 			if (dividendFile.exists()) {
 				// Filter data for last one year
-				dividendList = Dividend.load(stockCode).stream().filter(o -> (0 < o.date.compareTo(STRING_DATE_FIRST))).collect(Collectors.toList());;
-				// Order of data is very important to calculate statistics number
-				dividendList.sort((a, b) -> a.date.compareTo(b.date));
+				dividendList = new ArrayList<>();
+				
+				List<Dividend> list = Dividend.load(stockCode);
+				Collections.sort(list);
+				
+				// range of dividend to process that is not equal to 
+				LocalDate lastDividendDate = LocalDate.parse(list.get(list.size() - 1).date);
+				LocalDate firstDividendDate = lastDividendDate.minusYears(1);
+				
+				for(Dividend e: list) {
+					LocalDate date = LocalDate.parse(e.date);
+					if (date.isAfter(firstDividendDate)) {
+						dividendList.add(e);
+					}
+				}
 			} else {
 				dividendList = new ArrayList<>();
 			}
@@ -276,7 +311,7 @@ public class UpdateStats {
 			Stats stats = getInstance(stock, priceList, dividendList);
 			if (stats != null) statsList.add(stats);
 		}
-		Stats.save(statsList);
+//		Stats.save(statsList);
 		logger.info("stats  {}", String.format("%4d", statsList.size()));
 		logger.info("STOP");
 	}
