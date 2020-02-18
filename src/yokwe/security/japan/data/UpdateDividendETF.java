@@ -47,7 +47,6 @@ public class UpdateDividendETF {
 			Collections.sort(all);
 			
 			// FIXME add sanity check
-			logger.info("all 0 {}", all.get(0));
 			
 			logger.info("save {} {}", DividendETF.PATH_FILE, all.size());
 			DividendETF.save(all);
