@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import yokwe.util.CSVUtil;
+import yokwe.util.CSVUtil.DecimalPlaces;
 
 public class Dividend implements Comparable<Dividend> {
 	public static final String PATH_DIR_DATA = "tmp/data/dividend";
@@ -32,6 +33,7 @@ public class Dividend implements Comparable<Dividend> {
 	
 	public String date;
 	public String stockCode;
+	@DecimalPlaces(2)
 	public double dividend;
 	
 	public Dividend(String date, String stockCode, double dividend) {
