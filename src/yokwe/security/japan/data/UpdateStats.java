@@ -303,7 +303,7 @@ public class UpdateStats {
 			Stats stats = getInstance(stock, priceList, dividendList);
 			if (stats != null) statsList.add(stats);
 		}
-//		Stats.save(statsList);
+		Stats.save(statsList);
 		logger.info("stats  {}", String.format("%4d", statsList.size()));
 		logger.info("STOP");
 	}
