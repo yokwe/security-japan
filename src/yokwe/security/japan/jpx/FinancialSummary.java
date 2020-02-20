@@ -55,7 +55,7 @@ import yokwe.util.StringUtil;
 			{
 				//   tse-qcedjpsm-71770-20170725371770-ixbrl.htm
 				StringBuffer sb = new StringBuffer();
-//				sb.append("tse-");
+				sb.append("tse-");
 				if (this.period != null) {
 					sb.append(this.period.value);
 				}
@@ -70,7 +70,7 @@ import yokwe.util.StringUtil;
 				sb.append(this.tdnetCode);
 				sb.append("-");
 				sb.append(this.id);
-//				sb.append("-ixbrl.htm");
+				sb.append("-ixbrl.htm");
 				
 				this.string = sb.toString();
 			}
