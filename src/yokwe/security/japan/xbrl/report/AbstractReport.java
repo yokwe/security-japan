@@ -53,8 +53,10 @@ public abstract class AbstractReport {
 	private static class ClassInfo {
 		static Map<String, ClassInfo> cache = new TreeMap<>();
 		
-		final String                       className;
-		final List<FieldInfo>              fieldInfoList;
+		final String          className;
+		final List<FieldInfo> fieldInfoList;
+		// FIXME Is financialSummary really necessary?
+		final Field           financialSummary;  
 		
 		static ClassInfo get(Class<? extends AbstractReport> clazz) {
 			String className = clazz.getName();
@@ -137,6 +139,29 @@ public abstract class AbstractReport {
 				}
 
 			}
+			
+			// FIXME Is financialSummary really necessary?
+			{
+				Field field = null;
+				try {
+					field = clazz.getDeclaredField("financialSummary");
+					int modifiers = field.getModifiers();
+					if ((!Modifier.isStatic(modifiers)) && Modifier.isPublic(modifiers)) {
+						// accept this field
+					} else {
+						// reject this field
+						field = null;
+					}
+				} catch (NoSuchFieldException e) {
+					//
+				} catch (SecurityException e) {
+					String exceptionName = e.getClass().getSimpleName();
+					logger.error("{} {}", exceptionName, e);
+					throw new UnexpectedException(exceptionName, e);
+				}
+				this.financialSummary = field;
+			}
+
 		}
 	}
 	
@@ -370,6 +395,18 @@ public abstract class AbstractReport {
 	protected void init(Document ixDoc) {
 		// use reflection to initialize annotated variable in class
 		ClassInfo classInfo = ClassInfo.get(this.getClass());
+		
+		// FIXME Is financialSummary really necessary?
+		if (classInfo.financialSummary != null) {
+			try {
+				classInfo.financialSummary.set(this, ixDoc.financialSummary);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e);
+				throw new UnexpectedException(exceptionName, e);
+			}
+		}
+		
 		for(FieldInfo fieldInfo: classInfo.fieldInfoList) {
 			final QValue    qName             = fieldInfo.qName;
 			final Context[] contextIncludeAll = fieldInfo.contextIncludeAll;
