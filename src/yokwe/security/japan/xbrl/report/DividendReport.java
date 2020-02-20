@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.jpx.FinancialSummary;
 import yokwe.security.japan.xbrl.inline.Document;
 
 public class DividendReport extends AbstractReport implements Comparable<DividendReport> {
@@ -82,11 +83,10 @@ public class DividendReport extends AbstractReport implements Comparable<Dividen
 	
 	public BigDecimal dividendPerShare;
 	
-	public String filename;
+	public FinancialSummary financialSummary;
 
 	public static DividendReport getInstance(Document document) {
 		DividendReport ret = AbstractReport.getInstance(DividendReport.class, document);
-		ret.filename = document.filename;
 
 		switch(ret.quarterlyPeriod) {
 		case 0:
