@@ -14,7 +14,6 @@ import yokwe.security.japan.ufocatch.Atom;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.report.DistributionReport;
 import yokwe.util.DoubleUtil;
-import yokwe.util.XMLUtil;
 
 //
 // Make Dividend for download file from ufocatch 
@@ -40,7 +39,7 @@ public class UpdateDistributionAll {
 				count++;
 
 //				logger.info("File {}", file.getPath());
-				Document document = Document.getInstance(XMLUtil.buildStream(file));
+				Document document = Document.getInstance(file);
 				try {
 					DistributionReport report = DistributionReport.getInstance(document);
 					

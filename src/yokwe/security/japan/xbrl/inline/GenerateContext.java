@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import yokwe.security.japan.jpx.Category;
 import yokwe.security.japan.ufocatch.Atom;
 import yokwe.util.StringUtil;
-import yokwe.util.XMLUtil;
 
 public class GenerateContext {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateContext.class);
@@ -26,7 +25,7 @@ public class GenerateContext {
 		
 		for(File file : Atom.getFileList(Category.EDJP)) {
 			logger.info("File {}", file.getPath());
-			Document document = Document.getInstance(XMLUtil.buildStream(file));
+			Document document = Document.getInstance(file);
 			
 			all.addAll(document.getContextSet());
 		}

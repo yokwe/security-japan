@@ -13,7 +13,6 @@ import yokwe.security.japan.jpx.Category;
 import yokwe.security.japan.ufocatch.Atom;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.report.DividendReport;
-import yokwe.util.XMLUtil;
 
 //
 // Make Dividend for download file from ufocatch 
@@ -39,7 +38,7 @@ public class UpdateDividendAll {
 				count++;
 
 //				logger.info("File {}", file.getPath());
-				Document document = Document.getInstance(XMLUtil.buildStream(file));
+				Document document = Document.getInstance(file);
 				try {
 					DividendReport briefReport = DividendReport.getInstance(document);
 					
