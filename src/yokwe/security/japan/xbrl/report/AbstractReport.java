@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,6 @@ import yokwe.security.japan.xbrl.inline.StringValue;
 import yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL;
 import yokwe.security.japan.xbrl.taxonomy.TSE_RE_T_LABEL;
 import yokwe.util.XMLUtil.QValue;
-import yokwe.util.XMLUtil.XMLElement;
 
 public abstract class AbstractReport {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractReport.class);
@@ -484,10 +482,5 @@ public abstract class AbstractReport {
 			logger.error("{} {}", exceptionName, e);
 			throw new UnexpectedException(exceptionName, e);
 		}
-	}
-	
-	public static <E extends AbstractReport> E getinstance(Class<E> clazz, Stream<XMLElement> stream) {
-		Document document = Document.getInstance(stream);
-		return getInstance(clazz, document);
 	}
 }
