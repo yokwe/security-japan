@@ -82,8 +82,11 @@ public class DividendReport extends AbstractReport implements Comparable<Dividen
 	
 	public BigDecimal dividendPerShare;
 	
+	public String filename;
+
 	public static DividendReport getInstance(Document document) {
 		DividendReport ret = AbstractReport.getInstance(DividendReport.class, document);
+		ret.filename = document.filename;
 
 		switch(ret.quarterlyPeriod) {
 		case 0:
