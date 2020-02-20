@@ -10,18 +10,19 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import yokwe.security.japan.jpx.FinancialSummary;
 import yokwe.util.XMLUtil;
 import yokwe.util.XMLUtil.QValue;
 
 public class Document {
 	private static final List<InlineXBRL> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
 
-	public  final String                        filename;
+	public  final FinancialSummary              financialSummary;
 	private final List<InlineXBRL>              all;
 	private final Map<QValue, List<InlineXBRL>> map;
 	
-	private Document(String filename, List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map) {
-		this.filename = filename;
+	private Document(File file, List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map) {
+		this.financialSummary = FinancialSummary.getInstance(file.getName());
 		this.all      = all;
 		this.map      = map;
 	}
@@ -47,7 +48,7 @@ public class Document {
 		
 		XMLUtil.buildStream(file).filter(InlineXBRL::canGetInstance).forEach(o -> buildMap(all, map, InlineXBRL.getInstance(o)));
 		
-		return new Document(file.getName(), all, map);
+		return new Document(file, all, map);
 	}
 
 	public List<InlineXBRL> getList() {
