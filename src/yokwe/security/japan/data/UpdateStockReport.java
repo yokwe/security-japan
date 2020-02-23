@@ -53,29 +53,22 @@ public class UpdateStockReport {
 			{
 				for(File file: fileList) {
 					if ((count % 1000) == 0) {
-//						logger.info("{} {}", String.format("%5d / %5d", count, fileList.size()), file.getName());
+						logger.info("{} {}", String.format("%5d / %5d", count, fileList.size()), file.getName());
 					}
 					count++;
 					
 					final SummaryFilename filename = SummaryFilename.getInstance(file.getName());
-					final StockReport report;
+					if (reportMap.containsKey(filename)) continue;
 					
-					if (reportMap.containsKey(filename)) {
-						report = reportMap.get(filename);
-					} else {
-						countUpdate++;
-						logger.info("update {}", filename);
-						Document document = Document.getInstance(file);
-						try {
-							report = StockReport.getInstance(document);
-							reportList.add(report);
-						} catch(UnexpectedException e) {
-							logger.error("file {}", file.getName());
-							throw e;
-						}
+					countUpdate++;
+					Document document = Document.getInstance(file);
+					try {
+						StockReport report = StockReport.getInstance(document);
+						reportList.add(report);
+					} catch(UnexpectedException e) {
+						logger.error("file {}", file.getName());
+						throw e;
 					}
-
-					reportList.add(report);
 				}
 				
 			}
