@@ -423,6 +423,8 @@ public abstract class AbstractReport {
 					} else {
 						// doesn't exist
 						logger.error("No matching entry");
+						logger.error("   filename          {}", ixDoc.filename);
+						logger.error("   fieldName         {}", fieldInfo.fieldName);
 						logger.error("   namespace         {}", qName.namespace);
 						logger.error("   name              {}", qName.value);
 						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
@@ -436,6 +438,8 @@ public abstract class AbstractReport {
 							assignFieldZeroOrEmptyString(fieldInfo);
 						} else {
 							logger.error("Entry is null");
+							logger.error("   filename          {}", ixDoc.filename);
+							logger.error("   fieldName         {}", fieldInfo.fieldName);
 							logger.error("   namespace         {}", qName.namespace);
 							logger.error("   name              {}", qName.value);
 							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
@@ -473,6 +477,8 @@ public abstract class AbstractReport {
 						// Special case for multiple null
 						if (acceptNullOrEmpty) {
 							logger.warn("More than one matching entry");
+							logger.warn("   filename          {}", ixDoc.filename);
+							logger.warn("   fieldName         {}", fieldInfo.fieldName);
 							logger.warn("   namespace         {}", qName.namespace);
 							logger.warn("   name              {}", qName.value);
 							logger.warn("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
@@ -483,6 +489,8 @@ public abstract class AbstractReport {
 							assignFieldZeroOrEmptyString(fieldInfo);
 						} else {
 							logger.error("Entry is null");
+							logger.error("   filename          {}", ixDoc.filename);
+							logger.error("   fieldName         {}", fieldInfo.fieldName);
 							logger.error("   namespace         {}", qName.namespace);
 							logger.error("   name              {}", qName.value);
 							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
@@ -491,6 +499,8 @@ public abstract class AbstractReport {
 						}
 					} else {
 						logger.error("More than one matching entry");
+						logger.error("   filename          {}", ixDoc.filename);
+						logger.error("   fieldName         {}", fieldInfo.fieldName);
 						logger.error("   namespace         {}", qName.namespace);
 						logger.error("   name              {}", qName.value);
 						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
