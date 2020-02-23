@@ -44,16 +44,18 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 	}
 	public static Map<SummaryFilename, REITReport> getMap() {
 		Map<SummaryFilename, REITReport> ret = new TreeMap<>();
-		
-		for(REITReport e: load()) {
-			SummaryFilename key = e.filename;
-			if (ret.containsKey(key)) {
-				logger.error("Duplicate key {}", key);
-				logger.error("  new {}", e);
-				logger.error("  old {}", ret.get(key));
-				throw new UnexpectedException("Duplicate key");
-			} else {
-				ret.put(key, e);
+		List<REITReport> list = load();
+		if (list != null) {
+			for(REITReport e: load()) {
+				SummaryFilename key = e.filename;
+				if (ret.containsKey(key)) {
+					logger.error("Duplicate key {}", key);
+					logger.error("  new {}", e);
+					logger.error("  old {}", ret.get(key));
+					throw new UnexpectedException("Duplicate key");
+				} else {
+					ret.put(key, e);
+				}
 			}
 		}
 		return ret;
@@ -122,7 +124,7 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 	@TSE_RE(label = NUMBER_OF_INVESTMENT_UNITS_INCLUDING_TREASURY_INVESTMENT_UNITS_ISSUED_AT_END_OF_PERIOD_REIT,
 			contextIncludeAll = {CURRENT_YEAR_INSTANT, RESULT_MEMBER})
 	@ColumnName("口数") // 期末発行済投資口の総口数（自己投資口を含む）
-	public BigDecimal numberOfUnits;
+	public BigDecimal numberOfShares;
 
 	
 	public SummaryFilename filename;
@@ -131,6 +133,10 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 	public static REITReport getInstance(Document document) {
 		REITReport ret = AbstractReport.getInstance(REITReport.class, document);
 		
+		if (ret.stockCode.endsWith("0")) {
+			ret.stockCode = ret.stockCode.substring(0, ret.stockCode.length() - 1);
+		}
+
 		return ret;
 	}
 	
