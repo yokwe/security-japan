@@ -54,7 +54,7 @@ public class UpdateREITReport {
 			{
 				for(File file: fileList) {
 					if ((count % 1000) == 0) {
-//						logger.info("{} {}", String.format("%5d / %5d", count, fileList.size()), file.getName());
+						logger.info("{} {}", String.format("%5d / %5d", count, fileList.size()), file.getName());
 					}
 					count++;
 					
@@ -64,17 +64,15 @@ public class UpdateREITReport {
 					if (reportMap.containsKey(filename)) {
 						report = reportMap.get(filename);
 					} else {
-						countUpdate++;
-						logger.info("update {}", filename);
-						Document document = Document.getInstance(file);
 						try {
+							countUpdate++;
+							Document document = Document.getInstance(file);
 							report = REITReport.getInstance(document);
 						} catch(UnexpectedException e) {
 							logger.error("file {}", file.getName());
 							throw e;
 						}
 					}
-					
 					reportList.add(report);
 				}
 				
