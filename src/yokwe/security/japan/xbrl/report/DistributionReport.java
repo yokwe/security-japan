@@ -58,7 +58,7 @@ public class DistributionReport extends AbstractReport implements Comparable<Dis
 			acceptNullOrEmpty = true)
 	public BigDecimal payoutRatio;
 	
-	public SummaryFilename summaryFilename;
+	public SummaryFilename filename;
 
 	public static DistributionReport getInstance(Document document) {
 		DistributionReport ret = AbstractReport.getInstance(DistributionReport.class, document);

@@ -17,12 +17,12 @@ import yokwe.util.XMLUtil.QValue;
 public class Document {
 	private static final List<InlineXBRL> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
 
-	public  final SummaryFilename               summaryFilename;
+	public  final SummaryFilename               filename;
 	private final List<InlineXBRL>              all;
 	private final Map<QValue, List<InlineXBRL>> map;
 	
 	private Document(File file, List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map) {
-		this.summaryFilename = SummaryFilename.getInstance(file.getName());
+		this.filename = SummaryFilename.getInstance(file.getName());
 		this.all      = all;
 		this.map      = map;
 	}

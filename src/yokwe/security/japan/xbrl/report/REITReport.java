@@ -62,7 +62,7 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 	@ColumnName("配当性向")
 	public BigDecimal payoutRatio;
 	
-	public SummaryFilename summaryFilename;
+	public SummaryFilename filename;
 
 	
 	public static REITReport getInstance(Document document) {

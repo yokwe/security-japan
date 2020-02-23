@@ -167,7 +167,7 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 	public BigDecimal numberOfShares;
 
 
-	public SummaryFilename summaryFilename;
+	public SummaryFilename filename;
 
 	public static StockReport getInstance(Document document) {
 		StockReport ret = AbstractReport.getInstance(StockReport.class, document);
