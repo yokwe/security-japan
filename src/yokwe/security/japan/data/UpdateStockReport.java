@@ -58,17 +58,21 @@ public class UpdateStockReport {
 					count++;
 					
 					final SummaryFilename filename = SummaryFilename.getInstance(file.getName());
-					if (reportMap.containsKey(filename)) continue;
+					final StockReport report;
 					
-					countUpdate++;
-					Document document = Document.getInstance(file);
-					try {
-						StockReport report = StockReport.getInstance(document);
-						reportList.add(report);
-					} catch(UnexpectedException e) {
-						logger.error("file {}", file.getName());
-						throw e;
+					if (reportMap.containsKey(filename)) {
+						report = reportMap.get(filename);
+					} else {
+						try {
+							countUpdate++;
+							Document document = Document.getInstance(file);
+							report = StockReport.getInstance(document);
+						} catch(UnexpectedException e) {
+							logger.error("file {}", file.getName());
+							throw e;
+						}
 					}
+					reportList.add(report);
 				}
 				
 			}
