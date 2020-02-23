@@ -60,16 +60,18 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 	}
 	public static Map<SummaryFilename, StockReport> getMap() {
 		Map<SummaryFilename, StockReport> ret = new TreeMap<>();
-		
-		for(StockReport e: load()) {
-			SummaryFilename key = e.filename;
-			if (ret.containsKey(key)) {
-				logger.error("Duplicate key {}", key);
-				logger.error("  new {}", e);
-				logger.error("  old {}", ret.get(key));
-				throw new UnexpectedException("Duplicate key");
-			} else {
-				ret.put(key, e);
+		List<StockReport> list = load();
+		if (list != null) {
+			for(StockReport e: load()) {
+				SummaryFilename key = e.filename;
+				if (ret.containsKey(key)) {
+					logger.error("Duplicate key {}", key);
+					logger.error("  new {}", e);
+					logger.error("  old {}", ret.get(key));
+					throw new UnexpectedException("Duplicate key");
+				} else {
+					ret.put(key, e);
+				}
 			}
 		}
 		return ret;
@@ -97,11 +99,11 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 	
 	@TSE_ED(label = SECURITIES_CODE)
 	@ColumnName("コード番号")
-	public String securitiesCode;
+	public String stockCode;
 	
 	@TSE_ED(label = FISCAL_YEAR_END)
 	@ColumnName("決算期")
-	public String fiscalYearEnd;
+	public String yearEnd;
 	
 	@TSE_ED(label = QUARTERLY_PERIOD,
 			acceptNullOrEmpty = true)
@@ -237,6 +239,10 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 			logger.error("Unexpected quarterlyPeriod {}", ret.quarterlyPeriod);
 			throw new UnexpectedException("Unexpected quarterlyPeriod");
 		}
+		
+		if (ret.stockCode.endsWith("0")) {
+			ret.stockCode = ret.stockCode.substring(0, ret.stockCode.length() - 1);
+		}
 
 		// Sanity check
 		if (ret.filingDate.isEmpty()) {
@@ -249,15 +255,15 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 	@Override
 	public String toString() {
 		return String.format("%s %s %s %d %s %s %s %s",
-			securitiesCode, filingDate, fiscalYearEnd, quarterlyPeriod, annualSecuritiesReportFilingDateAsPlanned,
+			stockCode, filingDate, yearEnd, quarterlyPeriod, annualSecuritiesReportFilingDateAsPlanned,
 			annualDividendPerShareForeast, annualDividendPerShareResult, companyName);
 	}
 
 	// Define natural ordering of DividendBriefReport
 	@Override
 	public int compareTo(StockReport that) {
-		int ret = this.securitiesCode.compareTo(that.securitiesCode);
-		if (ret == 0) ret = this.fiscalYearEnd.compareTo(that.fiscalYearEnd);
+		int ret = this.stockCode.compareTo(that.stockCode);
+		if (ret == 0) ret = this.yearEnd.compareTo(that.yearEnd);
 		if (ret == 0) ret = this.quarterlyPeriod - that.quarterlyPeriod;
 		if (ret == 0) ret = this.filingDate.compareTo(that.filingDate);
 		return ret;
