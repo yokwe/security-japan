@@ -32,16 +32,59 @@ import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.QUARTERLY_PERIOD
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.SECURITIES_CODE;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.xbrl.inline.Document;
+import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 
 public class StockReport extends AbstractReport implements Comparable<StockReport> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockReport.class);
+
+	public static final String PATH_FILE = "tmp/data/stock-report.csv";
+
+	public static List<StockReport> load() {
+		return CSVUtil.read(StockReport.class).file(PATH_FILE);
+	}
+	public static List<StockReport> getList() {
+		return load();
+	}
+	public static Map<SummaryFilename, StockReport> getMap() {
+		Map<SummaryFilename, StockReport> ret = new TreeMap<>();
+		
+		for(StockReport e: load()) {
+			SummaryFilename key = e.filename;
+			if (ret.containsKey(key)) {
+				logger.error("Duplicate key {}", key);
+				logger.error("  new {}", e);
+				logger.error("  old {}", ret.get(key));
+				throw new UnexpectedException("Duplicate key");
+			} else {
+				ret.put(key, e);
+			}
+		}
+		return ret;
+	}
+	
+	public static void save(Collection<StockReport> collection) {
+		List<StockReport> list = new ArrayList<>(collection);
+		save(list);
+	}
+	public static void save(List<StockReport> list) {
+		// Sort before save
+		Collections.sort(list);
+		CSVUtil.write(StockReport.class).file(PATH_FILE, list);
+	}
+	
 
 	@TSE_ED(label = FILING_DATE,
 			acceptNullOrEmpty = true)
@@ -197,7 +240,7 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 
 		// Sanity check
 		if (ret.filingDate.isEmpty()) {
-			logger.warn("filingDate is empty  {}", ret);
+			logger.warn("filingDate is empty  {}", document.filename);
 		}
 
 		return ret;
