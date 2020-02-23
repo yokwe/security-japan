@@ -7,6 +7,7 @@ import java.util.List;
 
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;
+import yokwe.util.DoubleUtil;
 
 public class Dividend implements Comparable<Dividend> {
 	public static final String PATH_DIR_DATA = "tmp/data/dividend";
@@ -51,6 +52,16 @@ public class Dividend implements Comparable<Dividend> {
 		return String.format("{%s %5s %8.2f}", date, stockCode, dividend);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) return false;
+		if (o instanceof Dividend) {
+			Dividend that = (Dividend)o;
+			return this.date.equals(that.date) && this.stockCode.equals(that.stockCode) && DoubleUtil.isAlmostEqual(this.dividend, that.dividend);
+		} else {
+			return false;
+		}
+	}
 	@Override
 	public int compareTo(Dividend that) {
 		int ret = this.stockCode.compareTo(that.stockCode);
