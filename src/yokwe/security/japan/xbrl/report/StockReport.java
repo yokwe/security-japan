@@ -159,7 +159,6 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 
 	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, ANNUAL_MEMBER, FORECAST_MEMBER},
-			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
 			acceptNullOrEmpty = true)
 	@ColumnName("配当年間予想")
 	public BigDecimal annualDividendPerShareForeast; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember
@@ -167,7 +166,6 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 	// CurrentYearDuration_AnnualMember_NonConsolidatedMember_ResultMember
 	@TSE_ED(label = DIVIDEND_PER_SHARE,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, ANNUAL_MEMBER, RESULT_MEMBER},
-			contextExcludeAny = {LOWER_MEMBER, UPPER_MEMBER},
 			acceptNullOrEmpty = true)
 	@ColumnName("配当年間実績")
 	public BigDecimal annualDividendPerShareResult; // PriorYearDuration/CurrentYearDuration FirstQuarterMember/SecondQuarterMember/ThirdQuarterMember/YearEndMember/AnnualMember	
