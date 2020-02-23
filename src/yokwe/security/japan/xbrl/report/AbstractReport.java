@@ -489,6 +489,9 @@ public abstract class AbstractReport {
 							logger.warn("   name              {}", qName.value);
 							logger.warn("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 							logger.warn("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+							for(InlineXBRL e: list) {
+								logger.warn("   list  {}", e);
+							}
 							for(InlineXBRL e: ixDoc.getList(qName)) {
 								logger.warn("   ixDoc {}", e);
 							}
@@ -501,6 +504,9 @@ public abstract class AbstractReport {
 							logger.error("   name              {}", qName.value);
 							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 							logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+							for(InlineXBRL e: list) {
+								logger.error("   list  {}", e);
+							}
 							for(InlineXBRL e: ixDoc.getList(qName)) {
 								logger.error("   ixDoc {}", e);
 							}
@@ -514,6 +520,9 @@ public abstract class AbstractReport {
 						logger.error("   name              {}", qName.value);
 						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+						for(InlineXBRL e: list) {
+							logger.error("   list  {}", e);
+						}
 						for(InlineXBRL e: ixDoc.getList(qName)) {
 							logger.error("   ixDoc {}", e);
 						}
