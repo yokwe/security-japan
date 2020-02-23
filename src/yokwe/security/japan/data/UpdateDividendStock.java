@@ -1,0 +1,128 @@
+package yokwe.security.japan.data;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.slf4j.LoggerFactory;
+
+import yokwe.security.japan.jpx.tdnet.SummaryFilename;
+import yokwe.security.japan.ufocatch.Atom;
+import yokwe.security.japan.xbrl.inline.Document;
+import yokwe.security.japan.xbrl.report.StockReport;
+
+public class UpdateDividendStock {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividendStock.class);
+	
+	public static void main(String[] args) {
+		logger.info("START");
+		
+		Map<String, DividendStock> map = new TreeMap<>();
+		
+		{
+			Map<SummaryFilename, StockReport> reportMap = StockReport.getMap();
+			logger.info("reportMap {}", reportMap.size());
+			
+			Map<SummaryFilename, File> fileMap = new TreeMap<>();
+			{
+				for(Map.Entry<SummaryFilename, File> entry: Atom.getFileMap().entrySet()) {
+					SummaryFilename key   = entry.getKey();
+					File            value = entry.getValue();
+					switch(key.category) {
+					case EDJP:
+						fileMap.put(key, value);
+						break;
+					default:
+						break;
+					}
+				}
+
+			}
+			logger.info("fileMap {}", fileMap.size());
+			
+			
+			int count = 0;
+			for(Map.Entry<SummaryFilename, File> entry: fileMap.entrySet()) {
+				SummaryFilename key  = entry.getKey();
+				File            file = entry.getValue();
+				if ((count % 1000) == 0) {
+					logger.info("{} {}", String.format("%5d / %5d", count, fileMap.size()), key);
+				}
+				count++;
+								
+				final String  date;
+				final String  stockCode;
+				final Double  dividend;
+				
+				final String  yearEnd;
+				final Integer quarter;
+				
+				final SummaryFilename filename;
+
+				{
+					final StockReport value;
+
+					// Skip if already processed
+					if (reportMap.containsKey(key)) {
+						value = reportMap.get(key);
+					} else {
+						Document document = Document.getInstance(file);
+						value = StockReport.getInstance(document);
+					}
+					date      = value.dividendPayableDateAsPlanned;
+					stockCode = value.stockCode;
+					dividend  = value.dividendPerShare.doubleValue();
+					
+					yearEnd   = value.yearEnd;
+					quarter   = value.quarterlyPeriod;
+					
+					filename = value.filename;
+				}
+
+								
+				String        mapKey   = String.format("%s %s %s", stockCode, yearEnd, quarter);
+				DividendStock mapValue = new DividendStock(stockCode, yearEnd, quarter, date, dividend, filename);
+
+				// Sanity check
+				{
+					if (date.isEmpty()) {
+//						logger.warn("date is null {}", mapValue);
+						continue;
+					}
+					if (stockCode.isEmpty()) {
+						logger.warn("stockCode is null {}", mapValue);
+						continue;
+					}
+					if (yearEnd.isEmpty()) {
+						logger.warn("yearEnd is null {}", mapValue);
+						continue;
+					}
+				}
+
+				if (map.containsKey(mapKey)) {
+					DividendStock oldValue = map.get(mapKey);
+					if (mapValue.equals(oldValue)) continue;
+					
+					logger.warn("====");
+					logger.warn("Overwrite existing {}", key);
+					logger.warn("  old {}", oldValue);
+					logger.warn("  new {}", mapValue);
+				} else {
+					map.put(mapKey, mapValue);
+				}
+			}
+		}
+		
+		logger.info("map {}", map.size());
+		{
+			List<DividendStock> dividendList = new ArrayList<>(map.values());
+			
+			logger.info("save {}  {}", DividendStock.PATH_FILE, dividendList.size());
+			DividendStock.save(dividendList);
+		}
+
+		logger.info("STOP");
+	}
+}
