@@ -16,20 +16,20 @@ import yokwe.util.StringUtil;
 	// 開示番号　:=  {提出日 8 桁}{3 から開始する連番 1桁}{証券コード 5 桁}
 	//   tse-qcedjpsm-71770-20170725371770-ixbrl.htm
 	//   tse-rvfc-82270-20191222439755-ixbrl.htm
-	public class FinancialSummary implements Comparable<FinancialSummary> {
-		private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FinancialSummary.class);
+	public class SummaryFilename implements Comparable<SummaryFilename> {
+		private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SummaryFilename.class);
 
 		private static final Pattern PAT = Pattern.compile("tse-(?<period>[asq]?)(?<consolidate>[cn]?)(?<category>[a-z]{4})(?<detail>(sm|fr)?)-(?<tdnetCode>[0-9]{5})-(?<id>[0-9]{14})-ixbrl.htm");
 		
-		private static final StringUtil.MatcherFunction<FinancialSummary> OP = (m -> new FinancialSummary(
+		private static final StringUtil.MatcherFunction<SummaryFilename> OP = (m -> new SummaryFilename(
 				m.group("period"),
 				m.group("consolidate"),
 				m.group("category"),
 				m.group("detail"),
 				m.group("tdnetCode"),
 				m.group("id")));
-		public static FinancialSummary getInstance(String string) {
-			List<FinancialSummary> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
+		public static SummaryFilename getInstance(String string) {
+			List<SummaryFilename> list = StringUtil.find(string, PAT, OP).collect(Collectors.toList());
 			if (list.size() == 0) return null;
 			if (list.size() == 1) return list.get(0);
 			logger.error("Unexpected value %s!", list);
@@ -44,7 +44,7 @@ import yokwe.util.StringUtil;
 		public final String      id;
 		public final String      string;
 		
-		public FinancialSummary(String period, String consolidate, String category, String detail, String tdnetCode, String id) {
+		public SummaryFilename(String period, String consolidate, String category, String detail, String tdnetCode, String id) {
 			this.period      = Period.getInstance(period);
 			this.consolidate = Consolidate.getInstance(consolidate);
 			this.category    = Category.getInstance(category);
@@ -79,8 +79,8 @@ import yokwe.util.StringUtil;
 		@Override
 		public boolean equals(Object o) {
 			if (o == null) return false;
-			if (o instanceof FinancialSummary) {
-				FinancialSummary that = (FinancialSummary)o;
+			if (o instanceof SummaryFilename) {
+				SummaryFilename that = (SummaryFilename)o;
 				return this.string.equals(that.string);
 			} else {
 				return false;
@@ -92,7 +92,7 @@ import yokwe.util.StringUtil;
 		}
 
 		@Override
-		public int compareTo(FinancialSummary that) {
+		public int compareTo(SummaryFilename that) {
 			int ret = this.tdnetCode.compareTo(that.tdnetCode);
 			if (ret == 0) ret = this.id.compareTo(that.id);
 			if (ret == 0) ret = this.category.value.compareTo(that.category.value);

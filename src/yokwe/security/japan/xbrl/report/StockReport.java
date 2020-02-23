@@ -36,7 +36,7 @@ import java.math.BigDecimal;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.tdnet.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.util.CSVUtil.ColumnName;
 
@@ -167,7 +167,7 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 	public BigDecimal numberOfShares;
 
 
-	public FinancialSummary financialSummary;
+	public SummaryFilename summaryFilename;
 
 	public static StockReport getInstance(Document document) {
 		StockReport ret = AbstractReport.getInstance(StockReport.class, document);

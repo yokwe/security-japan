@@ -10,7 +10,7 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.tdnet.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.ufocatch.atom.Entry;
 import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.security.japan.ufocatch.atom.Link;
@@ -41,7 +41,7 @@ public class Download {
 		boolean stopAtSkip = Boolean.getBoolean("stopAtSkip");
 		logger.info("stopAtSkip {}", stopAtSkip);
 
-		Map<FinancialSummary, File> fileMap = Atom.getFileMap();
+		Map<SummaryFilename, File> fileMap = Atom.getFileMap();
 		logger.info("fileMap {}", fileMap.size());
 
 		Feed rootFeed = Atom.getFeed(Kind.TDNETX);
@@ -82,7 +82,7 @@ main_loop:
 				count++;
 				for(Link link: entry.linkList) {
 					String filename = getFilename(link.href);
-					FinancialSummary financialSummary = FinancialSummary.getInstance(filename);
+					SummaryFilename financialSummary = SummaryFilename.getInstance(filename);
 					if (financialSummary != null) {
 						if (fileMap.containsKey(financialSummary)) {
 							countSkip++;

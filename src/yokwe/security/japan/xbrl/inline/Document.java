@@ -10,19 +10,19 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
-import yokwe.security.japan.jpx.tdnet.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.util.XMLUtil;
 import yokwe.util.XMLUtil.QValue;
 
 public class Document {
 	private static final List<InlineXBRL> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
 
-	public  final FinancialSummary              financialSummary;
+	public  final SummaryFilename               summaryFilename;
 	private final List<InlineXBRL>              all;
 	private final Map<QValue, List<InlineXBRL>> map;
 	
 	private Document(File file, List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map) {
-		this.financialSummary = FinancialSummary.getInstance(file.getName());
+		this.summaryFilename = SummaryFilename.getInstance(file.getName());
 		this.all      = all;
 		this.map      = map;
 	}

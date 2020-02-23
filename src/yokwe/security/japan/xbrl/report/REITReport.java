@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.tdnet.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.util.CSVUtil.ColumnName;
 
@@ -62,7 +62,7 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 	@ColumnName("配当性向")
 	public BigDecimal payoutRatio;
 	
-	public FinancialSummary financialSummary;
+	public SummaryFilename summaryFilename;
 
 	
 	public static REITReport getInstance(Document document) {

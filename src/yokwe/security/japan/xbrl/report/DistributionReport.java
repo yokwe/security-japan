@@ -17,7 +17,7 @@ import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.tdnet.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.xbrl.inline.Document;
 
 public class DistributionReport extends AbstractReport implements Comparable<DistributionReport> {
@@ -58,7 +58,7 @@ public class DistributionReport extends AbstractReport implements Comparable<Dis
 			acceptNullOrEmpty = true)
 	public BigDecimal payoutRatio;
 	
-	public FinancialSummary financialSummary;
+	public SummaryFilename summaryFilename;
 
 	public static DistributionReport getInstance(Document document) {
 		DistributionReport ret = AbstractReport.getInstance(DistributionReport.class, document);

@@ -55,8 +55,8 @@ public abstract class AbstractReport {
 		
 		final String          className;
 		final List<FieldInfo> fieldInfoList;
-		// FIXME Is financialSummary really necessary?
-		final Field           financialSummary;  
+		// FIXME Is summaryFilename really necessary?
+		final Field           summaryFilename;  
 		
 		static ClassInfo get(Class<? extends AbstractReport> clazz) {
 			String className = clazz.getName();
@@ -140,11 +140,11 @@ public abstract class AbstractReport {
 
 			}
 			
-			// FIXME Is financialSummary really necessary?
+			// FIXME Is summaryFilename really necessary?
 			{
 				Field field = null;
 				try {
-					field = clazz.getDeclaredField("financialSummary");
+					field = clazz.getDeclaredField("summaryFilename");
 					int modifiers = field.getModifiers();
 					if ((!Modifier.isStatic(modifiers)) && Modifier.isPublic(modifiers)) {
 						// accept this field
@@ -159,7 +159,7 @@ public abstract class AbstractReport {
 					logger.error("{} {}", exceptionName, e);
 					throw new UnexpectedException(exceptionName, e);
 				}
-				this.financialSummary = field;
+				this.summaryFilename = field;
 			}
 
 		}
@@ -396,10 +396,10 @@ public abstract class AbstractReport {
 		// use reflection to initialize annotated variable in class
 		ClassInfo classInfo = ClassInfo.get(this.getClass());
 		
-		// FIXME Is financialSummary really necessary?
-		if (classInfo.financialSummary != null) {
+		// FIXME Is summaryFilename really necessary?
+		if (classInfo.summaryFilename != null) {
 			try {
-				classInfo.financialSummary.set(this, ixDoc.financialSummary);
+				classInfo.summaryFilename.set(this, ixDoc.summaryFilename);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
