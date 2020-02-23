@@ -11,7 +11,7 @@ import javax.xml.bind.JAXBException;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.Category;
+import yokwe.security.japan.jpx.tdnet.Category;
 import yokwe.security.japan.ufocatch.Atom;
 import yokwe.util.StringUtil;
 
@@ -23,8 +23,14 @@ public class GenerateContext {
 		
 		Set<String> all = new TreeSet<>();
 		
+		List<File> fileList = Atom.getFileList(Category.EDJP);
+		int count = 0;
 		for(File file : Atom.getFileList(Category.EDJP)) {
-			logger.info("File {}", file.getPath());
+			if ((count % 1000) == 0) {
+				logger.info("{} {}", String.format("%5d / %5d", count, fileList.size()), file.getName());
+			}
+			count++;
+//			logger.info("File {}", file.getPath());
 			Document document = Document.getInstance(file);
 			
 			all.addAll(document.getContextSet());

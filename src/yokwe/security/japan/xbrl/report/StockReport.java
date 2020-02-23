@@ -1,10 +1,18 @@
 package yokwe.security.japan.xbrl.report;
 
 import static yokwe.security.japan.xbrl.inline.Context.ANNUAL_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.CONSOLIDATED_MEMBER;
 import static yokwe.security.japan.xbrl.inline.Context.CURRENT_YEAR_DURATION;
 import static yokwe.security.japan.xbrl.inline.Context.FIRST_QUARTER_MEMBER;
 import static yokwe.security.japan.xbrl.inline.Context.FORECAST_MEMBER;
 import static yokwe.security.japan.xbrl.inline.Context.LOWER_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.NON_CONSOLIDATED_MEMBER;
+import static yokwe.security.japan.xbrl.inline.Context.PRIOR_ACCUMULATED_Q_1_DURATION;
+import static yokwe.security.japan.xbrl.inline.Context.PRIOR_ACCUMULATED_Q_2_DURATION;
+import static yokwe.security.japan.xbrl.inline.Context.PRIOR_ACCUMULATED_Q_3_DURATION;
+import static yokwe.security.japan.xbrl.inline.Context.PRIOR_ACCUMULATED_Q_3_INSTANT;
+import static yokwe.security.japan.xbrl.inline.Context.PRIOR_YEAR_DURATION;
+import static yokwe.security.japan.xbrl.inline.Context.PRIOR_YEAR_INSTANT;
 import static yokwe.security.japan.xbrl.inline.Context.RESULT_MEMBER;
 import static yokwe.security.japan.xbrl.inline.Context.SECOND_QUARTER_MEMBER;
 import static yokwe.security.japan.xbrl.inline.Context.THIRD_QUARTER_MEMBER;
@@ -17,6 +25,9 @@ import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DIVIDEND_PAYABLE
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.DIVIDEND_PER_SHARE;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.FILING_DATE;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.FISCAL_YEAR_END;
+import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.NET_INCOME_PER_SHARE;
+import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.NET_SALES;
+import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.NUMBER_OF_ISSUED_AND_OUTSTANDING_SHARES_AT_THE_END_OF_FISCAL_YEAR_INCLUDING_TREASURY_STOCK;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.QUARTERLY_PERIOD;
 import static yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL.SECURITIES_CODE;
 
@@ -25,7 +36,7 @@ import java.math.BigDecimal;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.FinancialSummary;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.util.CSVUtil.ColumnName;
 
@@ -119,6 +130,43 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 	@ColumnName("配当年間")
 	public BigDecimal annualDividendPerShare;
 	
+	
+	@TSE_ED(label = NET_SALES,
+			contextIncludeAll = {RESULT_MEMBER, CONSOLIDATED_MEMBER},
+			contextExcludeAny = {PRIOR_ACCUMULATED_Q_1_DURATION, PRIOR_ACCUMULATED_Q_2_DURATION, PRIOR_ACCUMULATED_Q_3_DURATION, PRIOR_YEAR_DURATION},
+			acceptNullOrEmpty = true)
+	@ColumnName("売上高連結")
+	public BigDecimal netSalesConsolidated;	
+
+	@TSE_ED(label = NET_SALES,
+			contextIncludeAll = {RESULT_MEMBER, NON_CONSOLIDATED_MEMBER},
+			contextExcludeAny = {PRIOR_ACCUMULATED_Q_1_DURATION, PRIOR_ACCUMULATED_Q_2_DURATION, PRIOR_ACCUMULATED_Q_3_DURATION, PRIOR_YEAR_DURATION},
+			acceptNullOrEmpty = true)
+	@ColumnName("売上高非連結")
+	public BigDecimal netSalesNonCosolidated;	
+
+	@TSE_ED(label = NET_INCOME_PER_SHARE,
+			contextIncludeAll = {RESULT_MEMBER, CONSOLIDATED_MEMBER},
+			contextExcludeAny = {PRIOR_ACCUMULATED_Q_1_DURATION, PRIOR_ACCUMULATED_Q_2_DURATION, PRIOR_ACCUMULATED_Q_3_DURATION, PRIOR_YEAR_DURATION},
+			acceptNullOrEmpty = true)
+	@ColumnName("純利益連結") // 1株当たり当期純利益
+	public BigDecimal netIncomPerShareConsolidated;	
+
+	@TSE_ED(label = NET_INCOME_PER_SHARE,
+			contextIncludeAll = {RESULT_MEMBER, NON_CONSOLIDATED_MEMBER},
+			contextExcludeAny = {PRIOR_ACCUMULATED_Q_1_DURATION, PRIOR_ACCUMULATED_Q_2_DURATION, PRIOR_ACCUMULATED_Q_3_DURATION, PRIOR_YEAR_DURATION},
+			acceptNullOrEmpty = true)
+	@ColumnName("純利益非連結") // 1株当たり当期純利益
+	public BigDecimal netIncomPerShareNonCosolidated;	
+
+	@TSE_ED(label = NUMBER_OF_ISSUED_AND_OUTSTANDING_SHARES_AT_THE_END_OF_FISCAL_YEAR_INCLUDING_TREASURY_STOCK,
+			contextIncludeAll = {RESULT_MEMBER},
+			contextExcludeAny = {PRIOR_ACCUMULATED_Q_3_INSTANT, PRIOR_YEAR_INSTANT},
+			acceptNullOrEmpty = true)
+	@ColumnName("株式数") // 期末発行済株式数（自己株式を含む）
+	public BigDecimal numberOfShares;
+
+
 	public FinancialSummary financialSummary;
 
 	public static StockReport getInstance(Document document) {

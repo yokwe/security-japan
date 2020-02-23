@@ -1,4 +1,4 @@
-package yokwe.security.japan.jpx;
+package yokwe.security.japan.jpx.tdnet;
 
 public class TDNET {
 	// 適時開示システム タクソノミ設定規約書

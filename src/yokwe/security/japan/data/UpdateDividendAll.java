@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.Category;
+import yokwe.security.japan.jpx.tdnet.Category;
 import yokwe.security.japan.ufocatch.Atom;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.report.DividendReport;

@@ -22,6 +22,7 @@ public enum Context {
 	PRIOR_ACCUMULATED_Q_1_DURATION   ("PriorAccumulatedQ1Duration"),
 	PRIOR_ACCUMULATED_Q_2_DURATION   ("PriorAccumulatedQ2Duration"),
 	PRIOR_ACCUMULATED_Q_3_DURATION   ("PriorAccumulatedQ3Duration"),
+	PRIOR_ACCUMULATED_Q_3_INSTANT    ("PriorAccumulatedQ3Instant"),
 	PRIOR_YEAR_DURATION              ("PriorYearDuration"),
 	PRIOR_YEAR_INSTANT               ("PriorYearInstant"),
 	RESULT_MEMBER                    ("ResultMember"),

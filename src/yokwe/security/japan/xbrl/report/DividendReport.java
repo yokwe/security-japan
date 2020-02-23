@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.FinancialSummary;
 import yokwe.security.japan.xbrl.inline.Document;
 
 public class DividendReport extends AbstractReport implements Comparable<DividendReport> {

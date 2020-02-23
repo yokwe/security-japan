@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.FinancialSummary;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.util.CSVUtil.ColumnName;
 

@@ -1,4 +1,4 @@
-package yokwe.security.japan.jpx;
+package yokwe.security.japan.jpx.tdnet;
 
 import org.slf4j.LoggerFactory;
 

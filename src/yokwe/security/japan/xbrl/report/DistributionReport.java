@@ -17,7 +17,7 @@ import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.FinancialSummary;
+import yokwe.security.japan.jpx.tdnet.FinancialSummary;
 import yokwe.security.japan.xbrl.inline.Document;
 
 public class DistributionReport extends AbstractReport implements Comparable<DistributionReport> {
