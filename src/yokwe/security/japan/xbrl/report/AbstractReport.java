@@ -429,6 +429,9 @@ public abstract class AbstractReport {
 						logger.error("   name              {}", qName.value);
 						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+						for(InlineXBRL e: ixDoc.getList(qName)) {
+							logger.error("   ixDoc {}", e);
+						}
 						throw new UnexpectedException("No matching entry");
 					}
 				} else if (list.size() == 1) {
@@ -444,6 +447,9 @@ public abstract class AbstractReport {
 							logger.error("   name              {}", qName.value);
 							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 							logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+							for(InlineXBRL e: ixDoc.getList(qName)) {
+								logger.error("   ixDoc {}", e);
+							}
 							throw new UnexpectedException("Entry is null");
 						}
 					} else {
@@ -483,8 +489,8 @@ public abstract class AbstractReport {
 							logger.warn("   name              {}", qName.value);
 							logger.warn("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 							logger.warn("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-							for(int i = 0; i < list.size(); i++) {
-								logger.warn("  {}  {}", i, list.get(i));
+							for(InlineXBRL e: ixDoc.getList(qName)) {
+								logger.warn("   ixDoc {}", e);
 							}
 							assignFieldZeroOrEmptyString(fieldInfo);
 						} else {
@@ -495,6 +501,9 @@ public abstract class AbstractReport {
 							logger.error("   name              {}", qName.value);
 							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 							logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+							for(InlineXBRL e: ixDoc.getList(qName)) {
+								logger.error("   ixDoc {}", e);
+							}
 							throw new UnexpectedException("Entry is null");
 						}
 					} else {
@@ -505,8 +514,8 @@ public abstract class AbstractReport {
 						logger.error("   name              {}", qName.value);
 						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-						for(int i = 0; i < list.size(); i++) {
-							logger.error("  {}  {}", i, list.get(i));
+						for(InlineXBRL e: ixDoc.getList(qName)) {
+							logger.error("   ixDoc {}", e);
 						}
 						throw new UnexpectedException("More than one matching entry");
 					}
