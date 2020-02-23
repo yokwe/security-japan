@@ -44,19 +44,23 @@ ifneq (,$(wildcard tmp/data/stock-info.csv))
 endif
 	ant update-stock-info-price
 
-update-dividend-all:
-ifneq (,$(wildcard tmp/data/dividend-all.csv))
-	rm -f tmp/data/dividend-all-OLD.csv
-	cp -p tmp/data/dividend-all.csv     tmp/data/dividend-all-OLD.csv
-endif
-	ant update-dividend-all
 
-update-distribution-all:
-ifneq (,$(wildcard tmp/data/distribution-all.csv))
-	rm -f tmp/data/distribution-all-OLD.csv
-	cp -p tmp/data/distribution-all.csv     tmp/data/distribution-all-OLD.csv
+update-reit-report:
+ifneq (,$(wildcard tmp/data/reit-report.csv))
+	rm -f tmp/data/reit-report-OLD.csv
+	cp -p tmp/data/reit-report.csv     tmp/data/reit-report-OLD.csv
 endif
-	ant update-distribution-all
+	ant update-reit-report
+
+update-stock-report:
+ifneq (,$(wildcard tmp/data/stock-report.csv))
+	rm -f tmp/data/stock-report-OLD.csv
+	cp -p tmp/data/stock-report.csv     tmp/data/stock-report-OLD.csv
+endif
+	ant update-stock-report
+
+update-report: update-reit-report update-stock-report
+
 
 update-dividend-etf:
 ifneq (,$(wildcard tmp/data/dividend-etf.csv))
@@ -65,7 +69,21 @@ ifneq (,$(wildcard tmp/data/dividend-etf.csv))
 endif
 	ant update-dividend-etf
 
-update-dividend:
+update-dividend-reit:
+ifneq (,$(wildcard tmp/data/dividend-reit.csv))
+	rm -f tmp/data/dividend-reit-OLD.csv
+	cp -p tmp/data/dividend-reit.csv     tmp/data/dividend-reit-OLD.csv
+endif
+	ant update-dividend-reit
+
+update-dividend-stock:
+ifneq (,$(wildcard tmp/data/dividend-stock.csv))
+	rm -f tmp/data/dividend-stock-OLD.csv
+	cp -p tmp/data/dividend-stock.csv     tmp/data/dividend-stock-OLD.csv
+endif
+	ant update-dividend-stock
+
+update-dividend: update-dividend-reit update-dividend-stock
 ifneq (,$(wildcard tmp/data/dividend))
 	rm -rf tmp/data/dividend-OLD
 	mv     tmp/data/dividend      tmp/data/dividend-OLD
