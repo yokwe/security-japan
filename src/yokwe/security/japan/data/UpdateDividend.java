@@ -17,9 +17,9 @@ public class UpdateDividend {
 		
 		Map<String, List<Dividend>> map = new TreeMap<>();
 		{
-			List<DividendAll> list = DividendAll.load();
-			logger.info("DividendAll {}", list.size());
-			for(DividendAll e: list) {
+			List<DividendStock> list = DividendStock.load();
+			logger.info("DividendStock {}", String.format("%5d", list.size()));
+			for(DividendStock e: list) {
 				String stockCode = e.stockCode;
 				
 				List<Dividend> dividendList;
@@ -33,9 +33,9 @@ public class UpdateDividend {
 			}
 		}
 		{
-			List<DistributionAll> list = DistributionAll.load();
-			logger.info("DistributionAll {}", list.size());
-			for(DistributionAll e: list) {
+			List<DividendREIT> list = DividendREIT.load();
+			logger.info("DividendREIT  {}", String.format("%5d", list.size()));
+			for(DividendREIT e: list) {
 				String stockCode = e.stockCode;
 				
 				List<Dividend> dividendList;
@@ -45,12 +45,12 @@ public class UpdateDividend {
 					dividendList = new ArrayList<>();
 					map.put(stockCode, dividendList);
 				}
-				dividendList.add(new Dividend(e.date, e.stockCode, e.distribution + e.distributionExcess));
+				dividendList.add(new Dividend(e.date, e.stockCode, e.dividend));
 			}
 		}
 		{
 			List<DividendETF> list = DividendETF.load();
-			logger.info("DividendETF {}", list.size());
+			logger.info("DividendETF   {}", String.format("%5d", list.size()));
 			for(DividendETF e: list) {
 				if (!e.currency.equals("JPY")) continue;
 				
@@ -66,12 +66,11 @@ public class UpdateDividend {
 				dividendList.add(new Dividend(e.date, e.stockCode, (e.dividend / e.unit)));
 			}
 		}
+		logger.info("map           {}", String.format("%5d", map.size()));
+
 		{
 			Map<String, Stock> stockMap = Stock.getMap();
-			
-			logger.info("stockMap {}", stockMap.size());
-			
-			logger.info("map {}", map.size());
+			logger.info("stockMap      {}", String.format("%5d", stockMap.size()));
 			List<String> delist = new ArrayList<>();
 			int countSave   = 0;
 			int countDelist = 0;
@@ -88,9 +87,10 @@ public class UpdateDividend {
 					countDelist++;
 				}
 			}
-			logger.info("countSave  {}", countSave);
-			logger.info("countDelist {}", countDelist);
-			logger.info("delist {} {}", delist.size(), delist);
+			logger.info("countSave     {}", String.format("%5d", countSave));
+			logger.info("countDelist   {}", String.format("%5d", countDelist));
+
+			logger.info("delist        {}", delist);
 		}
 		
 		logger.info("STOP");
