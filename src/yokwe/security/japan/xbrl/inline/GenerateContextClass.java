@@ -17,8 +17,8 @@ import yokwe.security.japan.ufocatch.Atom;
 import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
 
-public class GenerateContext {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateContext.class);
+public class GenerateContextClass {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateContextClass.class);
 		
 	private static final String PATH_FILE = "src/yokwe/security/japan/xbrl/inline/Context.java";
 
