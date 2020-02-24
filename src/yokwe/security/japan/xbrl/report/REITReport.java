@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.xbrl.inline.Document;
+import yokwe.security.japan.xbrl.inline.InlineXBRL;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 
@@ -133,6 +134,7 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 	public static REITReport getInstance(Document document) {
 		REITReport ret = AbstractReport.getInstance(REITReport.class, document);
 		
+		ret.stockCode = InlineXBRL.normalizeNumberCharacter(ret.stockCode);
 		if (ret.stockCode.endsWith("0")) {
 			ret.stockCode = ret.stockCode.substring(0, ret.stockCode.length() - 1);
 		}

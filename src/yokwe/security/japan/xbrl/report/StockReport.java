@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.xbrl.inline.Document;
+import yokwe.security.japan.xbrl.inline.InlineXBRL;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 
@@ -238,6 +239,7 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 			throw new UnexpectedException("Unexpected quarterlyPeriod");
 		}
 		
+		ret.stockCode = InlineXBRL.normalizeNumberCharacter(ret.stockCode);
 		if (ret.stockCode.endsWith("0")) {
 			ret.stockCode = ret.stockCode.substring(0, ret.stockCode.length() - 1);
 		}
