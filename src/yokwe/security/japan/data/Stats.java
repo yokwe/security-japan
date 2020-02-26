@@ -94,10 +94,6 @@ public class Stats extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
 	public double yield;
 	
-	@ColumnName("yieldadj")
-	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
-	public double yieldadj;
-	
 	// volume
 	@ColumnName("vol")
 	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
@@ -112,38 +108,6 @@ public class Stats extends Sheet {
 	public long   vol30;
 	
 	// price change detection
-	@ColumnName("sma5")
-	@NumberFormat(SpreadSheet.FORMAT_NUMBER2)
-	public double sma5;
-	
-	@ColumnName("sma20")
-	@NumberFormat(SpreadSheet.FORMAT_NUMBER2)
-	public double sma20;
-	
-	@ColumnName("sma50")
-	@NumberFormat(SpreadSheet.FORMAT_NUMBER2)
-	public double sma50;
-	
-	@ColumnName("sma200")
-	@NumberFormat(SpreadSheet.FORMAT_NUMBER2)
-	public double sma200;
-	
-	@ColumnName("sma5pct")
-	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
-	public double sma5pct;
-	
-	@ColumnName("sma20pct")
-	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
-	public double sma20pct;
-	
-	@ColumnName("sma50pct")
-	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
-	public double sma50pct;
-	
-	@ColumnName("sma200pct")
-	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
-	public double sma200pct;
-
 	@ColumnName("last")
 	@NumberFormat(SpreadSheet.FORMAT_NUMBER2)
 	public double last;
