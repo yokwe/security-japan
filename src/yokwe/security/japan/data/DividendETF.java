@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.slf4j.LoggerFactory;
 
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;
@@ -14,10 +18,34 @@ import yokwe.util.libreoffice.SpreadSheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class DividendETF extends Sheet implements Comparable<DividendETF> {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendETF.class);
+
 	public static final String PATH_FILE        = "tmp/data/dividend-etf.csv";
 
-	public static List<DividendETF> load() {
-		return CSVUtil.read(DividendETF.class).file(PATH_FILE);
+	private static List<DividendETF> list = null;
+	public static List<DividendETF> getList() {
+		if (list == null) {
+			list = CSVUtil.read(DividendETF.class).file(PATH_FILE);
+		}
+		return list;
+	}
+	public static Map<String, List<DividendETF>> map = null;
+	public static Map<String, List<DividendETF>> getMap() {
+		if (map == null) {
+			map = new TreeMap<>();
+			for(DividendETF e: getList()) {
+				String key = e.stockCode;
+				List<DividendETF> list;
+				if (map.containsKey(key)) {
+					list = map.get(key);
+				} else {
+					list = new ArrayList<>();
+					map.put(key, list);
+				}
+				list.add(e);
+			}
+		}
+		return map;
 	}
 	public static void save(Collection<DividendETF> collection) {
 		List<DividendETF> list = new ArrayList<>(collection);
@@ -81,8 +109,7 @@ public class DividendETF extends Sheet implements Comparable<DividendETF> {
 					this.date.equals(that.date) &&
 					this.unit == that.unit &&
 					DoubleUtil.isAlmostEqual(this.dividend, that.dividend) &&
-					this.currency.equals(that.currency) &&
-					this.name.equals(that.name);
+					this.currency.equals(that.currency);
 			} else {
 				return false;
 			}
