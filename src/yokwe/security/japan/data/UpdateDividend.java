@@ -49,7 +49,7 @@ public class UpdateDividend {
 			}
 		}
 		{
-			List<DividendETF> list = DividendETF.load();
+			List<DividendETF> list = DividendETF.getList();
 			logger.info("DividendETF   {}", String.format("%5d", list.size()));
 			for(DividendETF e: list) {
 				if (!e.currency.equals("JPY")) continue;
