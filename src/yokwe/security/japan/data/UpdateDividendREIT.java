@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.security.japan.jpx.tdnet.Category;
 import yokwe.security.japan.jpx.tdnet.Period;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.ufocatch.Atom;
@@ -26,23 +28,10 @@ public class UpdateDividendREIT {
 			Map<SummaryFilename, REITReport> reportMap = REITReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 			
-			Map<SummaryFilename, File> fileMap = new TreeMap<>();
-			{
-				for(Map.Entry<SummaryFilename, File> entry: Atom.getFileMap().entrySet()) {
-					SummaryFilename key   = entry.getKey();
-					File            value = entry.getValue();
-					switch(key.category) {
-					case REJP:
-						if (key.period == Period.ANNUAL) {
-							fileMap.put(key, value);
-						}
-						break;
-					default:
-						break;
-					}
-				}
-
-			}
+			Map<SummaryFilename, File> fileMap = Atom.getFileMap().entrySet().stream().
+					filter(o -> o.getKey().category == Category.REJP).
+					filter(o -> o.getKey().period == Period.ANNUAL).
+					collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			logger.info("fileMap {}", fileMap.size());
 			
 			

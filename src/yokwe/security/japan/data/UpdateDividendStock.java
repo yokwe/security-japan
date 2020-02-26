@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.security.japan.jpx.tdnet.Category;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.ufocatch.Atom;
 import yokwe.security.japan.xbrl.inline.Document;
@@ -20,26 +22,15 @@ public class UpdateDividendStock {
 		logger.info("START");
 		
 		Map<String, DividendStock> map = new TreeMap<>();
+		// key is "stockCode yearEnd quarter"
 		
 		{
 			Map<SummaryFilename, StockReport> reportMap = StockReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 			
-			Map<SummaryFilename, File> fileMap = new TreeMap<>();
-			{
-				for(Map.Entry<SummaryFilename, File> entry: Atom.getFileMap().entrySet()) {
-					SummaryFilename key   = entry.getKey();
-					File            value = entry.getValue();
-					switch(key.category) {
-					case EDJP:
-						fileMap.put(key, value);
-						break;
-					default:
-						break;
-					}
-				}
-
-			}
+			Map<SummaryFilename, File> fileMap = Atom.getFileMap().entrySet().stream().
+					filter(o -> o.getKey().category == Category.EDJP).
+					collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			logger.info("fileMap {}", fileMap.size());
 			
 			
