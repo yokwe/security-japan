@@ -91,7 +91,14 @@ ifneq (,$(wildcard tmp/data/dividend))
 endif
 	ant update-dividend
 
-update-stats:
+update-dividend-annual:
+ifneq (,$(wildcard tmp/data/dividend-annual.csv))
+	rm -f tmp/data/dividend-annual-OLD.csv
+	cp -p tmp/data/dividend-annual.csv     tmp/data/dividend-annual-OLD.csv
+endif
+	ant update-dividend-annual
+
+update-stats: update-dividend-annual
 ifneq (,$(wildcard tmp/data/stats.csv))
 	rm -rf tmp/data/stats-OLD.csv
 	mv     tmp/data/stats.csv      tmp/data/stats-OLD.csv
