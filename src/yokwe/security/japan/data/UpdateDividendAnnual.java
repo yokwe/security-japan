@@ -87,7 +87,7 @@ public class UpdateDividendAnnual {
 					LocalDate lastDate  = LocalDate.parse(last.dividendPayableDateAsPlanned).plusDays(1);
 					LocalDate firstDate = getFirstDate(lastDate).minusDays(1);
 					
-					double          dividend = 0;
+					double          dividend = last.annualDividendPerShare.doubleValue();
 					int             divCount = 0;
 					String          yearEnd  = last.yearEnd;
 					int             quarter  = last.quarterlyPeriod;
@@ -98,7 +98,6 @@ public class UpdateDividendAnnual {
 						
 						if (date.isAfter(firstDate) && date.isBefore(lastDate)) {
 							divCount++;
-							dividend += e.annualDividendPerShare.doubleValue();
 						}
 					}
 					
