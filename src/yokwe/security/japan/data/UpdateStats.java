@@ -27,7 +27,7 @@ public class UpdateStats {
 	
 	private static final LocalDate DATE_LAST  = JapanHoliday.getLastTradingDate();
 
-	private static Stats getInstance(Stock stock, List<Price> priceList, List<Dividend> dividendList) {
+	private static Stats getInstance(Stock stock, List<Price> priceList) {
 		
 		Stats ret = new Stats();
 		
@@ -98,50 +98,21 @@ public class UpdateStats {
 			
 			// price change detection
 			ret.last   = (priceArray.length < 2) ? -1 : priceArray[priceArray.length - 2];
-			ret.sma5   = DoubleUtil.round(MA.sma(  5, priceArray).getValue(), 2);
-			ret.sma20  = DoubleUtil.round(MA.sma( 20, priceArray).getValue(), 2);
-			ret.sma50  = DoubleUtil.round(MA.sma( 50, priceArray).getValue(), 2);
-			ret.sma200 = DoubleUtil.round(MA.sma(200, priceArray).getValue(), 2);
-			
-			ret.lastpct   = DoubleUtil.round((ret.price - ret.last)   / ret.last,   3);
-			ret.sma5pct   = DoubleUtil.round((ret.price - ret.sma5)   / ret.sma5,   3);
-			ret.sma20pct  = DoubleUtil.round((ret.price - ret.sma20)  / ret.sma20,  3);
-			ret.sma50pct  = DoubleUtil.round((ret.price - ret.sma50)  / ret.sma50,  3);
-			ret.sma200pct = DoubleUtil.round((ret.price - ret.sma200) / ret.sma200, 3);
 		}
 		
 		// dividend
 		{
-			// Limit to 1 year
-			double[] divArray = dividendList.stream().mapToDouble(o -> o.dividend).toArray();
-			
-			ret.div   = DoubleUtil.round(Arrays.stream(divArray).sum(), 4);
-			ret.divc  = divArray.length;
-			ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
-			
-			double divLast  = (divArray.length == 0) ? 0 : divArray[divArray.length - 1];
-			double divAdj;
-			switch(ret.divc) {
-			case 13:
-				divAdj = divLast * 12; // remove irregular dividend
-				break;
-			case 12:
-				divAdj = divLast * 12;
-				break;
-			case 4:
-				divAdj = divLast * 4;
-				break;
-			case 2:
-				divAdj = divLast * 2;
-				break;
-			case 1:
-				divAdj = divLast;
-				break;
-			default:
-				divAdj = 0;
-				break;
+			DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
+			if (divAnn == null) {
+				logger.warn("no dividend {}", ret.stockCode);
+				ret.div   = 0;
+				ret.divc  = 0;
+				ret.yield = 0;
+			} else {
+				ret.div   = divAnn.dividend;
+				ret.divc  = divAnn.count;
+				ret.yield = DoubleUtil.round(divAnn.dividend / ret.price, 3);
 			}
-			ret.yieldadj = DoubleUtil.round(divAdj / ret.price, 3);
 		}
 		
 		// volume
@@ -221,7 +192,6 @@ public class UpdateStats {
 			if (showOutput) logger.info("{}  update {}", String.format("%4d / %4d",  count, total), stockCode);
 			
 			File priceFile    = new File(Price.getPath(stockCode));
-			File dividendFile = new File(Dividend.getPath(stockCode));
 			
 			List<Price> priceList;
 			if (priceFile.exists()) {
@@ -278,29 +248,8 @@ public class UpdateStats {
 				continue;
 			}
 			
-			List<Dividend> dividendList;
-			if (dividendFile.exists()) {
-				// Filter data for last one year
-				dividendList = new ArrayList<>();
-				
-				List<Dividend> list = Dividend.load(stockCode);
-				Collections.sort(list);
-				
-				// range of dividend to process that is not equal to 
-				LocalDate lastDividendDate = LocalDate.parse(list.get(list.size() - 1).date);
-				LocalDate firstDividendDate = lastDividendDate.minusYears(1);
-				
-				for(Dividend e: list) {
-					LocalDate date = LocalDate.parse(e.date);
-					if (date.isAfter(firstDividendDate)) {
-						dividendList.add(e);
-					}
-				}
-			} else {
-				dividendList = new ArrayList<>();
-			}
 			
-			Stats stats = getInstance(stock, priceList, dividendList);
+			Stats stats = getInstance(stock, priceList);
 			if (stats != null) statsList.add(stats);
 		}
 		Stats.save(statsList);
