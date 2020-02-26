@@ -97,7 +97,8 @@ public class UpdateStats {
 			
 			
 			// price change detection
-			ret.last   = (priceArray.length < 2) ? -1 : priceArray[priceArray.length - 2];
+			ret.last    = (priceArray.length < 2) ? -1 : priceArray[priceArray.length - 2];
+			ret.lastpct = DoubleUtil.round((ret.price - ret.last) / ret.last, 2) ;
 		}
 		
 		// dividend
