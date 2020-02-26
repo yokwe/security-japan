@@ -104,7 +104,7 @@ public class UpdateStats {
 		{
 			DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
 			if (divAnn == null) {
-				logger.warn("no dividend {}", ret.stockCode);
+				logger.warn("no dividend {}", String.format("%s %-10s %s", ret.stockCode, ret.sector33, ret.name));
 				ret.div   = 0;
 				ret.divc  = 0;
 				ret.yield = 0;
