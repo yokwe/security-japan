@@ -103,15 +103,14 @@ public class UpdateDividendStock {
 
 				if (map.containsKey(mapKey)) {
 					DividendStock oldValue = map.get(mapKey);
-					if (mapValue.equals(oldValue)) continue;
-					
-					logger.warn("====");
-					logger.warn("Overwrite existing {}", key);
-					logger.warn("  old {}", oldValue);
-					logger.warn("  new {}", mapValue);
-				} else {
-					map.put(mapKey, mapValue);
+					if (!mapValue.equals(oldValue)) {
+						logger.warn("====");
+						logger.warn("Overwrite existing {}", key);
+						logger.warn("  old {}", oldValue);
+						logger.warn("  new {}", mapValue);
+					}
 				}
+				map.put(mapKey, mapValue);
 			}
 		}
 		
