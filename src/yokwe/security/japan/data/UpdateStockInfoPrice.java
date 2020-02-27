@@ -385,7 +385,7 @@ public class UpdateStockInfoPrice {
 		// Update stock
 		{
 			if (countUpdate != 0) {
-				Map<String, StockInfo> oldStockInfoMap = StockInfo.getStockInfoMap();
+				Map<String, StockInfo> oldStockInfoMap = StockInfo.getMap();
 				logger.info("----", countTotal);
 				logger.info("oldStockInfoMap   {}", oldStockInfoMap.size());
 				logger.info("newStockInfoMap   {}", newStockInfoMap.size());
