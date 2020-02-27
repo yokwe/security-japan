@@ -78,11 +78,8 @@ public class UpdateStockReport {
 			}
 			
 			logger.info("count {} / {}", countUpdate, count);
-			if (0 < countUpdate) {
-				logger.info("save {} {}", StockReport.PATH_FILE, reportList.size());
-				StockReport.save(reportList);
-			}
-
+			logger.info("save {} {}", StockReport.PATH_FILE, reportList.size());
+			StockReport.save(reportList);
 		}
 
 		logger.info("STOP");
