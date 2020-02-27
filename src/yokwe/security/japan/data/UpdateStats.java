@@ -28,7 +28,6 @@ public class UpdateStats {
 	private static final LocalDate DATE_LAST  = JapanHoliday.getLastTradingDate();
 
 	private static Stats getInstance(Stock stock, List<Price> priceList) {
-		
 		Stats ret = new Stats();
 		
 //		this.exchange = stock.exchange;
@@ -49,6 +48,16 @@ public class UpdateStats {
 		} else {
 			ret.sector33 = stock.sector33;
 			ret.sector17 = stock.sector17;
+		}
+		
+		{
+			StockInfo stockInfo = StockInfo.get(ret.stockCode);
+			if (stockInfo == null) {
+				ret.unit = -1;
+				logger.warn("no sockInfo {}", String.format("%s %-10s %s", ret.stockCode, ret.sector33, ret.name));
+			} else {
+				ret.unit = stockInfo.tradeUnit;
+			}
 		}
 		
 		{
