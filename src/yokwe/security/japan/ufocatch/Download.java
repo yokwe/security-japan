@@ -1,6 +1,7 @@
 package yokwe.security.japan.ufocatch;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -20,6 +21,7 @@ import yokwe.util.HttpUtil;
 public class Download {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Download.class);
 	
+	public static final String PATH_TOUCH_FILE = "tmp/data/download.touch";
 	//
 	// Download atom feed of ufocatch
 	//
@@ -124,6 +126,23 @@ main_loop:
 		logger.info("countSave {}", countSave);
 		logger.info("countSkip {}", countSkip);
 		logger.info("countPass {}", countPass);
+		
+		// touch PATH_TOUCH_FILE
+		if (0 < countSave) {
+			logger.info("touch {}", PATH_TOUCH_FILE);
+			try {
+				File file = new File(PATH_TOUCH_FILE);
+				if (file.exists()) {
+					file.setLastModified(System.currentTimeMillis());
+				} else {
+					file.createNewFile();
+				}
+			} catch (IOException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e);
+				throw new UnexpectedException(exceptionName, e);
+			}
+		}
 		logger.info("STOP");
 	}
 }
