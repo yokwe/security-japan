@@ -30,6 +30,10 @@ public class Stats extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
 	public String name;
 	
+	@ColumnName("unit")
+	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	public int unit;
+	
 	@ColumnName("sector33") // 33業種区分
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
 	public String sector33;
