@@ -25,7 +25,11 @@ build-misc-lib:
 save-ods:
 	cp ~/Dropbox/Trade/dividend-etf.ods     ~/Dropbox/Trade/SAVE/dividend-etf_$$(date +%Y%m%d).ods
 
-update-stock:
+
+#
+# stock.csv
+#
+tmp/data/stock.csv:
 ifneq (,$(wildcard tmp/data/stock.csv))
 	rm -f tmp/data/stock-OLD.csv
 	cp -p tmp/data/stock.csv     tmp/data/stock-OLD.csv
@@ -33,7 +37,13 @@ endif
 	ant update-stock
 	cp tmp/data/stock.csv ~/Dropbox/Trade/stock-jp.csv
 
-update-stock-info-price:
+update-stock: tmp/data/stock.csv
+
+
+#
+# stock-info.csv price/*.csv
+#
+tmp/data/stock-info.csv:
 ifneq (,$(wildcard tmp/data/price))
 	rm -rf tmp/data/price-OLD
 	cp -rp tmp/data/price      tmp/data/price-OLD
@@ -44,67 +54,121 @@ ifneq (,$(wildcard tmp/data/stock-info.csv))
 endif
 	ant update-stock-info-price
 
+update-stock-info-price: tmp/data/stock-info.csv
 
-update-reit-report:
+
+
+#
+# download.touch
+#
+download:
+	ant download
+	touch tmp/data/download.touch
+
+#
+# reit-report.csv
+#
+tmp/data/reit-report.csv: tmp/data/download.touch
 ifneq (,$(wildcard tmp/data/reit-report.csv))
 	rm -f tmp/data/reit-report-OLD.csv
 	cp -p tmp/data/reit-report.csv     tmp/data/reit-report-OLD.csv
 endif
 	ant update-reit-report
 
-update-stock-report:
+update-reit-report: tmp/data/reit-report.csv
+
+
+#
+# stock-report.csv
+#
+tmp/data/stock-report.csv: tmp/data/download.touch
 ifneq (,$(wildcard tmp/data/stock-report.csv))
 	rm -f tmp/data/stock-report-OLD.csv
 	cp -p tmp/data/stock-report.csv     tmp/data/stock-report-OLD.csv
 endif
 	ant update-stock-report
 
-update-report: update-reit-report update-stock-report
 
-
-update-dividend-etf:
+#
+# dividend-etf.csv
+#
+tmp/data/dividend-etf.csv: ~/Dropbox/Trade/dividend-etf.ods
 ifneq (,$(wildcard tmp/data/dividend-etf.csv))
 	rm -f tmp/data/dividend-etf-OLD.csv
 	cp -p tmp/data/dividend-etf.csv     tmp/data/dividend-etf-OLD.csv
 endif
 	ant update-dividend-etf
 
-update-dividend-reit:
+update-dividend-etf: tmp/data/dividend-etf.csv
+
+
+#
+# dividend-reit.csv
+#
+tmp/data/dividend-reit.csv: tmp/data/reit-report.csv
 ifneq (,$(wildcard tmp/data/dividend-reit.csv))
 	rm -f tmp/data/dividend-reit-OLD.csv
 	cp -p tmp/data/dividend-reit.csv     tmp/data/dividend-reit-OLD.csv
 endif
 	ant update-dividend-reit
 
-update-dividend-stock:
+update-dividend-reit: tmp/data/dividend-reit.csv
+
+
+#
+# dividend-stock.csv
+#
+tmp/data/dividend-stock.csv: tmp/data/stock-info.csv
 ifneq (,$(wildcard tmp/data/dividend-stock.csv))
 	rm -f tmp/data/dividend-stock-OLD.csv
 	cp -p tmp/data/dividend-stock.csv     tmp/data/dividend-stock-OLD.csv
 endif
 	ant update-dividend-stock
 
-update-dividend: update-dividend-reit update-dividend-stock
+update-dividend-stock: tmp/data/dividend-stock.csv
+
+
+#
+# dividend.touch
+#
+tmp/data/dividend.touch: tmp/data/dividend-etf.csv tmp/data/dividend-reit.csv tmp/data/dividend-stock.csv
 ifneq (,$(wildcard tmp/data/dividend))
 	rm -rf tmp/data/dividend-OLD
 	mv     tmp/data/dividend      tmp/data/dividend-OLD
 	mkdir  tmp/data/dividend
 endif
 	ant update-dividend
+	touch tmp/data/dividend.touch
 
-update-dividend-annual:
+update-dividend: tmp/data/dividend.touch
+
+
+#
+# dividend-annual.csv
+#
+tmp/data/dividend-annual.csv: tmp/data/dividend-etf.csv tmp/data/dividend-reit.csv tmp/data/dividend-stock.csv
 ifneq (,$(wildcard tmp/data/dividend-annual.csv))
 	rm -f tmp/data/dividend-annual-OLD.csv
 	cp -p tmp/data/dividend-annual.csv     tmp/data/dividend-annual-OLD.csv
 endif
 	ant update-dividend-annual
 
-update-stats: update-dividend-annual
+update-dividend-annual: tmp/data/dividend-annual.csv
+
+
+#
+# stats.csv
+#
+tmp/data/stats.csv: tmp/data/dividend-annual.csv
 ifneq (,$(wildcard tmp/data/stats.csv))
 	rm -rf tmp/data/stats-OLD.csv
 	mv     tmp/data/stats.csv      tmp/data/stats-OLD.csv
 endif
 	ant update-stats
 	cp tmp/data/stats.csv ~/Dropbox/Trade/stats-jp.csv
+
+update-stats: tmp/data/stats.csv
+
 
 #
 # Taxonomy file
