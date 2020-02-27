@@ -60,10 +60,10 @@ update-stock-info-price: tmp/data/stock-info.csv
 
 #
 # download.touch
+#   "ant download" download file, it will touch tmp/data/download.touch
 #
 download:
 	ant download
-	touch tmp/data/download.touch
 
 #
 # reit-report.csv
