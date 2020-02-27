@@ -17,8 +17,41 @@ public class StockInfo implements Comparable<StockInfo> {
 
 	public static final String PATH_DATA = "tmp/data/stock-info.csv";
 
-	public static List<StockInfo> load() {
-		return CSVUtil.read(StockInfo.class).file(PATH_DATA);
+	private static List<StockInfo> list = null;
+	public static List<StockInfo> getList() {
+		if (list == null) {
+			list = CSVUtil.read(StockInfo.class).file(PATH_DATA);
+			if (list == null) {
+				list = new ArrayList<>();
+			}
+		}
+		return list;
+	}
+	private static Map<String, StockInfo> map = null;
+	public static Map<String, StockInfo> getMap() {
+		if (map == null) {
+			map = new TreeMap<>();
+			for(StockInfo stock: getList()) {
+				String stockCode = stock.stockCode;
+				if (map.containsKey(stockCode)) {
+					logger.error("duplicate stockCode {}!", stockCode);
+					logger.error("old {}", map.get(stockCode));
+					logger.error("new {}", stock);
+					throw new UnexpectedException("duplicate stockCode");
+				} else {
+					map.put(stock.stockCode, stock);
+				}
+			}
+		}
+		return map;
+	}
+	public static StockInfo get(String stockCode) {
+		Map<String, StockInfo> map = getMap();
+		if (map.containsKey(stockCode)) {
+			return map.get(stockCode);
+		} else {
+			return null;
+		}
 	}
 	public static void save(Collection<StockInfo> collection) {
 		save(new ArrayList<>(collection));
@@ -27,25 +60,6 @@ public class StockInfo implements Comparable<StockInfo> {
 		// Sort before save
 		Collections.sort(list);
 		CSVUtil.write(StockInfo.class).file(PATH_DATA, list);
-	}
-	public static Map<String, StockInfo> getStockInfoMap() {
-		List<StockInfo> stockList = load();
-		if (stockList == null) return null;
-		
-		// key is stockCode
-		Map<String, StockInfo> ret = new TreeMap<>();
-		for(StockInfo stock: stockList) {
-			String stockCode = stock.stockCode;
-			if (ret.containsKey(stockCode)) {
-				logger.error("duplicate stockCode {}!", stockCode);
-				logger.error("old {}", ret.get(stockCode));
-				logger.error("new {}", stock);
-				throw new UnexpectedException("duplicate stockCode");
-			} else {
-				ret.put(stock.stockCode, stock);
-			}
-		}
-		return ret;
 	}
 
 	public String stockCode;      // コード 4 or 5 digits
