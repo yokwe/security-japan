@@ -29,7 +29,7 @@ save-ods:
 #
 # stock.csv
 #
-tmp/data/stock.csv:
+update-stock:
 ifneq (,$(wildcard tmp/data/stock.csv))
 	rm -f tmp/data/stock-OLD.csv
 	cp -p tmp/data/stock.csv     tmp/data/stock-OLD.csv
@@ -37,13 +37,12 @@ endif
 	ant update-stock
 	cp tmp/data/stock.csv ~/Dropbox/Trade/stock-jp.csv
 
-update-stock: tmp/data/stock.csv
 
 
 #
 # stock-info.csv price/*.csv
 #
-tmp/data/stock-info.csv:
+update-stock-info-price:
 ifneq (,$(wildcard tmp/data/price))
 	rm -rf tmp/data/price-OLD
 	cp -rp tmp/data/price      tmp/data/price-OLD
@@ -54,7 +53,6 @@ ifneq (,$(wildcard tmp/data/stock-info.csv))
 endif
 	ant update-stock-info-price
 
-update-stock-info-price: tmp/data/stock-info.csv
 
 
 
@@ -159,7 +157,7 @@ update-dividend-annual: tmp/data/dividend-annual.csv
 #
 # stats.csv
 #
-tmp/data/stats.csv: tmp/data/dividend-annual.csv
+tmp/data/stats.csv: tmp/data/dividend-annual.csv tmp/data/stock-info.csv
 ifneq (,$(wildcard tmp/data/stats.csv))
 	rm -rf tmp/data/stats-OLD.csv
 	mv     tmp/data/stats.csv      tmp/data/stats-OLD.csv
