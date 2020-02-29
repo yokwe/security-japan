@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.util.FileUtil;
 
-public class UpdateRelease {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateRelease.class);
+public class DownloadRelease {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadRelease.class);
 	
 	public static void main(String[] args) {
 		logger.info("START");
