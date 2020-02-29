@@ -18,10 +18,10 @@ import yokwe.security.japan.ufocatch.atom.Link;
 import yokwe.util.FileUtil;
 import yokwe.util.HttpUtil;
 
-public class Download {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Download.class);
+public class DownloadUFOCatch {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadUFOCatch.class);
 	
-	public static final String PATH_TOUCH_FILE = "tmp/data/download.touch";
+	public static final String PATH_TOUCH_FILE = "tmp/data/download-ufocatch.touch";
 	//
 	// Download atom feed of ufocatch
 	//
