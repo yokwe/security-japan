@@ -30,7 +30,7 @@ public class UpdateRelease {
 					
 //					{
 //						String filename = String.format("%s.pdf", e.id);
-//						File file = Release.getDataFile(filename);
+//						File file = Release.getDataFile(date, filename);
 //
 //						if (!file.exists()) {
 //							logger.info("file {}", file.getPath());
@@ -41,7 +41,7 @@ public class UpdateRelease {
 					{
 						if (!e.xbrl.isEmpty()) {
 							String filename = String.format("%s.zip", e.id);
-							File file = Release.getDataFile(filename);
+							File file = Release.getDataFile(date, filename);
 
 							if (!file.exists()) {
 								logger.info("file {}", file.getPath());

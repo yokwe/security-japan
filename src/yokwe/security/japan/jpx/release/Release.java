@@ -2,6 +2,8 @@ package yokwe.security.japan.jpx.release;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,8 +48,8 @@ public class Release implements Comparable<Release> {
 	
 
 	public static final String PATH_DATA_DIR = "tmp/release";
-	public static File getDataFile(String filename) {
-		String yyyy = filename.substring(0, 4);
+	public static File getDataFile(LocalDate date, String filename) {
+		String yyyy = String.format("%d", date.getYear());
 		String path = String.format("%s/%s/%s", PATH_DATA_DIR, yyyy, filename);
 		return new File(path);
 	}
@@ -93,34 +95,35 @@ public class Release implements Comparable<Release> {
 		CSVUtil.write(Release.class).file(PATH_FILE, list);
 	}
 
-
+	public LocalDateTime dateTime;
 	public String id;
 	public String pdf;
 	public String xbrl;
+	public String code;   // FIXME not stockCode
 	public String title;
 
-	public String time;
-	public String code;   // FIXME not stockCode
 	public String name;
 	public String place;
 	public String history;
-	public String date;
 	
 	public Release() {
+		this.dateTime= null;
 		this.id      = null;
 		this.pdf     = null;
 		this.xbrl    = null;
+		this.code    = null;
 		this.title   = null;
 		
-		this.time    = null;
-		this.code    = null;
 		this.name    = null;
 		this.place   = null;
 		this.history = null;
-		this.date    = null;
 	}
 	
 	public Release(String time, String code, String name, String pdf, String title, String xbrl, String place, String history) {
+		LocalTime localTime = LocalTime.parse(time);
+		LocalDate localDate = LocalDate.of(2000, 1, 1);
+		LocalDateTime dateTime = LocalDateTime.of(localDate, localTime);
+		
 		// sanity check
 		{
 			if (!pdf.endsWith(".pdf")) {
@@ -150,21 +153,20 @@ public class Release implements Comparable<Release> {
 			}
 		}
 		
+		this.dateTime= dateTime;
 		this.id      = pdfID;
 		this.pdf     = pdf;
 		this.xbrl    = (xbrl == null) ? "" : xbrl;
+		this.code    = code;
 		this.title   = title;
 
-		this.time    = time;
-		this.code    = code;
 		this.name    = name;
 		this.place   = place;
 		this.history = history;
-		
 	}
 	@Override
 	public String toString() {
-		return String.format("{%s %s %s %s %22s %s}", id, date, time, pdf, xbrl, title);
+		return String.format("{%s %s %s %22s %s %s}", dateTime, id, pdf, xbrl, code, title);
 //		return String.format("{%s %s %s %s %s %s %s %s %s}", id, pdf, xbrl, title, time, code, name, place, history);
 	}
 	
@@ -181,7 +183,8 @@ public class Release implements Comparable<Release> {
 	
 	@Override
 	public int compareTo(Release that) {
-		int ret = this.id.compareTo(that.id);
+		int ret = this.dateTime.compareTo(that.dateTime);
+		if (ret == 0) ret = this.id.compareTo(that.id);
 		
 		// sanity check
 		if (ret == 0) {

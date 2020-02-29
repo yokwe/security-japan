@@ -1,6 +1,7 @@
 package yokwe.security.japan.jpx.release;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -121,11 +122,9 @@ public class Page {
 			
 			{
 				List<Release> list = StringUtil.find(string, RELEASE_PAT, RELEASE_OP).collect(Collectors.toList());
+				// Update dateTime field of Release with date
+				list.stream().forEach(o -> o.dateTime = LocalDateTime.of(date, o.dateTime.toLocalTime()));
 //				logger.info("list {}", list.size());
-				String dateString = date.toString();
-				for(Release e: list) {
-					e.date = dateString;
-				}
 				ret.entryList.addAll(list);
 			}
 			
