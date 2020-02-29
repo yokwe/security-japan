@@ -241,6 +241,9 @@ public class UpdateStockInfoPrice {
 	private static final int MAX_COUNT_NO_DATA = 10;
 	
 	private static void updatePrice(List<Stock> list) {
+		boolean forceDownload = Boolean.getBoolean("forceDownload");
+		logger.info("forceDownload {}", forceDownload);
+
 		// delist if necessary
 		{
 			Set<String> stockCodeSet = list.stream().map(o -> o.stockCode).collect(Collectors.toSet());
@@ -303,24 +306,25 @@ public class UpdateStockInfoPrice {
 			Map<String, Price> oldPriceMap = Price.getPriceMap(stockCode);
 			if (oldPriceMap == null) oldPriceMap = new TreeMap<>();
 			
-			// If priceMap contains lastTradingDate entry, skip this stockCode
-			if (oldPriceMap.containsKey(lastTradingDate)) {
-				// price is already updated, skip this stockCode
-				countAlready++;
-				// FIXME If you want to force create stock-info.csv, comment out line below.
-				continue;
+			if (forceDownload) {
+				// No need to check oldPriceMap
 			} else {
-				String path = getPagePath(stockCode);
-				File   file = new File(path);
-				String page = getPage(stockCode);
-				FileUtil.write().file(file, page);
+				// If oldPriceMap contains lastTradingDate entry, skip this stockCode
+				if (oldPriceMap.containsKey(lastTradingDate)) {
+					// price is already updated, skip this stockCode
+					countAlready++;
+					continue;
+				}
 			}
 			
-			String page;
+			// download page and save to file
+			String page = getPage(stockCode);
+
+			// FIXME Who will use saved file?
 			{
 				String path = getPagePath(stockCode);
 				File   file = new File(path);
-				page = FileUtil.read().file(file);
+				FileUtil.write().file(file, page);
 			}
 			
 			// check page
