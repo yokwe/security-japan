@@ -54,11 +54,9 @@ endif
 	ant update-stock-info-price
 
 
-
-
 #
 # download-ufocatch.touch
-#   "ant download" download file, it will touch tmp/data/download-ufocatch.touch
+#   "ant download-ufocatch" download file, it will touch tmp/data/download-ufocatch.touch
 #
 download-ufocatch:
 	ant download-ufocatch
@@ -166,6 +164,13 @@ endif
 	cp tmp/data/stats.csv ~/Dropbox/Trade/stats-jp.csv
 
 update-stats: tmp/data/stats.csv
+
+
+#
+# release.csv and tmp/relase/*
+#
+download-release:
+	ant download-release
 
 
 #
