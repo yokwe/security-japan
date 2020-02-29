@@ -1,4 +1,4 @@
-package yokwe.security.japan.jpx.tdnet;
+package yokwe.security.japan.jpx.release;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,6 +17,9 @@ import yokwe.util.StringUtil;
 public class Release {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Release.class);
 
+	public static final String PATH_DIR_ZIP = "tmp/tdnet/zip";
+	public static final String PATH_DIR_PDF = "tmp/tdnet/pdf";
+	
 	public static final String URL_MAIN = "https://www.release.tdnet.info/inbs/I_main_00.html";
 	
 	private static final HttpUtil httpUtil = HttpUtil.getInstance();
