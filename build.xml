@@ -73,8 +73,8 @@
                  </java>
         </target>
 
-        <target name="download">
-                <java classname="yokwe.security.japan.ufocatch.Download" fork="true">
+        <target name="download-ufocatch">
+                <java classname="yokwe.security.japan.ufocatch.DownloadUFOCatch" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
@@ -83,8 +83,8 @@
                 </java>
         </target>
 
-        <target name="download-all">
-                <java classname="yokwe.security.japan.ufocatch.Download" fork="true">
+        <target name="download-ufocatch-all">
+                <java classname="yokwe.security.japan.ufocatch.DownloadUFOCatch" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
@@ -165,6 +165,15 @@
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                  </java>
+        </target>
+
+        <target name="download-release">
+                <java classname="yokwe.security.japan.jpx.release.DownloadRelease" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                </java>
         </target>
 
 </project>
