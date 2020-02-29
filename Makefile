@@ -57,16 +57,16 @@ endif
 
 
 #
-# download.touch
-#   "ant download" download file, it will touch tmp/data/download.touch
+# download-ufocatch.touch
+#   "ant download" download file, it will touch tmp/data/download-ufocatch.touch
 #
-download:
-	ant download
+download-ufocatch:
+	ant download-ufocatch
 
 #
 # reit-report.csv
 #
-tmp/data/reit-report.csv: tmp/data/download.touch
+tmp/data/reit-report.csv: tmp/data/download-ufocatch.touch
 ifneq (,$(wildcard tmp/data/reit-report.csv))
 	rm -f tmp/data/reit-report-OLD.csv
 	cp -p tmp/data/reit-report.csv     tmp/data/reit-report-OLD.csv
@@ -79,7 +79,7 @@ update-reit-report: tmp/data/reit-report.csv
 #
 # stock-report.csv
 #
-tmp/data/stock-report.csv: tmp/data/download.touch
+tmp/data/stock-report.csv: tmp/data/download-ufocatch.touch
 ifneq (,$(wildcard tmp/data/stock-report.csv))
 	rm -f tmp/data/stock-report-OLD.csv
 	cp -p tmp/data/stock-report.csv     tmp/data/stock-report-OLD.csv
