@@ -1,4 +1,4 @@
-package yokwe.security.japan.jpx.release;
+package yokwe.security.japan.release;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

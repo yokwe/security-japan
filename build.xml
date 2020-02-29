@@ -168,7 +168,7 @@
         </target>
 
         <target name="download-release">
-                <java classname="yokwe.security.japan.jpx.release.DownloadRelease" fork="true">
+                <java classname="yokwe.security.japan.release.DownloadRelease" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
