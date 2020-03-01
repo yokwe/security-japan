@@ -174,6 +174,13 @@ download-release:
 
 
 #
+# release.csv and tmp/relase/*
+#
+download-release-all:
+	ant download-release-all
+
+
+#
 # Taxonomy file
 #
 download-taxonomy-file:

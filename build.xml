@@ -173,6 +173,17 @@
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyToday" value="true"/>
+                </java>
+        </target>
+
+        <target name="download-release-all">
+                <java classname="yokwe.security.japan.release.DownloadRelease" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyToday" value="false"/>
                 </java>
         </target>
 
