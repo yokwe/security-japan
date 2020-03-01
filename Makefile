@@ -55,8 +55,8 @@ endif
 
 
 #
-# download-ufocatch.touch
-#   "ant download-ufocatch" download file, it will touch tmp/data/download-ufocatch.touch
+# tdnet.touch
+#   "ant download-ufocatch" download file, it will touch tmp/data/tdnet.touch
 #
 download-ufocatch:
 	ant download-ufocatch
@@ -64,10 +64,21 @@ download-ufocatch:
 download-ufocatch-all:
 	ant download-ufocatch-all
 
+
+#
+# release.csv and tmp/data/tdnet/*
+#   "ant download-release" download file, it will touch tmp/data/tdnet.touch
+#
+download-release:
+	ant download-release
+
+download-release-all:
+	ant download-release-all
+
 #
 # reit-report.csv
 #
-tmp/data/reit-report.csv: tmp/data/download-ufocatch.touch
+tmp/data/reit-report.csv: tmp/data/tdnet.touch
 ifneq (,$(wildcard tmp/data/reit-report.csv))
 	rm -f tmp/data/reit-report-OLD.csv
 	cp -p tmp/data/reit-report.csv     tmp/data/reit-report-OLD.csv
@@ -80,7 +91,7 @@ update-reit-report: tmp/data/reit-report.csv
 #
 # stock-report.csv
 #
-tmp/data/stock-report.csv: tmp/data/download-ufocatch.touch
+tmp/data/stock-report.csv: tmp/data/tdnet.touch
 ifneq (,$(wildcard tmp/data/stock-report.csv))
 	rm -f tmp/data/stock-report-OLD.csv
 	cp -p tmp/data/stock-report.csv     tmp/data/stock-report-OLD.csv
@@ -168,15 +179,6 @@ endif
 
 update-stats: tmp/data/stats.csv
 
-
-#
-# release.csv and tmp/relase/*
-#
-download-release:
-	ant download-release
-
-download-release-all:
-	ant download-release-all
 
 #
 # Taxonomy file
