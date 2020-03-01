@@ -27,13 +27,13 @@ import yokwe.util.HttpUtil;
 public class Atom {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Atom.class);
 
-	private static final String DIR_BASE     = "tmp/ufocatch";
+	private static final String DIR_BASE     = "tmp/data/xbrl";
 	
 	public static String getPath(String filename) {
 		{
 			SummaryFilename financialSumary = SummaryFilename.getInstance(filename);
 			if (financialSumary != null) {
-				return String.format("%s/tdnet/%s/%s", DIR_BASE, financialSumary.tdnetCode, filename);
+				return String.format("%s/%s/%s", DIR_BASE, financialSumary.tdnetCode, filename);
 			}
 		}
 		logger.error("Unexpected filename {}", filename);
