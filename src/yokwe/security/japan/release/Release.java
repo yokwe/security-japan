@@ -49,8 +49,10 @@ public class Release implements Comparable<Release> {
 
 	public static final String PATH_DATA_DIR = "tmp/release";
 	public static File getDataFile(LocalDate date, String filename) {
-		String yyyy = String.format("%d", date.getYear());
-		String path = String.format("%s/%s/%s", PATH_DATA_DIR, yyyy, filename);
+		int y = date.getYear();
+		int m = date.getMonthValue();
+		int d = date.getDayOfMonth();
+		String path = String.format("%s/%04d/%02d/%02d/%s", PATH_DATA_DIR, y, m, d, filename);
 		return new File(path);
 	}
 
