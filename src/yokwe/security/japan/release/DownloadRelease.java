@@ -1,13 +1,21 @@
 package yokwe.security.japan.release;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.UnexpectedException;
+import yokwe.security.japan.jpx.tdnet.SummaryFilename;
+import yokwe.security.japan.jpx.tdnet.TDNET;
 import yokwe.util.FileUtil;
 
 public class DownloadRelease {
@@ -18,58 +26,100 @@ public class DownloadRelease {
 		
 		boolean onlyToday = Boolean.getBoolean("onlyToday");
 		logger.info("onlyToday {}", onlyToday);
-
-		Map<String, Release> map = Release.getMap();
-		logger.info("map {}", map.size());
-
-		LocalDate date  = LocalDate.now();
-		int       count = 0;
+		
 		{
-			for(;;) {
-				Page page = Page.getInstance(date);
-				if (page == null) break;
-				logger.info("page {}", page);
-				for(Release e: page.entryList) {
-//					logger.info("  {}", e);
-					
-					{
-						String filename = String.format("%s.pdf", e.id);
-						File file = Release.getDataFile(date, filename);
+			// fill map with existing release info from tmp/data/releas.csv
+			Map<String, Release> map = Release.getMap();
+			logger.info("release map {}", map.size());
 
-						if (!file.exists()) {
-							logger.info("file {}", file.getPath());
-							byte[] content  = Release.downloadData(e.pdf);
-							FileUtil.rawWrite().file(file, content);
-						}
-					}
-					{
-						if (!e.xbrl.isEmpty()) {
-							String filename = String.format("%s.zip", e.id);
+			LocalDate date  = LocalDate.now();
+			int       count = 0;
+			{
+				for(;;) {
+					Page page = Page.getInstance(date);
+					if (page == null) break;
+					logger.info("page {}", page);
+					for(Release e: page.entryList) {
+//						logger.info("  {}", e);
+						
+						{
+							String filename = String.format("%s.pdf", e.id);
 							File file = Release.getDataFile(date, filename);
 
 							if (!file.exists()) {
 								logger.info("file {}", file.getPath());
-								byte[] content  = Release.downloadData(e.xbrl);
+								byte[] content  = Release.downloadData(e.pdf);
 								FileUtil.rawWrite().file(file, content);
 							}
 						}
-					}
+						{
+							if (!e.xbrl.isEmpty()) {
+								String filename = String.format("%s.zip", e.id);
+								File file = Release.getDataFile(date, filename);
 
-					map.put(e.id, e);
-					count++;
+								if (!file.exists()) {
+									logger.info("file {}", file.getPath());
+									byte[] content  = Release.downloadData(e.xbrl);
+									FileUtil.rawWrite().file(file, content);
+								}
+							}
+						}
+
+						map.put(e.id, e);
+						count++;
+					}
+					date = date.minusDays(1);
+					if (onlyToday) break; // no need to process another date
 				}
-				date = date.minusDays(1);
-				if (onlyToday) break; // no need to process another date
+			}
+			
+			{
+				logger.info("update count {}", count);
+				if (0 < count) {
+					List<Release> list = new ArrayList<>(map.values());
+					logger.info("save {} {}", Release.PATH_FILE, list.size());
+					Release.save(list);
+				}
 			}
 		}
 		
+		// Save xbrl file in zip file
 		{
-			logger.info("count {}", count);
-			if (0 < count) {
-				List<Release> list = new ArrayList<>(map.values());
-				logger.info("save {} {}", Release.PATH_FILE, list.size());
-				Release.save(list);
+			Map<SummaryFilename, File> map = TDNET.getFileMap();
+			logger.info("tdnet map {}", map.size());
+			
+			int count = 0;
+			for(File dataFile: Release.getDataFileList()) {
+				if (dataFile.getName().endsWith(".zip")) {
+					try (ZipFile zipFile = new ZipFile(dataFile)) {
+						Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+					    while(entries.hasMoreElements()){
+					        ZipEntry entry = entries.nextElement();
+					        SummaryFilename filename = SummaryFilename.getInstance(entry.getName());
+					        if (filename == null) continue;
+					        
+					        if (map.containsKey(filename)) {
+					        	// No need to save, because the file is already saved
+					        } else {
+					        	count++;
+					        	String path = TDNET.getPath(filename);
+					        	logger.info("save {}", path);
+					        	//
+					        	File file = new File(path);
+						        try (InputStream is = zipFile.getInputStream(entry)) {
+						        	FileUtil.rawWrite().file(file, is);
+						        }
+					        }
+					    }
+					} catch (IOException e) {
+						String exceptionName = e.getClass().getSimpleName();
+						logger.error("{} {}", exceptionName, e);
+						throw new UnexpectedException(exceptionName, e);
+					}
+				}
 			}
+			logger.info("save count {}", count);
 		}
 		
 		logger.info("STOP");
