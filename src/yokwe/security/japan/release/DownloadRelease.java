@@ -16,10 +16,14 @@ public class DownloadRelease {
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		boolean onlyToday = Boolean.getBoolean("onlyToday");
+		logger.info("onlyToday {}", onlyToday);
+
 		Map<String, Release> map = Release.getMap();
 		logger.info("map {}", map.size());
 
-		LocalDate date = LocalDate.now();
+		LocalDate date  = LocalDate.now();
+		int       count = 0;
 		{
 			for(;;) {
 				Page page = Page.getInstance(date);
@@ -52,15 +56,20 @@ public class DownloadRelease {
 					}
 
 					map.put(e.id, e);
+					count++;
 				}
 				date = date.minusDays(1);
+				if (onlyToday) break; // no need to process another date
 			}
 		}
 		
 		{
-			List<Release> list = new ArrayList<>(map.values());
-			logger.info("save {} {}", Release.PATH_FILE, list.size());
-			Release.save(list);
+			logger.info("count {}", count);
+			if (0 < count) {
+				List<Release> list = new ArrayList<>(map.values());
+				logger.info("save {} {}", Release.PATH_FILE, list.size());
+				Release.save(list);
+			}
 		}
 		
 		logger.info("STOP");
