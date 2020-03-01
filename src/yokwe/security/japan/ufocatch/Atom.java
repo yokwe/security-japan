@@ -2,10 +2,6 @@ package yokwe.security.japan.ufocatch;
 
 import java.io.File;
 import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +10,7 @@ import javax.xml.bind.JAXB;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
+import yokwe.security.japan.jpx.tdnet.SummaryFilename;
 import yokwe.security.japan.jpx.tdnet.TDNET;
 import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.util.FileUtil;
@@ -22,27 +19,14 @@ import yokwe.util.HttpUtil;
 public class Atom {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Atom.class);
 
-	private static String getFilename(String href) {
-		try {
-			URL url = new URL(href);
-			Path path = Paths.get(url.getPath());
-			return path.getFileName().toString();
-		} catch (MalformedURLException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
-	}
-	public static boolean downloadExists(String href) {
-		String filename = getFilename(href);
-		String path     = TDNET.getPath(filename);
-		File   file     = new File(path);
+	public static boolean downloadExists(SummaryFilename filename) {
+		String path = TDNET.getPath(filename);
+		File   file = new File(path);
 		return file.exists();
 	}
-	public static String download(String href) {
-		String filename = getFilename(href);
-		String path     = TDNET.getPath(filename);
-		File   file     = new File(path);
+	public static String download(String href, SummaryFilename filename) {
+		String path = TDNET.getPath(filename);
+		File   file = new File(path);
 		if (file.exists()) {
 			return FileUtil.read().file(file);
 		} else {
