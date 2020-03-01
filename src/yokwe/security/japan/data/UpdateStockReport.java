@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.tdnet.Category;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
-import yokwe.security.japan.ufocatch.Atom;
+import yokwe.security.japan.jpx.tdnet.TDNET;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.report.StockReport;
 
@@ -30,7 +30,7 @@ public class UpdateStockReport {
 			Map<SummaryFilename, StockReport> reportMap = StockReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 
-			Map<SummaryFilename, File> fileMap = Atom.getFileMap();
+			Map<SummaryFilename, File> fileMap = TDNET.getFileMap();
 			logger.info("fileMap   {}", fileMap.size());
 			
 

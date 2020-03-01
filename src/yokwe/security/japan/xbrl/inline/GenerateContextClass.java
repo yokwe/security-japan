@@ -12,7 +12,7 @@ import javax.xml.bind.JAXBException;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.ufocatch.Atom;
+import yokwe.security.japan.jpx.tdnet.TDNET;
 import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
 
@@ -27,7 +27,7 @@ public class GenerateContextClass {
 		Set<String> all = new TreeSet<>();
 		
 		{
-			List<File> fileList = Atom.getFileList();
+			List<File> fileList = TDNET.getFileList();
 			logger.info("fileList {}", fileList.size());
 			
 			int count = 0;

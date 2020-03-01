@@ -13,7 +13,7 @@ import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.tdnet.Category;
 import yokwe.security.japan.jpx.tdnet.Period;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
-import yokwe.security.japan.ufocatch.Atom;
+import yokwe.security.japan.jpx.tdnet.TDNET;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.report.REITReport;
 
@@ -31,7 +31,7 @@ public class UpdateREITReport {
 			Map<SummaryFilename, REITReport> reportMap = REITReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 
-			Map<SummaryFilename, File> fileMap = Atom.getFileMap();
+			Map<SummaryFilename, File> fileMap = TDNET.getFileMap();
 			logger.info("fileMap   {}", fileMap.size());
 			
 

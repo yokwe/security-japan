@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.security.japan.jpx.tdnet.Category;
 import yokwe.security.japan.jpx.tdnet.Period;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
-import yokwe.security.japan.ufocatch.Atom;
+import yokwe.security.japan.jpx.tdnet.TDNET;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.report.REITReport;
 
@@ -28,7 +28,7 @@ public class UpdateDividendREIT {
 			Map<SummaryFilename, REITReport> reportMap = REITReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 			
-			Map<SummaryFilename, File> fileMap = Atom.getFileMap().entrySet().stream().
+			Map<SummaryFilename, File> fileMap = TDNET.getFileMap().entrySet().stream().
 					filter(o -> o.getKey().category == Category.REJP).
 					filter(o -> o.getKey().period == Period.ANNUAL).
 					collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.tdnet.SummaryFilename;
+import yokwe.security.japan.jpx.tdnet.TDNET;
 import yokwe.security.japan.ufocatch.atom.Entry;
 import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.security.japan.ufocatch.atom.Link;
@@ -43,7 +44,7 @@ public class DownloadUFOCatch {
 		boolean stopAtSkip = Boolean.getBoolean("stopAtSkip");
 		logger.info("stopAtSkip {}", stopAtSkip);
 
-		Map<SummaryFilename, File> fileMap = Atom.getFileMap();
+		Map<SummaryFilename, File> fileMap = TDNET.getFileMap();
 		logger.info("fileMap {}", fileMap.size());
 
 		Feed rootFeed = Atom.getFeed(Kind.TDNETX);
@@ -96,7 +97,7 @@ main_loop:
 								logger.error("Unable to download {}", link.href);
 								throw new UnexpectedException("Unable to download");
 							} else {
-								FileUtil.write().file(Atom.getPath(filename), result.result);
+								FileUtil.write().file(TDNET.getPath(filename), result.result);
 							}
 						}
 					} else {
