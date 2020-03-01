@@ -2,10 +2,6 @@ package yokwe.security.japan.ufocatch;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
@@ -27,17 +23,6 @@ public class DownloadUFOCatch {
 	// Download atom feed of ufocatch
 	//
 	
-	private static String getFilename(String href) {
-		try {
-			URL url = new URL(href);
-			Path path = Paths.get(url.getPath());
-			return path.getFileName().toString();
-		} catch (MalformedURLException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
-	}
 	public static void main(String[] args) {
 		logger.info("START");
 		
@@ -84,10 +69,11 @@ main_loop:
 			for(Entry entry: feed.entryList) {
 				count++;
 				for(Link link: entry.linkList) {
-					String filename = getFilename(link.href);
-					SummaryFilename financialSummary = SummaryFilename.getInstance(filename);
-					if (financialSummary != null) {
-						if (fileMap.containsKey(financialSummary)) {
+					SummaryFilename filename = SummaryFilename.getInstance(link.href);
+					if (filename == null) {
+						countPass++;
+					} else {
+						if (fileMap.containsKey(filename)) {
 							countSkip++;
 						} else {
 							countSave++;
@@ -99,12 +85,6 @@ main_loop:
 							} else {
 								FileUtil.write().file(TDNET.getPath(filename), result.result);
 							}
-						}
-					} else {
-						countPass++;
-						if (filename.startsWith("tse-") && filename.endsWith("-ixbrl.htm")) {
-							logger.error("Unexpected filename pattern {}", filename);
-							throw new UnexpectedException("Unexpected filename pattern");
 						}
 					}
 				}
