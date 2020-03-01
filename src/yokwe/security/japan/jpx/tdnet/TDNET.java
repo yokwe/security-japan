@@ -16,17 +16,10 @@ public class TDNET {
 
 	private static final String DIR_BASE     = "tmp/data/tdnet";
 	
-	public static String getPath(String filename) {
-		{
-			SummaryFilename financialSumary = SummaryFilename.getInstance(filename);
-			if (financialSumary != null) {
-				return String.format("%s/%s/%s", DIR_BASE, financialSumary.tdnetCode, filename);
-			}
-		}
-		logger.error("Unexpected filename {}", filename);
-		throw new UnexpectedException("Unexpected filename");
+	public static String getPath(SummaryFilename filename) {
+		return String.format("%s/%s/%s", DIR_BASE, filename.tdnetCode, filename);
 	}
-		
+	
 	private static List<File> fileList = null;
 	public static List<File> getFileList() {
 		if (fileList == null) {
@@ -54,7 +47,11 @@ public class TDNET {
 			File dir = new File(DIR_BASE);
 			for(File file: FileUtil.listFile(dir)) {
 				SummaryFilename key = SummaryFilename.getInstance(file.getName());
-				if (key == null) continue;
+				if (key == null) {
+					logger.error("Unexpected filename");
+					logger.error("  file  {}", file.getPath());
+					throw new UnexpectedException("Unexpected filename");
+				}
 				
 				if (fileMap.containsKey(key)) {
 					logger.error("Duplicate key {}", key);
