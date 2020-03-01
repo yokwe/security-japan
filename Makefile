@@ -61,6 +61,9 @@ endif
 download-ufocatch:
 	ant download-ufocatch
 
+download-ufocatch-all:
+	ant download-ufocatch-all
+
 #
 # reit-report.csv
 #
@@ -172,13 +175,8 @@ update-stats: tmp/data/stats.csv
 download-release:
 	ant download-release
 
-
-#
-# release.csv and tmp/relase/*
-#
 download-release-all:
 	ant download-release-all
-
 
 #
 # Taxonomy file
