@@ -1,6 +1,76 @@
 package yokwe.security.japan.jpx.tdnet;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.slf4j.LoggerFactory;
+
+import yokwe.UnexpectedException;
+import yokwe.util.FileUtil;
+
 public class TDNET {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TDNET.class);
+
+	private static final String DIR_BASE     = "tmp/data/tdnet";
+	
+	public static String getPath(String filename) {
+		{
+			SummaryFilename financialSumary = SummaryFilename.getInstance(filename);
+			if (financialSumary != null) {
+				return String.format("%s/%s/%s", DIR_BASE, financialSumary.tdnetCode, filename);
+			}
+		}
+		logger.error("Unexpected filename {}", filename);
+		throw new UnexpectedException("Unexpected filename");
+	}
+		
+	private static List<File> fileList = null;
+	public static List<File> getFileList() {
+		if (fileList == null) {
+			fileList = new ArrayList<>(getFileMap().values());
+		}
+		
+		return fileList;
+	}
+	public static List<File> getFileList(Category category) {
+		List<File> ret = new ArrayList<>();
+		for(Map.Entry<SummaryFilename, File> entry: getFileMap().entrySet()) {
+			SummaryFilename financialSummary = entry.getKey();
+			File             file             = entry.getValue();
+			if (financialSummary.category == category) {
+				ret.add(file);
+			}
+		}
+		return ret;
+	}
+
+	private static Map<SummaryFilename, File> fileMap = null;
+	public static Map<SummaryFilename, File> getFileMap() {
+		if (fileMap == null) {
+			fileMap = new TreeMap<>();
+			File dir = new File(DIR_BASE);
+			for(File file: FileUtil.listFile(dir)) {
+				SummaryFilename key = SummaryFilename.getInstance(file.getName());
+				if (key == null) continue;
+				
+				if (fileMap.containsKey(key)) {
+					logger.error("Duplicate key {}", key);
+					logger.error("  new {}", file.getName());
+					logger.error("  old {}", fileMap.get(key).getName());
+					throw new UnexpectedException("Duplicate key");
+				} else {
+					fileMap.put(key, file);
+				}
+			}
+		}
+		
+		return fileMap;
+	}
+
+
 	// 適時開示システム タクソノミ設定規約書
 	//   https://www.jpx.co.jp/equities/listing/xbrl/03.html
 
