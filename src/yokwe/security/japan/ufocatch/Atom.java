@@ -10,8 +10,8 @@ import javax.xml.bind.JAXB;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.tdnet.SummaryFilename;
-import yokwe.security.japan.jpx.tdnet.TDNET;
+import yokwe.security.japan.tdnet.SummaryFilename;
+import yokwe.security.japan.tdnet.TDNET;
 import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.util.FileUtil;
 import yokwe.util.HttpUtil;

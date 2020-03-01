@@ -1,4 +1,4 @@
-package yokwe.security.japan.jpx.tdnet;
+package yokwe.security.japan.tdnet;
 
 import java.util.List;
 import java.util.regex.Pattern;

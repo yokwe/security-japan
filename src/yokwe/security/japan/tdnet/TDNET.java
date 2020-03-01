@@ -1,4 +1,4 @@
-package yokwe.security.japan.jpx.tdnet;
+package yokwe.security.japan.tdnet;
 
 import java.io.File;
 import java.util.ArrayList;

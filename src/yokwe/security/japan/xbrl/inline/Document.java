@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
-import yokwe.security.japan.jpx.tdnet.SummaryFilename;
+import yokwe.security.japan.tdnet.SummaryFilename;
 import yokwe.util.XMLUtil;
 import yokwe.util.XMLUtil.QValue;
 

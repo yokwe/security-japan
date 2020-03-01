@@ -10,11 +10,11 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.tdnet.Category;
-import yokwe.security.japan.jpx.tdnet.Consolidate;
-import yokwe.security.japan.jpx.tdnet.Detail;
-import yokwe.security.japan.jpx.tdnet.Period;
-import yokwe.security.japan.jpx.tdnet.SummaryFilename;
+import yokwe.security.japan.tdnet.Category;
+import yokwe.security.japan.tdnet.Consolidate;
+import yokwe.security.japan.tdnet.Detail;
+import yokwe.security.japan.tdnet.Period;
+import yokwe.security.japan.tdnet.SummaryFilename;
 import yokwe.security.japan.xbrl.report.REITReport;
 import yokwe.security.japan.xbrl.report.StockReport;
 import yokwe.util.DoubleUtil;

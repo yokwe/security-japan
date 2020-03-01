@@ -12,7 +12,7 @@ import javax.xml.bind.JAXBException;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.tdnet.TDNET;
+import yokwe.security.japan.tdnet.TDNET;
 import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
 

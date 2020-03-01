@@ -26,7 +26,7 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.tdnet.SummaryFilename;
+import yokwe.security.japan.tdnet.SummaryFilename;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.inline.InlineXBRL;
 import yokwe.util.CSVUtil;

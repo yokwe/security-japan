@@ -14,8 +14,8 @@ import java.util.zip.ZipFile;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.tdnet.SummaryFilename;
-import yokwe.security.japan.jpx.tdnet.TDNET;
+import yokwe.security.japan.tdnet.SummaryFilename;
+import yokwe.security.japan.tdnet.TDNET;
 import yokwe.util.FileUtil;
 
 public class DownloadRelease {

@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import yokwe.security.japan.jpx.tdnet.SummaryFilename;
+import yokwe.security.japan.tdnet.SummaryFilename;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;

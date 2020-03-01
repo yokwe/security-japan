@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.jpx.tdnet.Category;
-import yokwe.security.japan.jpx.tdnet.SummaryFilename;
-import yokwe.security.japan.jpx.tdnet.TDNET;
+import yokwe.security.japan.tdnet.Category;
+import yokwe.security.japan.tdnet.SummaryFilename;
+import yokwe.security.japan.tdnet.TDNET;
 import yokwe.security.japan.xbrl.inline.Document;
 import yokwe.security.japan.xbrl.report.StockReport;
 
