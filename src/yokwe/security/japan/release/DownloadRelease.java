@@ -88,7 +88,7 @@ public class DownloadRelease {
 			Map<SummaryFilename, File> map = TDNET.getFileMap();
 			logger.info("tdnet map {}", map.size());
 			
-			int count = 0;
+			int countSave = 0;
 			for(File dataFile: Release.getDataFileList()) {
 				if (dataFile.getName().endsWith(".zip")) {
 					try (ZipFile zipFile = new ZipFile(dataFile)) {
@@ -102,7 +102,7 @@ public class DownloadRelease {
 					        if (map.containsKey(filename)) {
 					        	// No need to save, because the file is already saved
 					        } else {
-					        	count++;
+					        	countSave++;
 					        	String path = TDNET.getPath(filename);
 					        	logger.info("save {}", path);
 					        	//
@@ -119,7 +119,10 @@ public class DownloadRelease {
 					}
 				}
 			}
-			logger.info("save count {}", count);
+			logger.info("save count {}", countSave);
+			if (0 < countSave) {
+				TDNET.touch();
+			}
 		}
 		
 		logger.info("STOP");

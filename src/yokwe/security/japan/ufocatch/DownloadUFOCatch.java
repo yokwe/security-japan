@@ -1,7 +1,6 @@
 package yokwe.security.japan.ufocatch;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import yokwe.util.HttpUtil;
 public class DownloadUFOCatch {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadUFOCatch.class);
 	
-	public static final String PATH_TOUCH_FILE = "tmp/data/download-ufocatch.touch";
 	//
 	// Download atom feed of ufocatch
 	//
@@ -108,21 +106,9 @@ main_loop:
 		logger.info("countSkip {}", countSkip);
 		logger.info("countPass {}", countPass);
 		
-		// touch PATH_TOUCH_FILE
+		// touch tmp/data/tdnet.touch
 		if (0 < countSave) {
-			logger.info("touch {}", PATH_TOUCH_FILE);
-			try {
-				File file = new File(PATH_TOUCH_FILE);
-				if (file.exists()) {
-					file.setLastModified(System.currentTimeMillis());
-				} else {
-					file.createNewFile();
-				}
-			} catch (IOException e) {
-				String exceptionName = e.getClass().getSimpleName();
-				logger.error("{} {}", exceptionName, e);
-				throw new UnexpectedException(exceptionName, e);
-			}
+			TDNET.touch();
 		}
 		logger.info("STOP");
 	}
