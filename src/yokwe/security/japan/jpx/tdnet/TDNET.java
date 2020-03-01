@@ -14,6 +14,12 @@ import yokwe.util.FileUtil;
 public class TDNET {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TDNET.class);
 
+	public static final String PATH_TOUCH_FILE = "tmp/data/tdnet.touch";
+	public static void touch() {
+		logger.info("touch {}", TDNET.PATH_TOUCH_FILE);
+		FileUtil.touch(PATH_TOUCH_FILE);
+	}
+	
 	private static final String DIR_BASE     = "tmp/data/tdnet";
 	
 	public static String getPath(SummaryFilename filename) {
