@@ -174,7 +174,7 @@ public class UpdateStats {
 
 		List<Stats> statsList = new ArrayList<>();
 		
-		Collection<Stock> stockList = Stock.load();
+		Collection<Stock> stockList = Stock.getList();
 		
 //		Collection<Stock> stockCollection = new ArrayList<>();
 //		stockCollection.add(StockUtil.get("IBM"));
