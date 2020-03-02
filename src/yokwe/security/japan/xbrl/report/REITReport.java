@@ -37,26 +37,21 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 	
 	public static final String PATH_FILE = "tmp/data/reit-report.csv";
 
-	public static List<REITReport> load() {
-		return CSVUtil.read(REITReport.class).file(PATH_FILE);
-	}
 	public static List<REITReport> getList() {
-		return load();
+		List<REITReport> ret = CSVUtil.read(REITReport.class).file(PATH_FILE);
+		return (ret == null) ? new ArrayList<>() : ret;
 	}
 	public static Map<SummaryFilename, REITReport> getMap() {
 		Map<SummaryFilename, REITReport> ret = new TreeMap<>();
-		List<REITReport> list = load();
-		if (list != null) {
-			for(REITReport e: load()) {
-				SummaryFilename key = e.filename;
-				if (ret.containsKey(key)) {
-					logger.error("Duplicate key {}", key);
-					logger.error("  new {}", e);
-					logger.error("  old {}", ret.get(key));
-					throw new UnexpectedException("Duplicate key");
-				} else {
-					ret.put(key, e);
-				}
+		for(REITReport e: getList()) {
+			SummaryFilename key = e.filename;
+			if (ret.containsKey(key)) {
+				logger.error("Duplicate key {}", key);
+				logger.error("  new {}", e);
+				logger.error("  old {}", ret.get(key));
+				throw new UnexpectedException("Duplicate key");
+			} else {
+				ret.put(key, e);
 			}
 		}
 		return ret;
@@ -135,9 +130,6 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 		REITReport ret = AbstractReport.getInstance(REITReport.class, document);
 		
 		ret.stockCode = InlineXBRL.normalizeNumberCharacter(ret.stockCode);
-		if (ret.stockCode.endsWith("0")) {
-			ret.stockCode = ret.stockCode.substring(0, ret.stockCode.length() - 1);
-		}
 
 		return ret;
 	}
