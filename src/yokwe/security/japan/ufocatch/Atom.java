@@ -81,9 +81,6 @@ public class Atom {
 		Matcher m = PAT_STOCK_CODE.matcher(title);
 		if (m.matches()) {
 			String stockCode = m.group(1);
-			if (stockCode.endsWith("0")) {
-				stockCode = stockCode.substring(0, stockCode.length() - 1);
-			}
 			return stockCode;
 		} else {
 			logger.error("Unexpected title {}", title);
