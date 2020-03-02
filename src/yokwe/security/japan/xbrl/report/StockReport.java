@@ -53,26 +53,21 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 
 	public static final String PATH_FILE = "tmp/data/stock-report.csv";
 
-	public static List<StockReport> load() {
-		return CSVUtil.read(StockReport.class).file(PATH_FILE);
-	}
 	public static List<StockReport> getList() {
-		return load();
+		List<StockReport> ret = CSVUtil.read(StockReport.class).file(PATH_FILE);
+		return (ret == null) ? new ArrayList<>() : ret;
 	}
 	public static Map<SummaryFilename, StockReport> getMap() {
 		Map<SummaryFilename, StockReport> ret = new TreeMap<>();
-		List<StockReport> list = load();
-		if (list != null) {
-			for(StockReport e: load()) {
-				SummaryFilename key = e.filename;
-				if (ret.containsKey(key)) {
-					logger.error("Duplicate key {}", key);
-					logger.error("  new {}", e);
-					logger.error("  old {}", ret.get(key));
-					throw new UnexpectedException("Duplicate key");
-				} else {
-					ret.put(key, e);
-				}
+		for(StockReport e: getList()) {
+			SummaryFilename key = e.filename;
+			if (ret.containsKey(key)) {
+				logger.error("Duplicate key {}", key);
+				logger.error("  new {}", e);
+				logger.error("  old {}", ret.get(key));
+				throw new UnexpectedException("Duplicate key");
+			} else {
+				ret.put(key, e);
 			}
 		}
 		return ret;
@@ -240,9 +235,6 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 		}
 		
 		ret.stockCode = InlineXBRL.normalizeNumberCharacter(ret.stockCode);
-		if (ret.stockCode.endsWith("0")) {
-			ret.stockCode = ret.stockCode.substring(0, ret.stockCode.length() - 1);
-		}
 
 		// Sanity check
 		if (ret.filingDate.isEmpty()) {
