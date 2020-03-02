@@ -27,20 +27,21 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	public static final String MARKET_ETF    = "ETF・ETN";
 	public static final String MARKET_REIT   = "REIT・ベンチャーファンド・カントリーファンド・インフラファンド";
 	
-	private static List<Stock> all = null;
-	public static List<Stock> load() {
-		if (all == null) {
-			all = CSVUtil.read(Stock.class).file(PATH_DATA);
+	private static List<Stock> list = null;
+	public static List<Stock> getList() {
+		if (list == null) {
+			list = CSVUtil.read(Stock.class).file(PATH_DATA);
+			if (list == null) {
+				list = new ArrayList<>();
+			}
 		}
-		return all;
+		return list;
 	}
 	private static Map<String, Stock> map = null;
 	public static Map<String, Stock> getMap() {
 		if (map == null) {
-			List<Stock> list = load();
-			
 			map = new TreeMap<>();
-			for(Stock e: list) {
+			for(Stock e: getList()) {
 				String stockCode = e.stockCode;
 				if (map.containsKey(stockCode)) {
 					logger.error("Duplicate stockCode {}", stockCode);
@@ -61,6 +62,33 @@ public class Stock extends Sheet implements Comparable<Stock> {
 		// Sort before save
 		Collections.sort(list);
 		CSVUtil.write(Stock.class).file(PATH_DATA, list);
+	}
+	
+	public static String toStockCode4(String stockCode) {
+		if (stockCode.length() == 4) {
+			return stockCode;
+		} else if (stockCode.length() == 5) {
+			if (stockCode.endsWith("0")) {
+				return stockCode.substring(0, 4);
+			} else {
+				return stockCode; // 25935 伊藤園 優先株式,市場第一部（内国株）
+			}
+		} else {
+			logger.error("Unexpected stockCode");
+			logger.error("  stockCode {}!", stockCode);
+			throw new UnexpectedException("Unexpected stockCode");
+		}
+	}
+	public static String toStockCode5(String stockCode) {
+		if (stockCode.length() == 5) {
+			return stockCode;
+		} else if (stockCode.length() == 4) {
+			return String.format("%s0", stockCode);
+		} else {
+			logger.error("Unexpected stockCode");
+			logger.error("  stockCode {}!", stockCode);
+			throw new UnexpectedException("Unexpected stockCode");
+		}
 	}
 
 	@Sheet.ColumnName("日付")
