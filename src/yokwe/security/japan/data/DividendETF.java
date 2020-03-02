@@ -26,6 +26,9 @@ public class DividendETF extends Sheet implements Comparable<DividendETF> {
 	public static List<DividendETF> getList() {
 		if (list == null) {
 			list = CSVUtil.read(DividendETF.class).file(PATH_FILE);
+			if (list == null) {
+				list = new ArrayList<>();
+			}
 		}
 		return list;
 	}
