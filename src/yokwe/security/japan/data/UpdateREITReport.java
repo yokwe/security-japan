@@ -31,13 +31,15 @@ public class UpdateREITReport {
 			Map<SummaryFilename, REITReport> reportMap = REITReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 
-			Map<SummaryFilename, File> fileMap = TDNET.getFileMap();
-			logger.info("fileMap   {}", fileMap.size());
-			
-
 			List<File> fileList = new ArrayList<>();
 			{
-				List<SummaryFilename> keyList = fileMap.keySet().stream().filter(o -> o.category == Category.REJP).filter(o -> o.period == Period.ANNUAL).collect(Collectors.toList());
+				Map<SummaryFilename, File> fileMap = TDNET.getFileMap();
+				logger.info("fileMap   {}", fileMap.size());
+				
+				List<SummaryFilename> keyList = fileMap.keySet().stream().
+						filter(o -> o.category == Category.REJP).
+						filter(o -> o.period == Period.ANNUAL).
+						collect(Collectors.toList());
 				Collections.sort(keyList);
 				
 				for(SummaryFilename key: keyList) {
