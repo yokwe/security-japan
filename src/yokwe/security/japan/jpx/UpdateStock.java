@@ -86,6 +86,9 @@ public class UpdateStock {
 				newValue.scale        = value.scale.trim();
 				newValue.scaleCode    = value.scaleCode.trim();
 				
+				// Make stockCode 5 digits
+				newValue.stockCode = Stock.toStockCode5(newValue.stockCode);
+				
 				newList.add(newValue);
 			}
 			
@@ -100,8 +103,8 @@ public class UpdateStock {
 				boolean sameData = false;
 				String  newDate  = newList.get(0).date;
 				
-				List<Stock> oldList = Stock.load();
-				if (oldList == null) {
+				List<Stock> oldList = Stock.getList();
+				if (oldList.isEmpty()) {
 					sameData = false;
 				} else {
 					// check date of first data
