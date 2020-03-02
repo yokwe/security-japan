@@ -26,6 +26,8 @@ public class UpdateStockInfoPrice {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockInfoPrice.class);
 
 	private static String getPage(String stockCode) {
+		// Use 4 digits stockCode
+		stockCode = Stock.toStockCode4(stockCode);
 		String url = String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode);
 		
 		HttpUtil.Result result = HttpUtil.getInstance().
@@ -183,9 +185,15 @@ public class UpdateStockInfoPrice {
 		NumberOfIssued numerOfIssuedString = NumberOfIssued.getInstance(page);	
 		TradeUnit      tradeUnitString     = TradeUnit.getInstance(page);
 		
-		if (stockCode.compareTo(basicInfo.stockCode) != 0) {
-			logger.error("Unexpected stockCode  {}  {}!", stockCode, basicInfo.stockCode);
-			throw new UnexpectedException("Unexpected stockCode");
+		{
+			String stockCode4 = Stock.toStockCode4(stockCode);
+			if (!stockCode4.equals(basicInfo.stockCode)) {
+				logger.error("Unexpected stockCode");
+				logger.error("  stockCode  {}!", stockCode);
+				logger.error("  stockCode4 {}!", stockCode4);
+				logger.error("  basicInfo  {}!", basicInfo.stockCode);
+				throw new UnexpectedException("Unexpected stockCode");
+			}
 		}
 		
 		String isinCode       = basicInfo.isinCode;
@@ -330,6 +338,7 @@ public class UpdateStockInfoPrice {
 			// check page
 			if (page.contains("指定された銘柄が見つかりません")) {
 				// if page contains no data, skip this stockCode
+				logger.warn("             {} no such stockCode", stockCode);
 				listNotExist.add(stockCode);
 				continue;
 			}
@@ -339,14 +348,14 @@ public class UpdateStockInfoPrice {
 			
 			// check newPriceMap
 			if (newPriceMap.isEmpty()) {
-				logger.warn("empty priceMap  {}", stockCode);
+				logger.warn("             {} empty priceMap", stockCode);
 				listEmpty.add(stockCode);
 				continue;
 			}
 			if (!newPriceMap.containsKey(lastTradingDate)) {
 				// no lastTradingDate in newPriceMap, skip this stockCode;
 				listNoData.add(stockCode);
-				logger.warn("priceMap contains no lastTradingDate data  {}", stockCode);
+				logger.warn("             {} priceMap contains no lastTradingDate data", stockCode);
 				
 				if (MAX_COUNT_NO_DATA <= listNoData.size()) {
 					logger.error("MAX_COUNT_NO_DATA <= listNoData.size()  {}", listNoData.size());
@@ -365,9 +374,10 @@ public class UpdateStockInfoPrice {
 						if (oldPrice.equals(newPrice)) {
 							continue;
 						} else {
-							logger.warn("not equal price {} {}", stockCode, date);
-							logger.warn("old {}", oldPrice);
-							logger.warn("new {}", newPrice);
+							logger.warn("not equal price {}", stockCode);
+							logger.warn("  date {}", date);
+							logger.warn("  old  {}", oldPrice);
+							logger.warn("  new  {}", newPrice);
 						}
 					} else {
 						newPriceMap.put(date, oldPrice);
@@ -425,7 +435,7 @@ public class UpdateStockInfoPrice {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<Stock> list = Stock.load();
+		List<Stock> list = Stock.getList();
 		logger.info("list {}", list.size());
 		
 		// Randomize order of list
