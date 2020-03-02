@@ -30,13 +30,14 @@ public class UpdateStockReport {
 			Map<SummaryFilename, StockReport> reportMap = StockReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 
-			Map<SummaryFilename, File> fileMap = TDNET.getFileMap();
-			logger.info("fileMap   {}", fileMap.size());
-			
-
 			List<File> fileList = new ArrayList<>();
 			{
-				List<SummaryFilename> keyList = fileMap.keySet().stream().filter(o -> o.category == Category.EDJP).collect(Collectors.toList());
+				Map<SummaryFilename, File> fileMap= TDNET.getFileMap();
+				logger.info("fileMap   {}", fileMap.size());
+				
+				List<SummaryFilename> keyList = fileMap.keySet().stream().
+						filter(o -> o.category == Category.EDJP).
+						collect(Collectors.toList());
 				Collections.sort(keyList);
 				
 				for(SummaryFilename key: keyList) {
