@@ -18,47 +18,6 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class UpdateStock {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStock.class);
 	
-	@Sheet.SheetName("Sheet1")
-	@Sheet.HeaderRow(0)
-	@Sheet.DataRow(1)
-	public static class RawData extends Sheet {	
-		@Sheet.ColumnName("日付")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String date;
-		
-		@Sheet.ColumnName("コード")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String stockCode;
-		
-		@Sheet.ColumnName("銘柄名")
-		public String name;
-		
-		@Sheet.ColumnName("市場・商品区分")
-		public String market;
-		
-		@Sheet.ColumnName("33業種コード")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String sector33Code;
-		
-		@Sheet.ColumnName("33業種区分")
-		public String sector33;
-		
-		@Sheet.ColumnName("17業種コード")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String sector17Code;
-		
-		@Sheet.ColumnName("17業種区分")
-		public String sector17;
-		
-		@Sheet.ColumnName("規模コード")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String scaleCode;
-		
-		@Sheet.ColumnName("規模区分")
-		public String scale;
-	}
-
-	
 	private static void processRequest() {
 		logger.info("download {}", Stock.URL_DOWNLOAD);
 		HttpUtil http = HttpUtil.getInstance().withRawData(true);
@@ -102,11 +61,11 @@ public class UpdateStock {
 		
 		// Build newList
 		try (SpreadSheet spreadSheet = new SpreadSheet(url, true)) {
-			List<RawData> rawDataList = Sheet.extractSheet(spreadSheet, RawData.class);
+			List<Stock> rawDataList = Sheet.extractSheet(spreadSheet, Stock.class);
 			logger.info("read {}", rawDataList.size());
 			
 			// Trim space
-			for(RawData value: rawDataList) {
+			for(Stock value: rawDataList) {
 				Stock newValue = new Stock();
 				
 				String date = value.date.trim();

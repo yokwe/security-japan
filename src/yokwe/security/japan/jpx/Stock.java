@@ -11,8 +11,13 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
+import yokwe.util.libreoffice.Sheet;
+import yokwe.util.libreoffice.SpreadSheet;
 
-public class Stock implements Comparable<Stock> {	
+@Sheet.SheetName("Sheet1")
+@Sheet.HeaderRow(0)
+@Sheet.DataRow(1)
+public class Stock extends Sheet implements Comparable<Stock> {	
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Stock.class);
 
 	public static final String URL_DOWNLOAD  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
@@ -58,33 +63,48 @@ public class Stock implements Comparable<Stock> {
 		CSVUtil.write(Stock.class).file(PATH_DATA, list);
 	}
 
+	@Sheet.ColumnName("日付")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	@CSVUtil.ColumnName("日付")
-	public String date; // YYYY-MM-DD
+	public String date;
 	
+	@Sheet.ColumnName("コード")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	@CSVUtil.ColumnName("コード")
-	public String stockCode; // Can be four or five digits
+	public String stockCode;
 	
+	@Sheet.ColumnName("銘柄名")
 	@CSVUtil.ColumnName("銘柄名")
 	public String name;
 	
+	@Sheet.ColumnName("市場・商品区分")
 	@CSVUtil.ColumnName("市場・商品区分")
 	public String market;
 	
+	@Sheet.ColumnName("33業種コード")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	@CSVUtil.ColumnName("33業種コード")
 	public String sector33Code;
 	
+	@Sheet.ColumnName("33業種区分")
 	@CSVUtil.ColumnName("33業種区分")
 	public String sector33;
 	
+	@Sheet.ColumnName("17業種コード")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	@CSVUtil.ColumnName("17業種コード")
 	public String sector17Code;
 	
+	@Sheet.ColumnName("17業種区分")
 	@CSVUtil.ColumnName("17業種区分")
 	public String sector17;
 	
+	@Sheet.ColumnName("規模コード")
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	@CSVUtil.ColumnName("規模コード")
 	public String scaleCode;
 	
+	@Sheet.ColumnName("規模区分")
 	@CSVUtil.ColumnName("規模区分")
 	public String scale;
 	
