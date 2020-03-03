@@ -29,7 +29,7 @@ public class UpdateDividendStock {
 			logger.info("reportMap {}", reportMap.size());
 			
 			Map<SummaryFilename, File> fileMap = TDNET.getFileMap().entrySet().stream().
-					filter(o -> o.getKey().category == Category.EDJP).
+					filter(o -> o.getKey().category == Category.EDJP || o.getKey().category == Category.EDIF || o.getKey().category == Category.EDUS).
 					collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			logger.info("fileMap {}", fileMap.size());
 			

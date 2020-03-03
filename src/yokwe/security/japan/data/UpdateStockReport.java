@@ -36,7 +36,7 @@ public class UpdateStockReport {
 				logger.info("fileMap   {}", fileMap.size());
 				
 				List<SummaryFilename> keyList = fileMap.keySet().stream().
-						filter(o -> o.category == Category.EDJP).
+						filter(o -> (o.category == Category.EDJP) || (o.category == Category.EDIF) || (o.category == Category.EDUS)).
 						collect(Collectors.toList());
 				Collections.sort(keyList);
 				
