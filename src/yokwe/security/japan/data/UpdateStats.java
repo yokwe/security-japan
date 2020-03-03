@@ -54,7 +54,7 @@ public class UpdateStats {
 			StockInfo stockInfo = StockInfo.get(ret.stockCode);
 			if (stockInfo == null) {
 				ret.unit = -1;
-				logger.warn("no sockInfo {}", String.format("%s %-10s %s", ret.stockCode, ret.sector33, ret.name));
+				logger.warn("                    {} no StockInfo {}", ret.stockCode, String.format("%-10s %s", ret.sector33, ret.name));
 			} else {
 				ret.unit = stockInfo.tradeUnit;
 			}
@@ -114,7 +114,6 @@ public class UpdateStats {
 		{
 			DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
 			if (divAnn == null) {
-				logger.warn("no dividend {}", String.format("%s %-10s %s", ret.stockCode, ret.sector33, ret.name));
 				ret.div   = 0;
 				ret.divc  = 0;
 				ret.yield = 0;
