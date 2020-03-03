@@ -475,29 +475,58 @@ public abstract class AbstractReport {
 					}
 				} else {
 					// multiple hit
-					boolean isAllNull = true;
-					for(InlineXBRL e: list) {
-						if (!e.isNull) isAllNull = false;
-					}
-					if (isAllNull) {
-						// Special case for multiple null
-						if (acceptNullOrEmpty) {
-							logger.warn("More than one matching entry");
-							logger.warn("   filename          {}", ixDoc.filename);
-							logger.warn("   fieldName         {}", fieldInfo.fieldName);
-							logger.warn("   namespace         {}", qName.namespace);
-							logger.warn("   name              {}", qName.value);
-							logger.warn("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
-							logger.warn("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-							for(InlineXBRL e: list) {
-								logger.warn("   list  {}", e);
+					{
+						int countNotNull = 0;
+						InlineXBRL ix = null;
+						for(InlineXBRL e: list) {
+							if (!e.isNull) {
+								ix = e;
+								countNotNull++;
 							}
-							for(InlineXBRL e: ixDoc.getList(qName)) {
-								logger.warn("   ixDoc {}", e);
+						}
+						switch(countNotNull) {
+						case 0:
+							if (acceptNullOrEmpty) {
+								assignFieldZeroOrEmptyString(fieldInfo);
+							} else {
+								logger.error("Entry is null");
+								logger.error("   filename          {}", ixDoc.filename);
+								logger.error("   fieldName         {}", fieldInfo.fieldName);
+								logger.error("   namespace         {}", qName.namespace);
+								logger.error("   name              {}", qName.value);
+								logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
+								logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
+								for(InlineXBRL e: list) {
+									logger.error("   list  {}", e);
+								}
+								for(InlineXBRL e: ixDoc.getList(qName)) {
+									logger.error("   ixDoc {}", e);
+								}
+								throw new UnexpectedException("Entry is null");
 							}
-							assignFieldZeroOrEmptyString(fieldInfo);
-						} else {
-							logger.error("Entry is null");
+							break;
+						case 1:
+							switch(ix.kind) {
+							case STRING:
+								assignField(fieldInfo, (StringValue)ix);
+								break;
+							case BOOLEAN:
+								assignField(fieldInfo, (BooleanValue)ix);
+								break;
+							case NUMBER:
+								assignField(fieldInfo, (NumberValue)ix);
+								break;
+							case DATE:
+								assignField(fieldInfo, (DateValue)ix);
+								break;
+							default:
+								logger.error("Unexpected kind");
+								logger.error("   ix {}", ix);
+								throw new UnexpectedException("Unexpected kind");
+							}
+							break;
+						default:
+							logger.error("More than one matching entry");
 							logger.error("   filename          {}", ixDoc.filename);
 							logger.error("   fieldName         {}", fieldInfo.fieldName);
 							logger.error("   namespace         {}", qName.namespace);
@@ -510,23 +539,8 @@ public abstract class AbstractReport {
 							for(InlineXBRL e: ixDoc.getList(qName)) {
 								logger.error("   ixDoc {}", e);
 							}
-							throw new UnexpectedException("Entry is null");
+							throw new UnexpectedException("More than one matching entry");
 						}
-					} else {
-						logger.error("More than one matching entry");
-						logger.error("   filename          {}", ixDoc.filename);
-						logger.error("   fieldName         {}", fieldInfo.fieldName);
-						logger.error("   namespace         {}", qName.namespace);
-						logger.error("   name              {}", qName.value);
-						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
-						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-						for(InlineXBRL e: list) {
-							logger.error("   list  {}", e);
-						}
-						for(InlineXBRL e: ixDoc.getList(qName)) {
-							logger.error("   ixDoc {}", e);
-						}
-						throw new UnexpectedException("More than one matching entry");
 					}
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {
