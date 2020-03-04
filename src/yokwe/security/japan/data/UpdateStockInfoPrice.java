@@ -343,6 +343,12 @@ public class UpdateStockInfoPrice {
 				continue;
 			}
 			
+			// Update newStockInfoMap
+			{
+				StockInfo newStockInfo = getStockInfo(stockCode, page);
+				newStockInfoMap.put(stockCode, newStockInfo);
+			}
+			
 			// create newPriceMap from page
 			Map<String, Price> newPriceMap = getPriceMap(stockCode, page);
 			
@@ -386,12 +392,6 @@ public class UpdateStockInfoPrice {
 				
 				Price.save(newPriceMap.values());
 				countUpdate++;
-			}
-			
-			// Update newStockMap
-			{
-				StockInfo newStockInfo = getStockInfo(stockCode, page);
-				newStockInfoMap.put(stockCode, newStockInfo);
 			}
 
 		}
