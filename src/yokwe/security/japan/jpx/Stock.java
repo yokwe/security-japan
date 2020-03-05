@@ -24,9 +24,6 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	public static final String PATH_DOWNLOAD = "tmp/download/listed-issue.xls";
 	public static final String PATH_DATA     = "tmp/data/stock.csv";
 	
-	public static final String MARKET_ETF    = "ETF・ETN";
-	public static final String MARKET_REIT   = "REIT・ベンチャーファンド・カントリーファンド・インフラファンド";
-	
 	private static List<Stock> list = null;
 	public static List<Stock> getList() {
 		if (list == null) {
@@ -90,6 +87,32 @@ public class Stock extends Sheet implements Comparable<Stock> {
 			throw new UnexpectedException("Unexpected stockCode");
 		}
 	}
+	
+	public static enum Market {
+		ETF_ETN        ("ETF・ETN"), 
+		JASDAQ_GROWTH  ("JASDAQ(グロース・内国株）"), 
+		JASDAQ_STANDARD("JASDAQ(スタンダード・内国株）"),
+		JASDAQ_FOREIGN ("JASDAQ(スタンダード・外国株）"),
+		PRO_MARKET     ("PRO Market"),
+		REIT_FUND      ("REIT・ベンチャーファンド・カントリーファンド・インフラファンド"),
+		MOTHERS        ("マザーズ（内国株）"),
+		MOTHERS_FOREIGN("マザーズ（外国株）"),
+		CERTIFICATE    ("出資証券"),
+		FIRST          ("市場第一部（内国株）"),
+		FIRST_FOREIGN  ("市場第一部（外国株）"),
+		SECOND         ("市場第二部（内国株）"),
+		SECOND_FOREIGN ("市場第二部（外国株）");
+		
+		public final String value;
+		Market(String value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return value;
+		}
+	}
 
 	@Sheet.ColumnName("日付")
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
@@ -107,7 +130,7 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	
 	@Sheet.ColumnName("市場・商品区分")
 	@CSVUtil.ColumnName("市場・商品区分")
-	public String market;
+	public Market market;
 	
 	@Sheet.ColumnName("33業種コード")
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
@@ -169,9 +192,15 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	}
 	
 	public boolean isETF() {
-		return market.equals(MARKET_ETF);
+		return market == Market.ETF_ETN;
 	}
 	public boolean isREIT() {
-		return market.equals(MARKET_REIT);
+		return market == Market.REIT_FUND;
+	}
+	public boolean isPROMarket() {
+		return market == Market.PRO_MARKET;
+	}
+	public boolean isCertificate() {
+		return market == Market.CERTIFICATE;
 	}
 }
