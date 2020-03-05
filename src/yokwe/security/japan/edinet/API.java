@@ -116,6 +116,22 @@ public class API {
 		}
 
 		public static class Result extends JSONBase {
+			public static enum Flag {
+				NO  ("0"),
+				YES ("1");
+				
+				public final String value;
+				
+				Flag(String value) {
+					this.value = value;
+				}
+				
+				@Override
+				public String toString() {
+					return value;
+				}
+			}
+
 			public int    seqNumber;
 			public String docID;
 			public String edinetCode;
@@ -140,10 +156,10 @@ public class API {
 			public String withdrawalStatus;
 			public String docInfoEditStatus;
 			public String disclosureStatus;
-			public String xbrlFlag;
-			public String pdfFlag;
-			public String attachDocFlag;
-			public String englishDocFlag;
+			public Flag   xbrlFlag;
+			public Flag   pdfFlag;
+			public Flag   attachDocFlag;
+			public Flag   englishDocFlag;
 			
 			public Result() {
 		    	this.seqNumber            = 0;
