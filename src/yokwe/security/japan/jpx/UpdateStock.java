@@ -78,7 +78,7 @@ public class UpdateStock {
 				newValue.date         = newDate;
 				newValue.stockCode    = value.stockCode.trim();
 				newValue.name         = value.name.trim();
-				newValue.market       = value.market.trim();
+				newValue.market       = value.market;
 				newValue.sector33Code = value.sector33Code.trim();
 				newValue.sector33     = value.sector33.trim();
 				newValue.sector17Code = value.sector17Code.trim();

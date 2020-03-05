@@ -42,8 +42,8 @@ public class UpdateStats {
 				ret.sector33 = "REIT";
 				ret.sector17 = "REIT";
 			} else {
-				ret.sector33 = stock.market;
-				ret.sector17 = stock.market;
+				ret.sector33 = stock.market.toString();
+				ret.sector17 = stock.market.toString();
 			}
 		} else {
 			ret.sector33 = stock.sector33;
