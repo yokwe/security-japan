@@ -22,12 +22,13 @@ public class Document implements Comparable<Document> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Document.class);
 	
 	public static final String PATH_DATA_DIR = "tmp/disclosure";
+	public static final String DATA_FILE_SUFFIX = ".zip";
 	
-	public static File getDataFile(LocalDate date, String filename) {
+	public static File getDataFile(LocalDate date, String docID) {
 		int y = date.getYear();
 		int m = date.getMonthValue();
 		int d = date.getDayOfMonth();
-		String path = String.format("%s/%04d/%02d/%02d/%s", PATH_DATA_DIR, y, m, d, filename);
+		String path = String.format("%s/%04d/%02d/%02d/%s%s", PATH_DATA_DIR, y, m, d, docID, DATA_FILE_SUFFIX);
 		return new File(path);
 	}
 	
@@ -35,17 +36,18 @@ public class Document implements Comparable<Document> {
 	public static List<File> getDataFileList() {
 		if (dataFileList == null) {
 			dataFileList = FileUtil.listFile(PATH_DATA_DIR).stream().
-					filter(o -> o.getName().endsWith(".zip")).
+					filter(o -> o.getName().endsWith(DATA_FILE_SUFFIX)).
 					collect(Collectors.toList());
 		}
 		return dataFileList;
 	}
 	private static Map<String, File> dataFileMap = null;
+	//                 docID
 	public static Map<String, File> getDataFileMap() {
 		if (dataFileMap == null) {
 			dataFileMap = new TreeMap<>();
 			for(File file: getDataFileList()) {
-				String name = file.getName().replace(".zip", "");
+				String name = file.getName().replace(DATA_FILE_SUFFIX, "");
 				dataFileMap.put(name, file);
 			}
 		}
@@ -66,6 +68,7 @@ public class Document implements Comparable<Document> {
 		return list;
 	}
 	private static Map<String, Document> map = null;
+	//                 docID
 	public static Map<String, Document> getMap() {
 		if (map == null) {
 			map = new TreeMap<>();
