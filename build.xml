@@ -193,7 +193,16 @@
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
-                        <sysproperty key="onlyToday" value="false"/>
+                        <sysproperty key="updatePeriod" value="3"/>
+                </java>
+        </target>
+
+        <target name="download-edinet-document">
+                <java classname="yokwe.security.japan.edinet.DownloadDocument" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                 </java>
         </target>
 
