@@ -13,15 +13,21 @@ import yokwe.security.japan.edinet.API.ListDocument;
 public class UpdateDocument {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDocument.class);
 
+	public static final int DEFAULT_PERIOD = 7;
+	
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		Integer updatePeriod = Integer.getInteger("updatePeriod", DEFAULT_PERIOD);
+		logger.info("updatePeriod {}", updatePeriod);
+
 		Map<String, Document> map = Document.getMap();
 		
 		LocalDate today = LocalDate.now();
-		LocalDate date = today.minusYears(5).plusDays(1);
+//		LocalDate date = today.minusYears(5).plusDays(1);
+		LocalDate date = today.minusDays(updatePeriod);
 		
-		int count = 0;
+		int countUpdate = 0;
 		for(;;) {
 			if (date.isAfter(today)) break;
 			
@@ -51,8 +57,8 @@ public class UpdateDocument {
 							e.submitDateTime);
 					map.put(docID, document);
 
-					if (++count == 10000) {
-						count = 0;
+					countUpdate++;
+					if ((countUpdate % 10000) == 0) {
 						List<Document> list = new ArrayList<>(map.values());
 						logger.info("save {} {}", Document.PATH_FILE, list.size());
 						Document.save(list);
@@ -63,9 +69,12 @@ public class UpdateDocument {
 		}
 		
 		{
-			List<Document> list = new ArrayList<>(map.values());
-			logger.info("save {} {}", Document.PATH_FILE, list.size());
-			Document.save(list);
+			logger.info("countUpdate {}", countUpdate);
+			if (0 < countUpdate) {
+				List<Document> list = new ArrayList<>(map.values());
+				logger.info("save {} {}", Document.PATH_FILE, list.size());
+				Document.save(list);
+			}
 		}
 		
 		logger.info("STOP");
