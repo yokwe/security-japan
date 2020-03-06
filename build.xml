@@ -187,4 +187,14 @@
                 </java>
         </target>
 
+        <target name="update-edinet-document">
+                <java classname="yokwe.security.japan.edinet.UpdateDocument" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyToday" value="false"/>
+                </java>
+        </target>
+
 </project>
