@@ -192,6 +192,14 @@ endif
 
 
 #
+# tmp/disclosure
+#   "ant download-edinet-document" download file, it will touch tmp/data/edinet.touch
+#
+download-edinet-document: tmp/data/edinet-document.csv
+	ant download-edinet-document
+
+
+#
 # Taxonomy file
 #
 download-taxonomy-file:
