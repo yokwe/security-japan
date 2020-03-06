@@ -172,12 +172,23 @@ update-dividend-annual: tmp/data/dividend-annual.csv
 tmp/data/stats.csv: tmp/data/dividend-annual.csv tmp/data/stock-info.csv
 ifneq (,$(wildcard tmp/data/stats.csv))
 	rm -rf tmp/data/stats-OLD.csv
-	mv     tmp/data/stats.csv      tmp/data/stats-OLD.csv
+	cp     tmp/data/stats.csv      tmp/data/stats-OLD.csv
 endif
 	ant update-stats
 	cp tmp/data/stats.csv ~/Dropbox/Trade/stats-jp.csv
 
 update-stats: tmp/data/stats.csv
+
+
+#
+# edinet-document.csv
+#
+update-edinet-document:
+ifneq (,$(wildcard tmp/data/edinet-document.csv))
+	rm -rf tmp/data/edinet-document-OLD.csv
+	cp     tmp/data/edinet-document.csv      tmp/data/edinet-document-OLD.csv
+endif
+	ant update-edinet-document
 
 
 #
