@@ -52,7 +52,8 @@ public class API {
 		QUARTERLY_REPORT
 		       ("140", "四半期報告書"),
 		DOC_150("150", "訂正四半期報告書"),
-		DOC_160("160", "半期報告書"),
+		SEMI_ANNUAL_REPORT
+		       ("160", "半期報告書"),
 		DOC_170("170", "訂正半期報告書"),
 		DOC_180("180", "臨時報告書"),
 		DOC_190("190", "訂正臨時報告書"),
@@ -126,7 +127,7 @@ public class API {
 		}
 	}
 
-	public static class List {
+	public static class ListDocument {
 		enum Type {
 			METADATA("1"),
 			DATA    ("2");
@@ -150,7 +151,7 @@ public class API {
 		public static class Metadata extends JSONBase {
 			public static class Parameter extends JSONBase {
 				public LocalDate date;
-				public API.List.Type    type;
+				public API.ListDocument.Type    type;
 				
 				public Parameter() {
 					this.date = null;
@@ -197,15 +198,16 @@ public class API {
 			public int    seqNumber;
 			public String docID;
 			public String edinetCode;
-			public String secCode;
+			@JSONName("secCode")
+			public String stockCode;
 			public String JCN;
 			public String filerName;
 			public String fundCode;
 			public String ordinanceCode;
 			public String formCode;
 			public DocumentType docTypeCode;
-			public LocalDate periodStart;
-			public LocalDate periodEnd;
+			public String periodStart;
+			public String periodEnd;
 			@DateTimeFormat("yyyy-MM-dd HH:mm")
 			public LocalDateTime submitDateTime;
 			public String docDescription;
@@ -227,7 +229,7 @@ public class API {
 		    	this.seqNumber            = 0;
 		    	this.docID                = null;
 		    	this.edinetCode           = null;
-		    	this.secCode              = null;
+		    	this.stockCode            = null;
 		    	this.JCN                  = null;
 		    	this.filerName            = null;
 				this.fundCode             = null;
@@ -338,11 +340,13 @@ public class API {
 		
 		LocalDate date = LocalDate.now();
 		
-		for(int i = 0; i < 1; i++) {
-			List.Response response = List.getInstance(date, List.Type.DATA);
-			logger.info("response {}", response);
-			for(List.Result e: response.results) {
-				if (e.docTypeCode == DocumentType.ANNUAL_REPORT || e.docTypeCode == DocumentType.QUARTERLY_REPORT) {
+		for(int i = 0; i < 5; i++) {
+			ListDocument.Response response = ListDocument.getInstance(date, ListDocument.Type.DATA);
+//			logger.info("response {}", response);
+			for(ListDocument.Result e: response.results) {
+				if (e.docTypeCode == DocumentType.ANNUAL_REPORT ||
+						e.docTypeCode == DocumentType.SEMI_ANNUAL_REPORT ||
+						e.docTypeCode == DocumentType.QUARTERLY_REPORT) {
 					logger.info("{}  {}  {}  {}", e.docID, e.submitDateTime, e.docTypeCode.description, e.docDescription);
 				}
 			}
