@@ -1,6 +1,7 @@
 package yokwe.security.japan.edinet;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -14,15 +15,23 @@ import yokwe.util.FileUtil;
 public class DownloadDocument {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadDocument.class);
 
+	public static final int DEFAULT_DOWNLOAD_LIMIT_YEAR = 1;
+	
 	public static void main(String[] args) {
 		logger.info("START");
+		
+		int downloadLimitYear = Integer.getInteger("downloadLimitYear", DEFAULT_DOWNLOAD_LIMIT_YEAR);
+		logger.info("downloadLimitYear {}", downloadLimitYear);
 		
 		// Existing file map.  key is docID
 		Map<String, File> dataFileMap = Document.getDataFileMap();
 		logger.info("dataFileMap  {}", dataFileMap.size());
 		
+		LocalDate dateStart = LocalDate.now().minusYears(downloadLimitYear);
+		
 		List<Document> documentList = Document.getList().stream().
 				filter(o -> (o.docTypeCode == DocumentType.ANNUAL_REPORT || o.docTypeCode == DocumentType.ANNUAL_REPORT || o.docTypeCode == DocumentType.ANNUAL_REPORT)).
+				filter(o -> o.submitDateTime.toLocalDate().isAfter(dateStart)).
 				filter(o -> !dataFileMap.containsKey(o.docID)).
 				collect(Collectors.toList());
 		logger.info("documentList {}", documentList.size());
