@@ -21,6 +21,12 @@ import yokwe.util.FileUtil;
 public class Document implements Comparable<Document> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Document.class);
 	
+	public static final String PATH_TOUCH_FILE = "tmp/data/edinet.touch";
+	public static void touch() {
+		logger.info("touch {}", PATH_TOUCH_FILE);
+		FileUtil.touch(PATH_TOUCH_FILE);
+	}
+	
 	public static final String PATH_DATA_DIR = "tmp/disclosure";
 	public static final String DATA_FILE_SUFFIX = ".zip";
 	
