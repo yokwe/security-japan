@@ -203,6 +203,7 @@
                         <classpath refid="ext.jar" />
                         <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="downloadLimitYear" value="1"/> <!-- limit download to last 1 year -->
                 </java>
         </target>
 
