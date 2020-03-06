@@ -42,16 +42,16 @@ public class DownloadRelease {
 					for(Release e: page.entryList) {
 //						logger.info("  {}", e);
 						
-						{
-							String filename = String.format("%s.pdf", e.id);
-							File file = Release.getDataFile(date, filename);
-
-							if (!file.exists()) {
-								logger.info("file {}", file.getPath());
-								byte[] content  = Release.downloadData(e.pdf);
-								FileUtil.rawWrite().file(file, content);
-							}
-						}
+//						{
+//							String filename = String.format("%s.pdf", e.id);
+//							File file = Release.getDataFile(date, filename);
+//
+//							if (!file.exists()) {
+//								logger.info("file {}", file.getPath());
+//								byte[] content  = Release.downloadData(e.pdf);
+//								FileUtil.rawWrite().file(file, content);
+//							}
+//						}
 						{
 							if (!e.xbrl.isEmpty()) {
 								String filename = String.format("%s.zip", e.id);
