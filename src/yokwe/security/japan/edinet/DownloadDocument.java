@@ -43,7 +43,11 @@ public class DownloadDocument {
 				FileUtil.rawWrite().file(file, data);
 			}
 		}
-	
+
+		if (0 < count) {
+			Document.touch();
+		}
+		
 		logger.info("STOP");
 	}
 }
