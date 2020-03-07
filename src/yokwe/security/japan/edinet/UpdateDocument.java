@@ -51,6 +51,8 @@ public class UpdateDocument {
 							e.edinetCode,
 							e.stockCode,
 							e.fundCode,
+							e.ordinanceCode,
+							e.formCode,
 
 							e.docTypeCode,
 
