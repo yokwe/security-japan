@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.edinet.API.DocType;
+import yokwe.security.japan.fsa.InstanceFilename;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 
@@ -101,6 +102,13 @@ public class Document implements Comparable<Document> {
 		Collections.sort(list);
 		CSVUtil.write(Document.class).file(PATH_FILE, list);
 	}
+	
+	public static final String PATH_XBRL_DIR = "tmp/data/edinet";
+	public static File getXBRLFile(InstanceFilename filename) {
+		String path = String.format("%s/%s/%s", PATH_XBRL_DIR, filename.code, filename.toString());
+		return new File(path);
+	}
+
 
 	public LocalDateTime submitDateTime;	
 	public String        docID;
