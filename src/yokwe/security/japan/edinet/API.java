@@ -32,7 +32,7 @@ public class API {
 		}
 	}
 	
-	public static enum DocumentType {
+	public static enum DocType {
 		DOC_010("010", "有価証券通知書"),
 		DOC_020("020", "変更通知書(有価証券通知書)"),
 		DOC_030("030", "有価証券届出書"),
@@ -82,7 +82,7 @@ public class API {
 		public final String value;
 		public final String description;
 		
-		DocumentType(String value, String description) {
+		DocType(String value, String description) {
 			this.value       = value;
 			this.description = description;
 		}
@@ -205,7 +205,7 @@ public class API {
 			public String fundCode;
 			public String ordinanceCode;
 			public String formCode;
-			public DocumentType docTypeCode;
+			public DocType docTypeCode;
 			public String periodStart;
 			public String periodEnd;
 			@DateTimeFormat("yyyy-MM-dd HH:mm")
@@ -344,9 +344,9 @@ public class API {
 			ListDocument.Response response = ListDocument.getInstance(date, ListDocument.Type.DATA);
 //			logger.info("response {}", response);
 			for(ListDocument.Result e: response.results) {
-				if (e.docTypeCode == DocumentType.ANNUAL_REPORT ||
-						e.docTypeCode == DocumentType.SEMI_ANNUAL_REPORT ||
-						e.docTypeCode == DocumentType.QUARTERLY_REPORT) {
+				if (e.docTypeCode == DocType.ANNUAL_REPORT ||
+						e.docTypeCode == DocType.SEMI_ANNUAL_REPORT ||
+						e.docTypeCode == DocType.QUARTERLY_REPORT) {
 					logger.info("{}  {}  {}  {}", e.docID, e.submitDateTime, e.docTypeCode.description, e.docDescription);
 				}
 			}
