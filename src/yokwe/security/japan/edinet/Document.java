@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.edinet.API.DocumentType;
+import yokwe.security.japan.edinet.API.DocType;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 
@@ -104,33 +104,39 @@ public class Document implements Comparable<Document> {
 
 	public LocalDateTime submitDateTime;	
 	public String        docID;
-	public DocumentType  docTypeCode;
 	public String        edinetCode;
+	public DocType       docTypeCode;
+	public String        ordinanceCode;
+	public String        formCode;
 	
 	public String        fundCode;
 	public String        stockCode;
 
 	public Document(		
-		String docID,
-		String edinetCode,
-		String stockCode,
-		String fundCode,
+		String        docID,
+		String        edinetCode,
+		String        stockCode,
+		String        fundCode,
+		String        ordinanceCode,
+		String        formCode,
 
-		DocumentType docTypeCode,
+		DocType       docTypeCode,
 
 		LocalDateTime submitDateTime
 		) {
-		this.docID      = docID;
-		this.edinetCode = edinetCode;
-		this.stockCode  = stockCode;
-		this.fundCode   = fundCode;
+		this.docID          = docID;
+		this.edinetCode     = edinetCode;
+		this.stockCode      = stockCode;
+		this.fundCode       = fundCode;
+		this.ordinanceCode  = ordinanceCode;
+		this.formCode       = formCode;
 
-		this.docTypeCode = docTypeCode;
+		this.docTypeCode    = docTypeCode;
 
 		this.submitDateTime = submitDateTime;
 	}
 	public Document() {
-		this(null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null);
 	}
 	
 	@Override
