@@ -30,7 +30,9 @@ public class DownloadDocument {
 		LocalDate dateStart = LocalDate.now().minusYears(downloadLimitYear);
 		
 		List<Document> documentList = Document.getList().stream().
-				filter(o -> (o.docTypeCode == DocumentType.ANNUAL_REPORT || o.docTypeCode == DocumentType.ANNUAL_REPORT || o.docTypeCode == DocumentType.ANNUAL_REPORT)).
+				filter(o -> (o.docTypeCode == DocumentType.ANNUAL_REPORT    ||
+				             o.docTypeCode == DocumentType.QUARTERLY_REPORT ||
+				             o.docTypeCode == DocumentType.SEMI_ANNUAL_REPORT)).
 				filter(o -> o.submitDateTime.toLocalDate().isAfter(dateStart)).
 				filter(o -> !dataFileMap.containsKey(o.docID)).
 				collect(Collectors.toList());
