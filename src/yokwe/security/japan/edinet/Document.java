@@ -29,13 +29,12 @@ public class Document implements Comparable<Document> {
 	}
 	
 	public static final String PATH_DATA_DIR = "tmp/disclosure";
-	public static final String DATA_FILE_SUFFIX = ".zip";
 	
 	public static File getDataFile(LocalDate date, String docID) {
 		int y = date.getYear();
 		int m = date.getMonthValue();
 		int d = date.getDayOfMonth();
-		String path = String.format("%s/%04d/%02d/%02d/%s%s", PATH_DATA_DIR, y, m, d, docID, DATA_FILE_SUFFIX);
+		String path = String.format("%s/%04d/%02d/%02d/%s", PATH_DATA_DIR, y, m, d, docID);
 		return new File(path);
 	}
 	
@@ -43,7 +42,6 @@ public class Document implements Comparable<Document> {
 	public static List<File> getDataFileList() {
 		if (dataFileList == null) {
 			dataFileList = FileUtil.listFile(PATH_DATA_DIR).stream().
-					filter(o -> o.getName().endsWith(DATA_FILE_SUFFIX)).
 					collect(Collectors.toList());
 		}
 		return dataFileList;
@@ -54,7 +52,7 @@ public class Document implements Comparable<Document> {
 		if (dataFileMap == null) {
 			dataFileMap = new TreeMap<>();
 			for(File file: getDataFileList()) {
-				String name = file.getName().replace(DATA_FILE_SUFFIX, "");
+				String name = file.getName();
 				dataFileMap.put(name, file);
 			}
 		}
