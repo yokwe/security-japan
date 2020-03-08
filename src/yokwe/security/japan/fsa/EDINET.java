@@ -1,10 +1,18 @@
 package yokwe.security.japan.fsa;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import org.slf4j.LoggerFactory;
+
+import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
 
 public class EDINET implements Comparable<EDINET> {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(EDINET.class);
+
 	public static final String URL_DOWNLOAD     = "https://disclosure.edinet-fsa.go.jp/E01EW/download?uji.verb=W1E62071EdinetCodeDownload&uji.bean=ee.bean.W1E62071.EEW1E62071Bean&TID=W1E62071&PID=W1E62071&SESSIONKEY=9999&downloadFileName=&lgKbn=2&dflg=0&iflg=0&dispKbn=1";
 	public static final String CHARSET_DOWNLOAD = "MS932";
 	
@@ -16,6 +24,74 @@ public class EDINET implements Comparable<EDINET> {
 		return CSVUtil.read(EDINET.class).file(PATH_DATA);
 	}
 	
+	private static List<EDINET> list = null;
+	public static List<EDINET> getList() {
+		if (list == null) {
+			list = CSVUtil.read(EDINET.class).file(PATH_DATA);
+			if (list == null) {
+				list = new ArrayList<>();
+			}
+		}
+		return list;
+	}
+	
+	private static Map<String, EDINET> map = null;
+	//                 edinetCode
+	public static Map<String, EDINET> getMap() {
+		if (map == null) {
+			map = new TreeMap<>();
+			for(EDINET e: getList()) {
+				String key = e.edinetCode;
+				if (map.containsKey(key)) {
+					logger.error("Duplicate edinetCode");
+					logger.error("  old  {}", map.get(key));
+					logger.error("  new  {}", e);
+					throw new UnexpectedException("Duplicate edinetCode");
+				} else {
+					map.put(key, e);
+				}
+			}
+		}
+		return map;
+	}
+	public static EDINET get(String edinetCode) {
+		Map<String, EDINET> map = getMap();
+		if (map.containsKey(edinetCode)) {
+			return map.get(edinetCode);
+		} else {
+			return null;
+		}
+	}
+	
+	private static Map<String, EDINET> stockCodeMap = null;
+	//                 stockCode
+	public static Map<String, EDINET> getStockCodeMap() {
+		if (stockCodeMap == null) {
+			stockCodeMap = new TreeMap<>();
+			for(EDINET e: getList()) {
+				String key = e.stockCode;
+				if (key == null || key.isEmpty()) continue;
+				if (stockCodeMap.containsKey(key)) {
+					logger.error("Duplicate edinetCode");
+					logger.error("  old  {}", map.get(key));
+					logger.error("  new  {}", e);
+					throw new UnexpectedException("Duplicate edinetCode");
+				} else {
+					stockCodeMap.put(key, e);
+				}
+			}
+		}
+		return stockCodeMap;
+	}
+	public static EDINET getFromStockCode(String stockCode) {
+		Map<String, EDINET> map = getStockCodeMap();
+		if (map.containsKey(stockCode)) {
+			return map.get(stockCode);
+		} else {
+			return null;
+		}
+	}
+
 	@CSVUtil.ColumnName("ＥＤＩＮＥＴコード")
 	public String edinetCode;
 	
