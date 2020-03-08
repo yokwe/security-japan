@@ -34,6 +34,7 @@ public class DownloadDocument {
 				             o.docTypeCode == DocType.QUARTERLY_REPORT ||
 				             o.docTypeCode == DocType.SEMI_ANNUAL_REPORT)).
 				filter(o -> o.submitDateTime.toLocalDate().isAfter(dateStart)).
+				filter(o -> !(o.fundCode.isEmpty() && o.stockCode.isEmpty())). // Skip if no fundCode and no stockCode
 				filter(o -> !dataFileMap.containsKey(o.docID)).
 				collect(Collectors.toList());
 		logger.info("documentList {}", documentList.size());
