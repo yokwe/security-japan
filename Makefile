@@ -23,7 +23,8 @@ build-misc-lib:
 	pushd ../misc-lib/; ant build ; popd; make copy-misc-lib-files
 
 save-ods:
-	cp ~/Dropbox/Trade/dividend-etf.ods     ~/Dropbox/Trade/SAVE/dividend-etf_$$(date +%Y%m%d).ods
+	cp ~/Dropbox/Trade/dividend-etf.ods      ~/Dropbox/Trade/SAVE/dividend-etf_$$(date +%Y%m%d).ods
+	cp ~/Dropbox/Trade/TEMPLATE_STATS_JP.ods ~/Dropbox/Trade/SAVE/TEMPLATE_STATS_JP_$$(date +%Y%m%d).ods
 
 
 #
