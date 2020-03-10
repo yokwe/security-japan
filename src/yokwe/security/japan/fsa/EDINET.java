@@ -73,7 +73,7 @@ public class EDINET implements Comparable<EDINET> {
 				if (key == null || key.isEmpty()) continue;
 				if (stockCodeMap.containsKey(key)) {
 					logger.error("Duplicate edinetCode");
-					logger.error("  old  {}", map.get(key));
+					logger.error("  old  {}", stockCodeMap.get(key));
 					logger.error("  new  {}", e);
 					throw new UnexpectedException("Duplicate edinetCode");
 				} else {
