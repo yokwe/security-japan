@@ -88,37 +88,31 @@ public class Stock extends Sheet implements Comparable<Stock> {
 		}
 	}
 	
-	public static final String MARKET_ETF_ETN     = "ETF・ETN";
-	public static final String MARKET_PRO_MARKET  = "PRO Market";
-	public static final String MARKET_REIT_FUND   = "REIT・ベンチャーファンド・カントリーファンド・インフラファンド";
-	public static final String MARKET_CERTIFICATE = "出資証券";
-
-// FIXME util.libreoffice.SpreadSheet.extractSheet cannot handle enum
-//	public static enum Market {
-//		ETF_ETN        ("ETF・ETN"), 
-//		JASDAQ_GROWTH  ("JASDAQ(グロース・内国株）"), 
-//		JASDAQ_STANDARD("JASDAQ(スタンダード・内国株）"),
-//		JASDAQ_FOREIGN ("JASDAQ(スタンダード・外国株）"),
-//		PRO_MARKET     ("PRO Market"),
-//		REIT_FUND      ("REIT・ベンチャーファンド・カントリーファンド・インフラファンド"),
-//		MOTHERS        ("マザーズ（内国株）"),
-//		MOTHERS_FOREIGN("マザーズ（外国株）"),
-//		CERTIFICATE    ("出資証券"),
-//		FIRST          ("市場第一部（内国株）"),
-//		FIRST_FOREIGN  ("市場第一部（外国株）"),
-//		SECOND         ("市場第二部（内国株）"),
-//		SECOND_FOREIGN ("市場第二部（外国株）");
-//		
-//		public final String value;
-//		Market(String value) {
-//			this.value = value;
-//		}
-//		
-//		@Override
-//		public String toString() {
-//			return value;
-//		}
-//	}
+	public static enum Market {
+		ETF_ETN        ("ETF・ETN"), 
+		JASDAQ_GROWTH  ("JASDAQ(グロース・内国株）"), 
+		JASDAQ_STANDARD("JASDAQ(スタンダード・内国株）"),
+		JASDAQ_FOREIGN ("JASDAQ(スタンダード・外国株）"),
+		PRO_MARKET     ("PRO Market"),
+		REIT_FUND      ("REIT・ベンチャーファンド・カントリーファンド・インフラファンド"),
+		MOTHERS        ("マザーズ（内国株）"),
+		MOTHERS_FOREIGN("マザーズ（外国株）"),
+		CERTIFICATE    ("出資証券"),
+		FIRST          ("市場第一部（内国株）"),
+		FIRST_FOREIGN  ("市場第一部（外国株）"),
+		SECOND         ("市場第二部（内国株）"),
+		SECOND_FOREIGN ("市場第二部（外国株）");
+		
+		public final String value;
+		Market(String value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return value;
+		}
+	}
 
 	@Sheet.ColumnName("日付")
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
@@ -136,8 +130,8 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	
 	@Sheet.ColumnName("市場・商品区分")
 	@CSVUtil.ColumnName("市場・商品区分")
-//	public Market market;            FIXME util.libreoffice.Sheet.extractSheet cannot handle enum. need to be String
-	public String market;
+	public Market market;            // FIXME util.libreoffice.Sheet.extractSheet cannot handle enum. need to be String
+//	public String market;
 	
 	@Sheet.ColumnName("33業種コード")
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
@@ -199,15 +193,15 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	}
 	
 	public boolean isETF() {
-		return market.equals(MARKET_ETF_ETN);
+		return market.equals(Market.ETF_ETN);
 	}
 	public boolean isREIT() {
-		return market.equals(MARKET_REIT_FUND);
+		return market.equals(Market.REIT_FUND);
 	}
 	public boolean isPROMarket() {
-		return market.equals(MARKET_PRO_MARKET);
+		return market.equals(Market.PRO_MARKET);
 	}
 	public boolean isCertificate() {
-		return market.equals(MARKET_CERTIFICATE);
+		return market.equals(Market.CERTIFICATE);
 	}
 }
