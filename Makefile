@@ -168,17 +168,16 @@ update-dividend-annual: tmp/data/dividend-annual.csv
 
 
 #
-# stats.csv
+# stats-jp.csv
 #
-tmp/data/stats.csv: tmp/data/dividend-annual.csv tmp/data/stock-info.csv
-ifneq (,$(wildcard tmp/data/stats.csv))
-	rm -rf tmp/data/stats-OLD.csv
-	cp     tmp/data/stats.csv      tmp/data/stats-OLD.csv
+tmp/data/stats-jp.csv: tmp/data/dividend-annual.csv tmp/data/stock-info.csv
+ifneq (,$(wildcard tmp/data/stats-jp.csv))
+	rm -rf tmp/data/stats-jp-OLD.csv
+	cp     tmp/data/stats-jp.csv      tmp/data/stats-jp-OLD.csv
 endif
-	ant update-stats
-	cp tmp/data/stats.csv ~/Dropbox/Trade/stats-jp.csv
+	ant report-stats-jp
 
-update-stats: tmp/data/stats.csv
+update-stats-jp: tmp/data/stats-jp.csv
 
 
 #
