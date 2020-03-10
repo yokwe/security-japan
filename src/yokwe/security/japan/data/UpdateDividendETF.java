@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.Stock;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -42,8 +41,6 @@ public class UpdateDividendETF {
 					if (e.stockCode.endsWith(".0")) {
 						e.stockCode = e.stockCode.substring(0, e.stockCode.length() - 2);
 					}
-					// Change stockCode to 5 digits.
-					e.stockCode = Stock.toStockCode5(e.stockCode);
 				}
 				all.addAll(list);
 			}
