@@ -79,11 +79,11 @@ public class StatsJP extends Sheet {
 	
 	@ColumnName("minpct")
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
-	public double minpct;
+	public double minPCT;
 	
 	@ColumnName("maxpct")
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
-	public double maxpct;
+	public double maxPCT;
 
 	// dividend
 	@ColumnName("div")
@@ -118,5 +118,30 @@ public class StatsJP extends Sheet {
 	
 	@ColumnName("lastpct")
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
-	public double lastpct;
+	public double lastPCT;
+	
+	@ColumnName("endDate1")
+	@NumberFormat(SpreadSheet.FORMAT_STRING)
+	public String endDate1;
+	
+	@ColumnName("endDate2")
+	@NumberFormat(SpreadSheet.FORMAT_STRING)
+	public String endDate2;
+	
+	@ColumnName("numberOfIssued")
+	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	public long   numberOfIssuedK;
+	
+	@ColumnName("marketCap")
+	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	public long   marketCapK; // price * numberOfIssued
+
+	@ColumnName("tradeCap")
+	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
+	public long   tradeCapM; // price * vol
+
+	@ColumnName("volpct")
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
+	public double volPCT; // vol / numberOfIssued
+	
 }

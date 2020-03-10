@@ -1,6 +1,7 @@
 package yokwe.security.japan.data;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.security.japan.fsa.EDINET;
+import yokwe.security.japan.fsa.Fund;
 import yokwe.security.japan.jpx.Stock;
 import yokwe.util.DoubleUtil;
 import yokwe.util.JapanHoliday;
@@ -109,14 +112,14 @@ public class ReportStatsJP {
 				}
 				ret.min    = DoubleUtil.round(min, 2);
 				ret.max    = DoubleUtil.round(max, 2);
-				ret.minpct = DoubleUtil.round((ret.price - ret.min) / ret.price, 3);
-				ret.maxpct = DoubleUtil.round((ret.max - ret.price) / ret.price, 3);
+				ret.minPCT = DoubleUtil.round((ret.price - ret.min) / ret.price, 3);
+				ret.maxPCT = DoubleUtil.round((ret.max - ret.price) / ret.price, 3);
 			}
 			
 			
 			// price change detection
 			ret.last    = (priceArray.length < 2) ? -1 : priceArray[priceArray.length - 2];
-			ret.lastpct = DoubleUtil.round((ret.price - ret.last) / ret.last, 3) ;
+			ret.lastPCT = DoubleUtil.round((ret.price - ret.last) / ret.last, 3) ;
 		}
 		
 		// dividend
@@ -143,6 +146,46 @@ public class ReportStatsJP {
 			MA vol30 = MA.sma(30, volArray);
 			ret.vol30 = (long)vol30.getValue();
 		}
+		
+		EDINET    edinet    = EDINET.getFromStockCode(ret.stockCode);
+		Fund      fund      = Fund.getFromStockCodeFundName(ret.stockCode, ret.name);
+		StockInfo stockInfo = StockInfo.get(ret.stockCode);
+
+		// endDate1 endDate2
+		{
+			if (fund != null) {
+				ret.endDate1 = fund.specialDate1;
+				ret.endDate2 = fund.specialDate2;
+			} else {
+				if (edinet != null) {
+					ret.endDate1 = edinet.closingDate;
+					ret.endDate2 = "";
+				} else {
+					ret.endDate1 = "";
+					ret.endDate2 = "";
+				}
+			}
+		}
+		
+		BigDecimal mllion = BigDecimal.valueOf(1, -6);
+		BigDecimal kilo   = BigDecimal.valueOf(1, -3);
+
+		// marketCap
+		{
+			BigDecimal numberOfIssued = BigDecimal.valueOf(stockInfo.numberOfIssued);
+			BigDecimal price          = BigDecimal.valueOf(ret.price);
+			BigDecimal vol            = BigDecimal.valueOf(ret.vol);
+			
+			BigDecimal marketCap = numberOfIssued.multiply(price).divide(mllion, BigDecimal.ROUND_HALF_UP);
+			BigDecimal trade     = vol.multiply(price).divide(mllion, BigDecimal.ROUND_HALF_UP);
+
+			ret.numberOfIssuedK = numberOfIssued.divide(kilo).longValue();
+			ret.marketCapK      = marketCap.longValue();
+			ret.tradeCapM          = trade.longValue();
+			ret.volPCT         = DoubleUtil.round((double)ret.vol / (double)stockInfo.numberOfIssued, 3);
+		}
+		
+		
 		
 		return ret;
 	}
