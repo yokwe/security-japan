@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +24,6 @@ public class Price implements Comparable<Price> {
 	public static final String PATH_DIR_DATA_DELIST = "tmp/data/price-delist";
 
 
-	public static List<Price> load(String stockCode) {
-		String path = getPath(stockCode);
-		return CSVUtil.read(Price.class).file(path);
-	}
-	
 	public static void save(Collection<Price> collection) {
 		save(new ArrayList<>(collection));
 	}
@@ -42,12 +39,10 @@ public class Price implements Comparable<Price> {
 	}
 	
 	public static Map<String, Price> getPriceMap(String stockCode) {
-		List<Price> list = load(stockCode);
-		if (list == null) return null;
-		
-		// key is date		
+		//            date		
 		Map<String, Price> ret = new TreeMap<>();
-		for(Price price: list) {
+
+		for(Price price: getList(stockCode)) {
 			String date = price.date;
 			if (ret.containsKey(date)) {
 				logger.error("duplicate date {}!", date);
@@ -59,6 +54,28 @@ public class Price implements Comparable<Price> {
 			}
 		}
 		return ret;
+	}
+	
+	public static List<Price> getList(String stockCode) {
+		String path = getPath(stockCode);
+		List<Price> ret = CSVUtil.read(Price.class).file(path);
+		return ret == null ? new ArrayList<>() : ret;
+	}
+	private static Map<String, Map<String, Price>> map = new TreeMap<>();
+	//                 stockCode   date
+	public static Price getPrice(String stockCode, String date) {
+		Map<String, Price> priceMap;
+		if (map.containsKey(stockCode)) {
+			priceMap = map.get(stockCode);
+		} else {
+			priceMap = getList(stockCode).stream().collect(Collectors.toMap(Price::getDate, Function.identity()));
+			map.put(stockCode, priceMap);
+		}
+		if (priceMap.containsKey(date)) {
+			return priceMap.get(date);
+		} else {
+			return null;
+		}
 	}
 	
 
@@ -81,6 +98,14 @@ public class Price implements Comparable<Price> {
 	}
 	public Price() {
 		this(null, null, 0, 0, 0, 0, 0);
+	}
+	
+	public String getDate() {
+		return this.date;
+	}
+	
+	public String getStockCode() {
+		return this.stockCode;
 	}
 
 	@Override
