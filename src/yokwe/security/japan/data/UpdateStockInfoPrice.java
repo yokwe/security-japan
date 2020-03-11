@@ -312,7 +312,6 @@ public class UpdateStockInfoPrice {
 			count++;
 			
 			Map<String, Price> oldPriceMap = Price.getPriceMap(stockCode);
-			if (oldPriceMap == null) oldPriceMap = new TreeMap<>();
 			
 			if (forceDownload) {
 				// No need to check oldPriceMap
