@@ -144,4 +144,7 @@ public class StatsJP extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
 	public double volPCT; // vol / numberOfIssued
 	
+	@ColumnName("feb17pct")
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
+	public double feb17PCT;
 }

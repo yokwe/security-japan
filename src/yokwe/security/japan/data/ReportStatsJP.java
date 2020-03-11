@@ -185,6 +185,15 @@ public class ReportStatsJP {
 			ret.volPCT         = DoubleUtil.round((double)ret.vol / (double)stockInfo.numberOfIssued, 3);
 		}
 		
+		// feb17pct
+		{
+			Price priceFeb17 = Price.getPrice(ret.stockCode, "2020-02-17");
+			if (priceFeb17 == null) {
+				ret.feb17PCT = -1;
+			} else {
+				ret.feb17PCT = DoubleUtil.round((ret.price - priceFeb17.close) / priceFeb17.close, 3);
+			}
+		}
 		
 		
 		return ret;
@@ -252,7 +261,7 @@ public class ReportStatsJP {
 			if (priceFile.exists()) {
 				priceList = new ArrayList<>();
 				
-				List<Price> list = Price.load(stockCode);
+				List<Price> list = Price.getList(stockCode);
 				Collections.sort(list);
 				
 				for(Price e: list) {
