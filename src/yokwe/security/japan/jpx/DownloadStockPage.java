@@ -1,7 +1,13 @@
 package yokwe.security.japan.jpx;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,26 +70,100 @@ public class DownloadStockPage {
 		return httpClientBuilder.build();
 	}
 
-	private static class WorkerThread extends Thread {
-		private static ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-			@Override
-			public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-				StatusLine statusLine = response.getStatusLine();
-				
-		        switch(statusLine.getStatusCode()) {
-		        case HttpStatus.SC_OK:
-		        {
-		            HttpEntity entity = response.getEntity();
-		            return entity != null ? EntityUtils.toString(entity) : null;
-		        }
-		        default:
-		        	logger.error("Unexpected status");
-		        	logger.error("  {}", statusLine);
-		        	throw new UnexpectedException("Unexpected status");
-		        }
+	public static class ResponseHandlerString implements ResponseHandler<String> {
+		private final Charset charset;
+		public ResponseHandlerString(Charset charset) {
+			this.charset = charset;
+		}
+		public ResponseHandlerString(String name) {
+			this(Charset.forName(name));
+		}
+		public ResponseHandlerString() {
+			this(StandardCharsets.UTF_8);
+		}
+		@Override
+		public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+			StatusLine statusLine = response.getStatusLine();
+			
+	        switch(statusLine.getStatusCode()) {
+	        case HttpStatus.SC_OK:
+	        {
+	            HttpEntity entity = response.getEntity();
+	            if (entity == null) {
+	            	return null;
+	            } else {
+					return EntityUtils.toString(entity, charset);
+	            }
+	        }
+	        default:
+	        	logger.error("Unexpected status");
+	        	logger.error("  {}", statusLine);
+	        	throw new UnexpectedException("Unexpected status");
+	        }
+		}
+	}
+	
+	public static class ResponseHandlerSave implements ResponseHandler<Void> {
+		private final OutputStream os;
+		public ResponseHandlerSave(OutputStream os) {
+			this.os = os;
+		}
+		public ResponseHandlerSave(File file) {
+			{
+				File parent = file.getParentFile();
+				if (!parent.exists()) {
+					parent.mkdirs();
+				}
 			}
-		};
-		
+			try {
+				this.os = new FileOutputStream(file);
+			} catch (FileNotFoundException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e);
+				throw new UnexpectedException(exceptionName, e);
+			}
+		}
+		public ResponseHandlerSave(String path) {
+			this(new File(path));
+		}
+		@Override
+		public Void handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+			StatusLine statusLine = response.getStatusLine();
+			
+	        switch(statusLine.getStatusCode()) {
+	        case HttpStatus.SC_OK:
+	        {
+	            HttpEntity entity = response.getEntity();
+	            if (entity == null) {
+	            	return null;
+	            } else {
+	                InputStream is = entity.getContent();
+	                if (is == null) {
+	                    return null;
+	                }
+	                try {
+	                    byte[] buffer = new byte[4096];
+	                    for(;;) {
+	                    	int len = is.read(buffer);
+	                    	if (len == -1) break;
+	                    	os.write(buffer, 0, len);
+	                    }
+	                    return null;
+	                } finally {
+	                    is.close();
+	                    os.close();
+	                }
+	            }
+	        }
+	        default:
+	        	logger.error("Unexpected status");
+	        	logger.error("  {}", statusLine);
+	        	throw new UnexpectedException("Unexpected status");
+	        }
+		}
+	}
+
+	private static class WorkerThread extends Thread {		
 		private CloseableHttpClient closeableHttpClient;
 		private LinkedList<Target>  list;
 		private int                 listSize;
@@ -115,13 +195,22 @@ public class DownloadStockPage {
 		private void download(Target target) {			
 			HttpGet httpGet = new HttpGet(target.url);
 			try {
-				String result = closeableHttpClient.execute(httpGet, responseHandler);
-				if (result != null) {
-					String page = StringUtil.unescapceHTMLChar(closeableHttpClient.execute(httpGet, responseHandler));
-					FileUtil.write().file(target.file, page);
-				} else {
-					logger.warn("result == null  {}", target.file.getName());
+//				{
+//					ResponseHandler<Void> responseHandler = new ResponseHandlerSave(target.file);
+//					closeableHttpClient.execute(httpGet, responseHandler);
+//				}
+				
+				{
+					ResponseHandler<String> responseHandler = new ResponseHandlerString();
+					String result = closeableHttpClient.execute(httpGet, responseHandler);
+					if (result != null) {
+						String page = StringUtil.unescapceHTMLChar(closeableHttpClient.execute(httpGet, responseHandler));
+						FileUtil.write().file(target.file, page);
+					} else {
+						logger.warn("result == null  {}", target.file.getName());
+					}
 				}
+				
 			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
