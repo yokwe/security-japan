@@ -33,19 +33,6 @@ import yokwe.util.StringUtil;
 public class DownloadStockPage {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadStockPage.class);
 
-	private static final int MAX_WORKER_THREAD = 50;
-	
-	private static final String REFERER    = "https://www.jpx.co.jp/";
-	private static final String CONNECTION = "keep-alive";
-	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36";
-
-	private static final List<Header> HEADERS = new ArrayList<>();
-	static {
-		HEADERS.add(new BasicHeader("User-Agent", USER_AGENT));
-		HEADERS.add(new BasicHeader("Referer",    REFERER));
-		HEADERS.add(new BasicHeader("Connection", CONNECTION));
-	}
-	
 	private static class Target {
 		final String url;
 		final File   file;
@@ -143,19 +130,20 @@ public class DownloadStockPage {
 		}
 	}
 	
-	private static class WorkThreadGroup {
-		final CloseableHttpClient closeableHttpClient;
+	private static class WorkerThreadGroup {
+		final List<Header>       headers;
 		final LinkedList<Target> list;
 		
 		WorkerThread[] workerThreads = null;
 		
-		public WorkThreadGroup(CloseableHttpClient closeableHttpClient, LinkedList<Target> list) {
-			this.closeableHttpClient = closeableHttpClient;
-			this.list = list;
+		public WorkerThreadGroup(List<Header> headers, LinkedList<Target> list) {
+			this.headers = headers;
+			this.list    = list;
 		}
 
 		public void start(int maxThread) {
 			logger.info("maxThread {}", maxThread);
+			CloseableHttpClient closeableHttpClient = getCloseableHttpClient(maxThread, maxThread, headers);
 			workerThreads = new WorkerThread[maxThread];
 			
 			try {
@@ -184,6 +172,13 @@ public class DownloadStockPage {
 	public static void main(String[] args) {
 		logger.info("START");
 
+		int maxThread = 50;
+		
+		List<Header> headers = new ArrayList<>();
+		headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"));
+		headers.add(new BasicHeader("Referer",    "https://www.jpx.co.jp/"));
+		headers.add(new BasicHeader("Connection", "keep-alive"));
+
 		LinkedList<Target> targetList = new LinkedList<>();
 		for(Stock e: Stock.getList()) {
 			String stockCode = e.stockCode;
@@ -193,10 +188,8 @@ public class DownloadStockPage {
 		}
 		Collections.shuffle(targetList);
 		
-		CloseableHttpClient closeableHttpClient = getCloseableHttpClient(MAX_WORKER_THREAD, MAX_WORKER_THREAD, HEADERS);
-		
-		WorkThreadGroup workThreadGroup = new WorkThreadGroup(closeableHttpClient, targetList);
-		workThreadGroup.start(MAX_WORKER_THREAD);
+		WorkerThreadGroup workThreadGroup = new WorkerThreadGroup(headers, targetList);
+		workThreadGroup.start(maxThread);
 
 		logger.info("STOP");
 	}
