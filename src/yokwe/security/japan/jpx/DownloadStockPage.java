@@ -16,8 +16,10 @@ import yokwe.util.DownloadUtil;
 public class DownloadStockPage {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadStockPage.class);
 	
+	public static final String PATH_DIR_DATA = "tmp/download/page";
+	
 	private static File getPageFile(String stockCode) {
-		return new File(String.format("tmp/download/page/%s", stockCode));
+		return new File(String.format("%s/%s", PATH_DIR_DATA, stockCode));
 	}
 	private static String getPageURL(String stockCode) {
 		String stockCode4 = Stock.toStockCode4(stockCode);
