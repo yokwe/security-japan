@@ -180,9 +180,9 @@ public class ReportStatsJP {
 			BigDecimal trade     = vol.multiply(price).divide(mllion, BigDecimal.ROUND_HALF_UP);
 
 			ret.numberOfIssuedK = numberOfIssued.divide(kilo).longValue();
-			ret.marketCapK      = marketCap.longValue();
-			ret.tradeCapM          = trade.longValue();
-			ret.volPCT         = DoubleUtil.round((double)ret.vol / (double)stockInfo.numberOfIssued, 3);
+			ret.marketCapM      = marketCap.longValue();
+			ret.tradeCapM       = trade.longValue();
+			ret.volPCT          = DoubleUtil.round((double)ret.vol / (double)stockInfo.numberOfIssued, 3);
 		}
 		
 		// feb17pct

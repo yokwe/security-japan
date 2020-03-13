@@ -134,7 +134,7 @@ public class StatsJP extends Sheet {
 	
 	@ColumnName("marketCap")
 	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
-	public long   marketCapK; // price * numberOfIssued
+	public long   marketCapM; // price * numberOfIssued
 
 	@ColumnName("tradeCap")
 	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
