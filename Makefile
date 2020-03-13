@@ -183,7 +183,7 @@ ifneq (,$(wildcard tmp/data/stats-jp.csv))
 endif
 	ant report-stats-jp
 
-update-stats-jp: tmp/data/stats-jp.csv
+report-stats-jp: tmp/data/stats-jp.csv
 
 
 #
