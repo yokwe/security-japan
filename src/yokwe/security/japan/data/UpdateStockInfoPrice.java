@@ -18,29 +18,12 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.Stock;
 import yokwe.util.FileUtil;
-import yokwe.util.HttpUtil;
 import yokwe.util.JapanHoliday;
 import yokwe.util.StringUtil;
 
 public class UpdateStockInfoPrice {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockInfoPrice.class);
 
-	private static String getPage(String stockCode) {
-		// Use 4 digits stockCode
-		stockCode = Stock.toStockCode4(stockCode);
-		String url = String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode);
-		
-		HttpUtil.Result result = HttpUtil.getInstance().
-				withReferer("https://www.jpx.co.jp/").
-				download(url);
-		if (result.result == null) {
-			logger.error("result is null %s", stockCode);
-			throw new UnexpectedException("result is null");
-		}
-		String ret = StringUtil.unescapceHTMLChar(result.result);
-		return ret;
-	}
-	
 	private static class BasicInfo {
 		private static final Pattern PAT = Pattern.compile(
 				"<tr>\\s+" +
@@ -324,15 +307,17 @@ public class UpdateStockInfoPrice {
 				}
 			}
 			
-			// download page and save to file
-			String page = getPage(stockCode);
-
-			// FIXME Who will use saved file?
-			{
-				String path = getPagePath(stockCode);
-				File   file = new File(path);
-				FileUtil.write().file(file, page);
-			}
+//			// download page and save to file
+//			String page = getPage(stockCode);
+//
+//			// FIXME Who will use saved file?
+//			{
+//				String path = getPagePath(stockCode);
+//				File   file = new File(path);
+//				FileUtil.write().file(file, page);
+//			}
+			// FIXME read page from tmp/download/page/*
+			String page = FileUtil.read().file(getPagePath(stockCode));
 			
 			// check page
 			if (page.contains("指定された銘柄が見つかりません")) {
