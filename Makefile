@@ -39,6 +39,12 @@ endif
 	cp tmp/data/stock.csv ~/Dropbox/Trade/stock-jp.csv
 
 
+#
+# download/page
+#
+download-stock-page:
+	ant download-stock-page
+
 
 #
 # stock-info.csv price/*.csv
