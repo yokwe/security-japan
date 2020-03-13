@@ -83,15 +83,20 @@ public class DownloadUtil {
 			this.context = new Context();
 		}
 		
-		public Instance withHeaders(List<Header> headers) {
+		public Instance clearTarget() {
+			this.context.targets.clear();
+			return this;
+		}
+		
+		public Instance withHeader(List<Header> headers) {
 			this.context.headers.addAll(headers);
 			return this;
 		}
-		public Instance withHeaders(Header header) {
+		public Instance withHeader(Header header) {
 			this.context.headers.add(header);
 			return this;
 		}
-		public Instance withHeaders(String name, String value) {
+		public Instance withHeader(String name, String value) {
 			Header header = new BasicHeader(name, value);
 			this.context.headers.add(header);
 			return this;
@@ -102,6 +107,14 @@ public class DownloadUtil {
 		}
 		public Instance withTarget(Target target) {
 			this.context.targets.add(target);
+			return this;
+		}
+		public Instance withTarget(String url, File file) {
+			this.context.targets.add(new Target(url, file));
+			return this;
+		}
+		public Instance withTarget(String url, String path) {
+			this.context.targets.add(new Target(url, path));
 			return this;
 		}
 		public Instance withMaxThread(int maxThread) {

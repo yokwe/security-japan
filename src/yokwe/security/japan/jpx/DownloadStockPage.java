@@ -254,7 +254,7 @@ public class DownloadStockPage {
 			}
 			Collections.shuffle(targetList);
 			
-			DownloadUtil.getInstance().withHeaders(headers).withTarget(targetList).withMaxThread(maxThread).download();
+			DownloadUtil.getInstance().withHeader(headers).withTarget(targetList).withMaxThread(maxThread).download();
 		}
 		
 //		WorkerThreadGroup workThreadGroup = new WorkerThreadGroup(headers, targetList);
