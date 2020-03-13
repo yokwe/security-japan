@@ -176,11 +176,10 @@ update-dividend-annual: tmp/data/dividend-annual.csv
 #
 # stats-jp.csv
 #
-#tmp/data/stats-jp.csv: tmp/data/dividend-annual.csv tmp/data/stock-info.csv
 #  report-stats-jp depends on dividend-annual.csv and stock-info.csv
 #  dividend-annual.csv change frequently, so ignore dependency in this target
 #
-tmp/data/stats-jp.csv: tmp/data/stock-info.csv
+tmp/data/stats-jp.csv: tmp/data/dividend-annual.csv tmp/data/stock-info.csv
 ifneq (,$(wildcard tmp/data/stats-jp.csv))
 	rm -rf tmp/data/stats-jp-OLD.csv
 	cp     tmp/data/stats-jp.csv      tmp/data/stats-jp-OLD.csv
