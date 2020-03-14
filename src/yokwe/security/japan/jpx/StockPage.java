@@ -53,19 +53,19 @@ public class StockPage {
 	}
 
 	// 現在値
-	public static class CurrentPriceVolume {
+	public static class CurrentPriceTime {
 		public static final Pattern PAT = Pattern.compile(
 			"<td .+?><b>現在値 \\(時刻\\)</b></td>\\s*" +
 			"<td .+?><b>(?<value>[0-9,.]*) \\((?<time>.+?)\\)</b></td>\\s*"
 		);
-		public static CurrentPriceVolume getInstance(String page) {
-			return ScrapeUtil.getInstance(CurrentPriceVolume.class, PAT, page);
+		public static CurrentPriceTime getInstance(String page) {
+			return ScrapeUtil.getInstance(CurrentPriceTime.class, PAT, page);
 		}
 
 		public final String value;
 		public final String time;
 		
-		public CurrentPriceVolume(String value, String time) {
+		public CurrentPriceTime(String value, String time) {
 			// remove comma
 			this.value = value.replace(",", "");
 			// remove &nbsp;&nbsp;
@@ -105,19 +105,19 @@ public class StockPage {
 	}
 
 	// 買い気配値
-	public static class BuyValueTime {
+	public static class BuyPriceTime {
 		public static final Pattern PAT = Pattern.compile(
 			"<td .+?><font .+?>買い気配値 \\(時刻\\)</font></td>\\s*" +
 			"<td .+?><font .+?>(?<value>.+?) \\((?<time>.+?)\\)</font></td>\\s*"
 		);
-		public static BuyValueTime getInstance(String page) {
-			return ScrapeUtil.getInstance(BuyValueTime.class, PAT, page);
+		public static BuyPriceTime getInstance(String page) {
+			return ScrapeUtil.getInstance(BuyPriceTime.class, PAT, page);
 		}
 
 		public final String value;
 		public final String time;
 		
-		public BuyValueTime(String value, String time) {
+		public BuyPriceTime(String value, String time) {
 			// remove comma
 			this.value = value.replace(",", "").replace("&nbsp;", "");
 			// remove &nbsp;&nbsp;
@@ -340,18 +340,18 @@ public class StockPage {
 				if (string.contains(NO_INFORMATION)) continue;
 
 				logger.info("file  {}", file.getName());
-				logger.info("  companyInfo    {}", CompanyInfo.getInstance(string));
-				logger.info("  priceVolume    {}", CurrentPriceVolume.getInstance(string));
-				logger.info("  sellPrcieTime  {}", SellPriceTime.getInstance(string));
-				logger.info("  buyPriceTime   {}", BuyValueTime.getInstance(string));
-				logger.info("  openPrice      {}", OpenPrice.getInstance(string));
-				logger.info("  highPrice      {}", HighPrice.getInstance(string));
-				logger.info("  lowPrice       {}", LowPrice.getInstance(string));
-				logger.info("  tradeValue     {}", TradeValue.getInstance(string));
-				logger.info("  issued         {}", Issued.getInstance(string));
-				logger.info("  tradeVoluem    {}", TradeVolume.getInstance(string));
-				logger.info("  tradeUnit      {}", TradeUnit.getInstance(string));
-				logger.info("  priceVolume    {}", PriceVolume.getInstance(string).size());
+				logger.info("  companyInfo      {}", CompanyInfo.getInstance(string));
+				logger.info("  currentPriceTime {}", CurrentPriceTime.getInstance(string));
+				logger.info("  sellPrcieTime    {}", SellPriceTime.getInstance(string));
+				logger.info("  buyPriceTime     {}", BuyPriceTime.getInstance(string));
+				logger.info("  openPrice        {}", OpenPrice.getInstance(string));
+				logger.info("  highPrice        {}", HighPrice.getInstance(string));
+				logger.info("  lowPrice         {}", LowPrice.getInstance(string));
+				logger.info("  tradeVolume      {}", TradeVolume.getInstance(string));
+				logger.info("  tradeValue       {}", TradeValue.getInstance(string));
+				logger.info("  tradeUnit        {}", TradeUnit.getInstance(string));
+				logger.info("  issued           {}", Issued.getInstance(string));
+				logger.info("  priceVolume      {}", PriceVolume.getInstance(string).size());
 
 			}
 
