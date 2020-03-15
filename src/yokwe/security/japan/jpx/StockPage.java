@@ -2,6 +2,9 @@ package yokwe.security.japan.jpx;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalLong;
 import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
@@ -37,13 +40,13 @@ public class StockPage {
 		public final String code;
 		public final String isin;
 		public final String industry;
-		public final String category;
+		public final Optional<String> category;
 		
-		public CompanyInfo(String code, String isin, String industry, String category) {
+		public CompanyInfo(String code, String isin, String industry, Optional<String> category) {
 			this.code     = code;
 			this.isin     = isin;
 			this.industry = industry;
-			this.category = category.replace("&nbsp;", "");
+			this.category = category;
 		}
 		
 		@Override
@@ -62,10 +65,10 @@ public class StockPage {
 			return ScrapeUtil.get(CurrentPriceTime.class, PAT, page);
 		}
 
-		public final Double value;
-		public final String time;
+		public final OptionalDouble value;
+		public final Optional<String> time;
 		
-		public CurrentPriceTime(Double value, String time) {
+		public CurrentPriceTime(OptionalDouble value, Optional<String> time) {
 			this.value = value;
 			this.time  = time;
 		}
@@ -86,10 +89,10 @@ public class StockPage {
 			return ScrapeUtil.get(SellPriceTime.class, PAT, page);
 		}
 
-		public final Double value;
-		public final String time;
+		public final OptionalDouble   value;
+		public final Optional<String> time;
 		
-		public SellPriceTime(Double value, String time) {
+		public SellPriceTime(OptionalDouble value, Optional<String> time) {
 			this.value = value;
 			this.time  = time;
 		}
@@ -110,10 +113,10 @@ public class StockPage {
 			return ScrapeUtil.get(BuyPriceTime.class, PAT, page);
 		}
 
-		public final Double value;
-		public final String time;
+		public final OptionalDouble   value;
+		public final Optional<String> time;
 		
-		public BuyPriceTime(Double value, String time) {
+		public BuyPriceTime(OptionalDouble value, Optional<String> time) {
 			this.value = value;
 			this.time  = time;
 		}
@@ -134,9 +137,9 @@ public class StockPage {
 			return ScrapeUtil.get(OpenPrice.class, PAT, page);
 		}
 
-		public final Double value;
+		public final OptionalDouble value;
 		
-		public OpenPrice(Double value) {
+		public OpenPrice(OptionalDouble value) {
 			this.value = value;
 		}
 		
@@ -156,9 +159,9 @@ public class StockPage {
 			return ScrapeUtil.get(HighPrice.class, PAT, page);
 		}
 
-		public final Double value;
+		public final OptionalDouble value;
 		
-		public HighPrice(Double value) {
+		public HighPrice(OptionalDouble value) {
 			this.value = value;
 		}
 		
@@ -178,9 +181,9 @@ public class StockPage {
 			return ScrapeUtil.get(LowPrice.class, PAT, page);
 		}
 
-		public final Double value;
+		public final OptionalDouble value;
 		
-		public LowPrice(Double value) {
+		public LowPrice(OptionalDouble value) {
 			this.value = value;
 		}
 		
@@ -200,9 +203,9 @@ public class StockPage {
 			return ScrapeUtil.get(TradeVolume.class, PAT, page);
 		}
 		
-		public final Long value;
+		public final OptionalLong value;
 		
-		public TradeVolume(Long value) {
+		public TradeVolume(OptionalLong value) {
 			this.value = value;
 		}
 		
@@ -222,9 +225,9 @@ public class StockPage {
 			return ScrapeUtil.get(TradeValue.class, PAT, page);
 		}
 		
-		public final Long value;
+		public final OptionalLong value;
 		
-		public TradeValue(Long value) {
+		public TradeValue(OptionalLong value) {
 			this.value = value;
 		}
 		
@@ -244,9 +247,9 @@ public class StockPage {
 			return ScrapeUtil.get(Issued.class, PAT, page);
 		}
 
-		public final Long value;
+		public final long value;
 		
-		public Issued(Long value) {
+		public Issued(long value) {
 			this.value = value;
 		}
 		
@@ -265,9 +268,9 @@ public class StockPage {
 			return ScrapeUtil.get(TradeUnit.class, PAT, page);
 		}
 		
-		public final Long value;
+		public final long value;
 		
-		public TradeUnit(Long value) {
+		public TradeUnit(long value) {
 			this.value = value;
 		}
 		
@@ -295,13 +298,14 @@ public class StockPage {
 		public final String yyyy;
 		public final String mm;
 		public final String dd;
-		public final Double open;
-		public final Double high;
-		public final Double low;
-		public final Double close;
-		public final Long   volume;
 		
-		public PriceVolume(String yyyy, String mm, String dd, Double open, Double high, Double low, Double close, Long volume) {
+		public final OptionalDouble open;
+		public final OptionalDouble high;
+		public final OptionalDouble low;
+		public final OptionalDouble close;
+		public final long           volume;
+		
+		public PriceVolume(String yyyy, String mm, String dd, OptionalDouble open, OptionalDouble high, OptionalDouble low, OptionalDouble close, long volume) {
 			this.yyyy   = yyyy;
 			this.mm     = mm;
 			this.dd     = dd;
@@ -340,6 +344,12 @@ public class StockPage {
 				logger.info("  issued           {}", Issued.getInstance(string));
 				logger.info("  priceVolume      {}", PriceVolume.getInstance(string).size());
 
+//				{
+//					List<PriceVolume> list = PriceVolume.getInstance(string);
+//					for(PriceVolume e: list) {
+//						logger.info("    {}", e);
+//					}
+//				}
 			}
 
 		}
