@@ -31,7 +31,7 @@ public class StockPage {
 				"</tr>"
 		);
 		public static CompanyInfo getInstance(String page) {
-			return ScrapeUtil.getInstance(CompanyInfo.class, PAT, page);
+			return ScrapeUtil.get(CompanyInfo.class, PAT, page);
 		}
 
 		public final String code;
@@ -59,7 +59,7 @@ public class StockPage {
 			"<td .+?><b>(?<value>[0-9,.]*) \\((?<time>.+?)\\)</b></td>\\s*"
 		);
 		public static CurrentPriceTime getInstance(String page) {
-			return ScrapeUtil.getInstance(CurrentPriceTime.class, PAT, page);
+			return ScrapeUtil.get(CurrentPriceTime.class, PAT, page);
 		}
 
 		public final String value;
@@ -85,7 +85,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<value>.+?) \\((?<time>.+?)\\)</font></td>\\s*"
 		);
 		public static SellPriceTime getInstance(String page) {
-			return ScrapeUtil.getInstance(SellPriceTime.class, PAT, page);
+			return ScrapeUtil.get(SellPriceTime.class, PAT, page);
 		}
 
 		public final String value;
@@ -111,7 +111,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<value>.+?) \\((?<time>.+?)\\)</font></td>\\s*"
 		);
 		public static BuyPriceTime getInstance(String page) {
-			return ScrapeUtil.getInstance(BuyPriceTime.class, PAT, page);
+			return ScrapeUtil.get(BuyPriceTime.class, PAT, page);
 		}
 
 		public final String value;
@@ -137,7 +137,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
 		);
 		public static OpenPrice getInstance(String page) {
-			return ScrapeUtil.getInstance(OpenPrice.class, PAT, page);
+			return ScrapeUtil.get(OpenPrice.class, PAT, page);
 		}
 
 		public final String value;
@@ -160,7 +160,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
 		);
 		public static HighPrice getInstance(String page) {
-			return ScrapeUtil.getInstance(HighPrice.class, PAT, page);
+			return ScrapeUtil.get(HighPrice.class, PAT, page);
 		}
 
 		public final String value;
@@ -183,7 +183,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
 		);
 		public static LowPrice getInstance(String page) {
-			return ScrapeUtil.getInstance(LowPrice.class, PAT, page);
+			return ScrapeUtil.get(LowPrice.class, PAT, page);
 		}
 
 		public final String value;
@@ -206,7 +206,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<value>.*?)株<br></font></td>\\s*"
 		);
 		public static TradeVolume getInstance(String page) {
-			return ScrapeUtil.getInstance(TradeVolume.class, PAT, page);
+			return ScrapeUtil.get(TradeVolume.class, PAT, page);
 		}
 		
 		public final String value;
@@ -229,7 +229,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
 		);
 		public static TradeValue getInstance(String page) {
-			return ScrapeUtil.getInstance(TradeValue.class, PAT, page);
+			return ScrapeUtil.get(TradeValue.class, PAT, page);
 		}
 		
 		public final String value;
@@ -252,7 +252,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
 		);
 		public static Issued getInstance(String page) {
-			return ScrapeUtil.getInstance(Issued.class, PAT, page);
+			return ScrapeUtil.get(Issued.class, PAT, page);
 		}
 
 		public final String value;
@@ -274,7 +274,7 @@ public class StockPage {
 			"<td .+?><font .+?>(?<tradeUnit>[0-9,]+)株<br></font></td>\\s+"
 		);
 		public static TradeUnit getInstance(String page) {
-			return ScrapeUtil.getInstance(TradeUnit.class, PAT, page);
+			return ScrapeUtil.get(TradeUnit.class, PAT, page);
 		}
 		
 		public final String tradeUnit;
