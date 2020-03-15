@@ -62,14 +62,12 @@ public class StockPage {
 			return ScrapeUtil.get(CurrentPriceTime.class, PAT, page);
 		}
 
-		public final String value;
+		public final Double value;
 		public final String time;
 		
-		public CurrentPriceTime(String value, String time) {
-			// remove comma
-			this.value = value.replace(",", "");
-			// remove &nbsp;&nbsp;
-			this.time  = time.equals("&nbsp;&nbsp;") ? "" : time;
+		public CurrentPriceTime(Double value, String time) {
+			this.value = value;
+			this.time  = time;
 		}
 		
 		@Override
@@ -88,14 +86,12 @@ public class StockPage {
 			return ScrapeUtil.get(SellPriceTime.class, PAT, page);
 		}
 
-		public final String value;
+		public final Double value;
 		public final String time;
 		
-		public SellPriceTime(String value, String time) {
-			// remove comma
-			this.value = value.replace(",", "").replace("&nbsp;", "");
-			// remove &nbsp;&nbsp;
-			this.time  = time.equals("&nbsp;&nbsp;") ? "" : time;
+		public SellPriceTime(Double value, String time) {
+			this.value = value;
+			this.time  = time;
 		}
 		
 		@Override
@@ -114,14 +110,12 @@ public class StockPage {
 			return ScrapeUtil.get(BuyPriceTime.class, PAT, page);
 		}
 
-		public final String value;
+		public final Double value;
 		public final String time;
 		
-		public BuyPriceTime(String value, String time) {
-			// remove comma
-			this.value = value.replace(",", "").replace("&nbsp;", "");
-			// remove &nbsp;&nbsp;
-			this.time  = time.equals("&nbsp;&nbsp;") ? "" : time;
+		public BuyPriceTime(Double value, String time) {
+			this.value = value;
+			this.time  = time;
 		}
 		
 		@Override
@@ -140,11 +134,10 @@ public class StockPage {
 			return ScrapeUtil.get(OpenPrice.class, PAT, page);
 		}
 
-		public final String value;
+		public final Double value;
 		
-		public OpenPrice(String value) {
-			// remove comma
-			this.value = value.replace(",", "").replace("&nbsp;", "");
+		public OpenPrice(Double value) {
+			this.value = value;
 		}
 		
 		@Override
@@ -163,11 +156,10 @@ public class StockPage {
 			return ScrapeUtil.get(HighPrice.class, PAT, page);
 		}
 
-		public final String value;
+		public final Double value;
 		
-		public HighPrice(String value) {
-			// remove comma
-			this.value = value.replace(",", "").replace("&nbsp;", "");
+		public HighPrice(Double value) {
+			this.value = value;
 		}
 		
 		@Override
@@ -186,11 +178,10 @@ public class StockPage {
 			return ScrapeUtil.get(LowPrice.class, PAT, page);
 		}
 
-		public final String value;
+		public final Double value;
 		
-		public LowPrice(String value) {
-			// remove comma
-			this.value = value.replace(",", "").replace("&nbsp;", "");
+		public LowPrice(Double value) {
+			this.value = value;
 		}
 		
 		@Override
@@ -209,11 +200,10 @@ public class StockPage {
 			return ScrapeUtil.get(TradeVolume.class, PAT, page);
 		}
 		
-		public final String value;
+		public final Long value;
 		
-		public TradeVolume(String value) {
-			// remove comma
-			this.value = value.replace(",", "").replace("&nbsp;", "");
+		public TradeVolume(Long value) {
+			this.value = value;
 		}
 		
 		@Override
@@ -232,11 +222,10 @@ public class StockPage {
 			return ScrapeUtil.get(TradeValue.class, PAT, page);
 		}
 		
-		public final String value;
+		public final Long value;
 		
-		public TradeValue(String value) {
-			// remove comma
-			this.value = value.replace(",", "").replace("&nbsp;", "");
+		public TradeValue(Long value) {
+			this.value = value;
 		}
 		
 		@Override
@@ -255,11 +244,10 @@ public class StockPage {
 			return ScrapeUtil.get(Issued.class, PAT, page);
 		}
 
-		public final String value;
+		public final Long value;
 		
-		public Issued(String value) {
-			// remove comma
-			this.value = value.replace(",", "").replace("&nbsp;", "");
+		public Issued(Long value) {
+			this.value = value;
 		}
 		
 		@Override
@@ -271,22 +259,21 @@ public class StockPage {
 	public static class TradeUnit {
 		public static final Pattern PAT = Pattern.compile(
 			"<td .+?><font .+?>売買単位</font></td>\\s+" +
-			"<td .+?><font .+?>(?<tradeUnit>[0-9,]+)株<br></font></td>\\s+"
+			"<td .+?><font .+?>(?<value>[0-9,]+)株<br></font></td>\\s+"
 		);
 		public static TradeUnit getInstance(String page) {
 			return ScrapeUtil.get(TradeUnit.class, PAT, page);
 		}
 		
-		public final String tradeUnit;
+		public final Long value;
 		
-		public TradeUnit(String tradeUnit) {
-			// remove comma
-			this.tradeUnit = tradeUnit.replace(",", "");
+		public TradeUnit(Long value) {
+			this.value = value;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s}", tradeUnit);
+			return String.format("{%s}", value);
 		}
 	}
 
@@ -308,13 +295,13 @@ public class StockPage {
 		public final String yyyy;
 		public final String mm;
 		public final String dd;
-		public final String open;
-		public final String high;
-		public final String low;
-		public final String close;
-		public final String volume;
+		public final Double open;
+		public final Double high;
+		public final Double low;
+		public final Double close;
+		public final Long   volume;
 		
-		public PriceVolume(String yyyy, String mm, String dd, String open, String high, String low, String close, String volume) {
+		public PriceVolume(String yyyy, String mm, String dd, Double open, Double high, Double low, Double close, Long volume) {
 			this.yyyy   = yyyy;
 			this.mm     = mm;
 			this.dd     = dd;
