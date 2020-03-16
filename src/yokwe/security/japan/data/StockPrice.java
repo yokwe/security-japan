@@ -91,8 +91,9 @@ public class StockPrice implements Comparable<StockPrice> {
 	
 	@Override
 	public int compareTo(StockPrice that) {
-		int ret = this.time.compareTo(that.time);
+		int ret = 0;
 		if (ret == 0) ret = this.stockCode.compareTo(that.stockCode);
+		if (ret == 0) ret = this.time.compareTo(that.time);
 		return ret;
 	}
 }
