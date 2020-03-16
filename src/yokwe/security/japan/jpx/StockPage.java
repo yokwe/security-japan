@@ -3,8 +3,6 @@ package yokwe.security.japan.jpx;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalLong;
 import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
@@ -16,6 +14,14 @@ public class StockPage {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockPage.class);
 	
 	public static final String NO_INFORMATION = "指定された銘柄が見つかりません";
+	
+	private static Optional<String> removeComma(Optional<String> value) {
+		if (value.isPresent()) {
+			return Optional.of(value.get().replace(",", ""));
+		} else {
+			return value;
+		}
+	}
 	
 	// 会社基本情報  コード ISINコード 業種 所属部
 	public static class CompanyInfo {
@@ -59,23 +65,23 @@ public class StockPage {
 	public static class CurrentPriceTime {
 		public static final Pattern PAT = Pattern.compile(
 			"<td .+?><b>現在値 \\(時刻\\)</b></td>\\s*" +
-			"<td .+?><b>(?<value>[0-9,.]*) \\((?<time>.+?)\\)</b></td>\\s*"
+			"<td .+?><b>(?<price>[0-9,.]*) \\((?<time>.+?)\\)</b></td>\\s*"
 		);
 		public static CurrentPriceTime getInstance(String page) {
 			return ScrapeUtil.get(CurrentPriceTime.class, PAT, page);
 		}
 
-		public final OptionalDouble value;
+		public final Optional<String> price;
 		public final Optional<String> time;
 		
-		public CurrentPriceTime(OptionalDouble value, Optional<String> time) {
-			this.value = value;
+		public CurrentPriceTime(Optional<String> price, Optional<String> time) {
+			this.price = removeComma(price);
 			this.time  = time;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s,%s}", value, time);
+			return String.format("{%s,%s}", price, time);
 		}
 	}
 
@@ -83,23 +89,23 @@ public class StockPage {
 	public static class SellPriceTime {
 		public static final Pattern PAT = Pattern.compile(
 			"<td .+?><font .+?>売り気配値 \\(時刻\\)</font></td>\\s*" +
-			"<td .+?><font .+?>(?<value>.+?) \\((?<time>.+?)\\)</font></td>\\s*"
+			"<td .+?><font .+?>(?<price>.+?) \\((?<time>.+?)\\)</font></td>\\s*"
 		);
 		public static SellPriceTime getInstance(String page) {
 			return ScrapeUtil.get(SellPriceTime.class, PAT, page);
 		}
 
-		public final OptionalDouble   value;
+		public final Optional<String> price;
 		public final Optional<String> time;
 		
-		public SellPriceTime(OptionalDouble value, Optional<String> time) {
-			this.value = value;
+		public SellPriceTime(Optional<String> price, Optional<String> time) {
+			this.price = removeComma(price);
 			this.time  = time;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s,%s}", value, time);
+			return String.format("{%s,%s}", price, time);
 		}
 	}
 
@@ -107,23 +113,23 @@ public class StockPage {
 	public static class BuyPriceTime {
 		public static final Pattern PAT = Pattern.compile(
 			"<td .+?><font .+?>買い気配値 \\(時刻\\)</font></td>\\s*" +
-			"<td .+?><font .+?>(?<value>.+?) \\((?<time>.+?)\\)</font></td>\\s*"
+			"<td .+?><font .+?>(?<price>.+?) \\((?<time>.+?)\\)</font></td>\\s*"
 		);
 		public static BuyPriceTime getInstance(String page) {
 			return ScrapeUtil.get(BuyPriceTime.class, PAT, page);
 		}
 
-		public final OptionalDouble   value;
+		public final Optional<String> price;
 		public final Optional<String> time;
 		
-		public BuyPriceTime(OptionalDouble value, Optional<String> time) {
-			this.value = value;
+		public BuyPriceTime(Optional<String> price, Optional<String> time) {
+			this.price = removeComma(price);
 			this.time  = time;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s,%s}", value, time);
+			return String.format("{%s,%s}", price, time);
 		}
 	}
 	
@@ -137,10 +143,10 @@ public class StockPage {
 			return ScrapeUtil.get(OpenPrice.class, PAT, page);
 		}
 
-		public final OptionalDouble value;
+		public final Optional<String> value;
 		
-		public OpenPrice(OptionalDouble value) {
-			this.value = value;
+		public OpenPrice(Optional<String> value) {
+			this.value = removeComma(value);
 		}
 		
 		@Override
@@ -159,10 +165,10 @@ public class StockPage {
 			return ScrapeUtil.get(HighPrice.class, PAT, page);
 		}
 
-		public final OptionalDouble value;
+		public final Optional<String> value;
 		
-		public HighPrice(OptionalDouble value) {
-			this.value = value;
+		public HighPrice(Optional<String> value) {
+			this.value = removeComma(value);
 		}
 		
 		@Override
@@ -181,10 +187,10 @@ public class StockPage {
 			return ScrapeUtil.get(LowPrice.class, PAT, page);
 		}
 
-		public final OptionalDouble value;
+		public final Optional<String> value;
 		
-		public LowPrice(OptionalDouble value) {
-			this.value = value;
+		public LowPrice(Optional<String> value) {
+			this.value = removeComma(value);
 		}
 		
 		@Override
@@ -203,10 +209,10 @@ public class StockPage {
 			return ScrapeUtil.get(TradeVolume.class, PAT, page);
 		}
 		
-		public final OptionalLong value;
+		public final Optional<String> value;
 		
-		public TradeVolume(OptionalLong value) {
-			this.value = value;
+		public TradeVolume(Optional<String> value) {
+			this.value = removeComma(value);
 		}
 		
 		@Override
@@ -225,10 +231,10 @@ public class StockPage {
 			return ScrapeUtil.get(TradeValue.class, PAT, page);
 		}
 		
-		public final OptionalLong value;
+		public final Optional<String> value;
 		
-		public TradeValue(OptionalLong value) {
-			this.value = value;
+		public TradeValue(Optional<String> value) {
+			this.value = removeComma(value);
 		}
 		
 		@Override
@@ -247,10 +253,10 @@ public class StockPage {
 			return ScrapeUtil.get(Issued.class, PAT, page);
 		}
 
-		public final long value;
+		public final Optional<String> value;
 		
-		public Issued(long value) {
-			this.value = value;
+		public Issued(Optional<String> value) {
+			this.value = removeComma(value);
 		}
 		
 		@Override
@@ -299,20 +305,20 @@ public class StockPage {
 		public final String mm;
 		public final String dd;
 		
-		public final OptionalDouble open;
-		public final OptionalDouble high;
-		public final OptionalDouble low;
-		public final OptionalDouble close;
-		public final long           volume;
+		public final Optional<String> open;
+		public final Optional<String> high;
+		public final Optional<String> low;
+		public final Optional<String> close;
+		public final long             volume;
 		
-		public PriceVolume(String yyyy, String mm, String dd, OptionalDouble open, OptionalDouble high, OptionalDouble low, OptionalDouble close, long volume) {
+		public PriceVolume(String yyyy, String mm, String dd, Optional<String> open, Optional<String> high, Optional<String> low, Optional<String> close, long volume) {
 			this.yyyy   = yyyy;
 			this.mm     = mm;
 			this.dd     = dd;
-			this.open   = open;
-			this.high   = high;
-			this.low    = low;
-			this.close  = close;
+			this.open   = removeComma(open);
+			this.high   = removeComma(high);
+			this.low    = removeComma(low);
+			this.close  = removeComma(close);
 			this.volume = volume;
 		}
 		
