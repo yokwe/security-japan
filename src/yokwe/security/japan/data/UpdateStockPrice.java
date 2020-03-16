@@ -160,7 +160,7 @@ public class UpdateStockPrice {
 			double low;
 			double close;
 			long   volume; //  = Long.parseLong(e.volume)
-			if (e.volume.isEmpty()) {
+			if (e.open.isEmpty() || e.high.isEmpty() || e.low.isEmpty() || e.price.isEmpty() || e.volume.isEmpty()) {
 				// Cannot get lastPrice, skip to this entry
 				if (priceMap.isEmpty()) {
 					countSkip++;
@@ -168,11 +168,11 @@ public class UpdateStockPrice {
 				}
 				
 				Price lastPrice = priceMap.lastEntry().getValue();
-				open   = lastPrice.open;
-				high   = lastPrice.high;
-				low    = lastPrice.low;
+				open   = lastPrice.close;
+				high   = lastPrice.close;
+				low    = lastPrice.close;
 				close  = lastPrice.close;
-				volume = 0;
+				volume = e.volume.isEmpty() ? 0 : Long.parseLong(e.volume);
 				countZero++;
 			} else {
 				open   = Double.parseDouble(e.open);
