@@ -15,14 +15,6 @@ public class StockPage {
 	
 	public static final String NO_INFORMATION = "指定された銘柄が見つかりません";
 	
-	private static Optional<String> removeComma(Optional<String> value) {
-		if (value.isPresent()) {
-			return Optional.of(value.get().replace(",", ""));
-		} else {
-			return value;
-		}
-	}
-	
 	// 会社基本情報  コード ISINコード 業種 所属部
 	public static class CompanyInfo {
 		public static final Pattern PAT = Pattern.compile(
@@ -71,11 +63,12 @@ public class StockPage {
 			return ScrapeUtil.get(CurrentPriceTime.class, PAT, page);
 		}
 
+		@ScrapeUtil.AsNumber
 		public final Optional<String> price;
 		public final Optional<String> time;
 		
 		public CurrentPriceTime(Optional<String> price, Optional<String> time) {
-			this.price = removeComma(price);
+			this.price = price;
 			this.time  = time;
 		}
 		
@@ -95,11 +88,12 @@ public class StockPage {
 			return ScrapeUtil.get(SellPriceTime.class, PAT, page);
 		}
 
+		@ScrapeUtil.AsNumber
 		public final Optional<String> price;
 		public final Optional<String> time;
 		
 		public SellPriceTime(Optional<String> price, Optional<String> time) {
-			this.price = removeComma(price);
+			this.price = price;
 			this.time  = time;
 		}
 		
@@ -119,11 +113,12 @@ public class StockPage {
 			return ScrapeUtil.get(BuyPriceTime.class, PAT, page);
 		}
 
+		@ScrapeUtil.AsNumber
 		public final Optional<String> price;
 		public final Optional<String> time;
 		
 		public BuyPriceTime(Optional<String> price, Optional<String> time) {
-			this.price = removeComma(price);
+			this.price = price;
 			this.time  = time;
 		}
 		
@@ -143,10 +138,11 @@ public class StockPage {
 			return ScrapeUtil.get(OpenPrice.class, PAT, page);
 		}
 
+		@ScrapeUtil.AsNumber
 		public final Optional<String> value;
 		
 		public OpenPrice(Optional<String> value) {
-			this.value = removeComma(value);
+			this.value = value;
 		}
 		
 		@Override
@@ -165,10 +161,11 @@ public class StockPage {
 			return ScrapeUtil.get(HighPrice.class, PAT, page);
 		}
 
+		@ScrapeUtil.AsNumber
 		public final Optional<String> value;
 		
 		public HighPrice(Optional<String> value) {
-			this.value = removeComma(value);
+			this.value = value;
 		}
 		
 		@Override
@@ -187,10 +184,11 @@ public class StockPage {
 			return ScrapeUtil.get(LowPrice.class, PAT, page);
 		}
 
+		@ScrapeUtil.AsNumber
 		public final Optional<String> value;
 		
 		public LowPrice(Optional<String> value) {
-			this.value = removeComma(value);
+			this.value = value;
 		}
 		
 		@Override
@@ -209,10 +207,11 @@ public class StockPage {
 			return ScrapeUtil.get(TradeVolume.class, PAT, page);
 		}
 		
+		@ScrapeUtil.AsNumber
 		public final Optional<String> value;
 		
 		public TradeVolume(Optional<String> value) {
-			this.value = removeComma(value);
+			this.value = value;
 		}
 		
 		@Override
@@ -231,10 +230,11 @@ public class StockPage {
 			return ScrapeUtil.get(TradeValue.class, PAT, page);
 		}
 		
+		@ScrapeUtil.AsNumber
 		public final Optional<String> value;
 		
 		public TradeValue(Optional<String> value) {
-			this.value = removeComma(value);
+			this.value = value;
 		}
 		
 		@Override
@@ -253,10 +253,11 @@ public class StockPage {
 			return ScrapeUtil.get(Issued.class, PAT, page);
 		}
 
+		@ScrapeUtil.AsNumber
 		public final Optional<String> value;
 		
 		public Issued(Optional<String> value) {
-			this.value = removeComma(value);
+			this.value = value;
 		}
 		
 		@Override
@@ -305,9 +306,13 @@ public class StockPage {
 		public final String mm;
 		public final String dd;
 		
+		@ScrapeUtil.AsNumber
 		public final Optional<String> open;
+		@ScrapeUtil.AsNumber
 		public final Optional<String> high;
+		@ScrapeUtil.AsNumber
 		public final Optional<String> low;
+		@ScrapeUtil.AsNumber
 		public final Optional<String> close;
 		public final long             volume;
 		
@@ -315,10 +320,10 @@ public class StockPage {
 			this.yyyy   = yyyy;
 			this.mm     = mm;
 			this.dd     = dd;
-			this.open   = removeComma(open);
-			this.high   = removeComma(high);
-			this.low    = removeComma(low);
-			this.close  = removeComma(close);
+			this.open   = open;
+			this.high   = high;
+			this.low    = low;
+			this.close  = close;
 			this.volume = volume;
 		}
 		
