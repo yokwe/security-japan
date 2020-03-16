@@ -4,8 +4,11 @@ import java.io.File;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
+import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +29,12 @@ public class UpdateStockPrice {
 	private static final DateTimeFormatter FORMAT_HHMM = DateTimeFormatter.ofPattern("HH:mm");
 	
 	private static void updateStockPrice() {
-		// Read old data
+		// Load old data
 		List<StockPrice> list = StockPrice.getList();
+		logger.info("load old data {}", list.size());
 		
 		// Append new data
+		logger.info("append new data");
 		for(File file: FileUtil.listFile(StockPage.PATH_DIR_DATA)) {
 			String        stockCode = file.getName();
 			LocalDateTime dateTime  = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), TimeZone.getDefault().toZoneId());  
@@ -91,16 +96,111 @@ public class UpdateStockPrice {
 			list.add(stockPrice);
 		}
 		
+		// Remove duplicate record
+		logger.info("remove duplicate data");
+		{
+			Map<String, StockPrice> map = new TreeMap<>();
+			for(StockPrice e: list) {
+				String key = String.format("%s %s %s", e.date, e.time, e.stockCode);
+				map.put(key, e);
+			}
+			list.clear();
+			list.addAll(map.values());
+		}
+		
 		// Save data
 		logger.info("save {}", list.size());
 		StockPrice.save(list);
+	}
+	
+	private static void updatePrice() {
+		// build list contains oldest time StockPrice record for each stockCode
+		List<StockPrice> list;
+		{
+			Map<String, StockPrice> map = new TreeMap<>();
+			for(StockPrice e: StockPrice.getList()) {
+				String stockCode = e.stockCode;
+				if (map.containsKey(stockCode)) {
+					StockPrice oldData = map.get(stockCode);
+					String oldTime = oldData.time;
+					String newTime = e.time;
+					if (oldTime.compareTo(newTime) < 0) {
+						map.put(stockCode, e);
+					}
+				} else {
+					map.put(stockCode, e);
+				}
+			}
+			list = new ArrayList<>(map.values());
+		}
+		
+		// update price file
+		int count       = 0;
+		int countUpdate = 0;
+		int countSkip   = 0;
+		int countZero   = 0;
+		int countTotal  = list.size();
+		for(StockPrice e: list) {
+			String date      = e.date;
+			String stockCode = e.stockCode;
+			
+			if ((count % 100) == 0) {
+				logger.info("{}", String.format("%4d / %4d  %s", count, countTotal, stockCode));
+			}
+			count++;
+			
+			TreeMap<String, Price> priceMap = new TreeMap<>();
+			//  date
+			for(Price price: Price.getList(stockCode)) {
+				priceMap.put(price.date, price);
+			}
+			
+			double open;
+			double high;
+			double low;
+			double close;
+			long   volume; //  = Long.parseLong(e.volume)
+			if (e.volume.isEmpty()) {
+				// Cannot get lastPrice, skip to this entry
+				if (priceMap.isEmpty()) {
+					countSkip++;
+					continue;
+				}
+				
+				Price lastPrice = priceMap.lastEntry().getValue();
+				open   = lastPrice.open;
+				high   = lastPrice.high;
+				low    = lastPrice.low;
+				close  = lastPrice.close;
+				volume = 0;
+				countZero++;
+			} else {
+				open   = Double.parseDouble(e.open);
+				high   = Double.parseDouble(e.high);
+				low    = Double.parseDouble(e.low);
+				close  = Double.parseDouble(e.price);
+				volume = Long.parseLong(e.volume);
+				countUpdate++;
+			}
+
+			Price price = new Price(date, stockCode, open, low, high, close, volume);
+			// Over write old entry or add new entry
+			priceMap.put(date, price);
+			
+			Price.save(priceMap.values());
+		}
+		
+		logger.info("countTotal  {}", String.format("%4d", countTotal));
+		logger.info("countSkip   {}", String.format("%4d", countSkip));
+		logger.info("countZero   {}", String.format("%4d", countZero));
+		logger.info("countUpdate {}", String.format("%4d", countUpdate));
 	}
 	
 	public static void main(String[] args) {
 		logger.info("START");
 		
 		updateStockPrice();
-				
+		updatePrice();
 		logger.info("STOP");
 	}
 }
