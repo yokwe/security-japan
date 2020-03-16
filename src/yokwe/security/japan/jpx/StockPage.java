@@ -276,6 +276,7 @@ public class StockPage {
 		}
 	}
 
+	// 売買単位
 	public static class TradeUnit {
 		public static final Pattern PAT = Pattern.compile(
 			"<td .+?><font .+?>売買単位</font></td>\\s+" +
@@ -297,6 +298,7 @@ public class StockPage {
 		}
 	}
 
+	// 日足ヒストリカル
 	public static class PriceVolume {
 		public static final Pattern PAT = Pattern.compile(
 			"(?<yyyy>20[0-9][0-9])/(?<mm>[01][0-9])/(?<dd>[0123][0-9])," +
