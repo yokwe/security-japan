@@ -47,6 +47,13 @@ download-stock-page:
 
 
 #
+# stock-price.csv
+#
+update-stock-price:
+	ant update-stock-price
+
+
+#
 # stock-info.csv price/*.csv
 #
 update-stock-info-price:
