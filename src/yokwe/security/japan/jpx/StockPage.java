@@ -161,6 +161,29 @@ public class StockPage {
 		}
 	}
 
+	// 前日終値
+	public static class LastClosePrice {
+		public static final Pattern PAT = Pattern.compile(
+			"<td .+?><font .+?>前日終値</font></td>\\s*" +
+			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
+		);
+		public static OpenPrice getInstance(String page) {
+			return ScrapeUtil.get(OpenPrice.class, PAT, page);
+		}
+
+		@ScrapeUtil.AsNumber
+		public final Optional<String> value;
+		
+		public LastClosePrice(Optional<String> value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s}", value);
+		}
+	}
+
 	// 高値
 	public static class HighPrice {
 		public static final Pattern PAT = Pattern.compile(
@@ -360,6 +383,7 @@ public class StockPage {
 				logger.info("  buyPriceTime     {}", BuyPriceTime.getInstance(string));
 				logger.info("  openPrice        {}", OpenPrice.getInstance(string));
 				logger.info("  highPrice        {}", HighPrice.getInstance(string));
+				logger.info("  lastClosePrice   {}", LastClosePrice.getInstance(string));
 				logger.info("  lowPrice         {}", LowPrice.getInstance(string));
 				logger.info("  tradeVolume      {}", TradeVolume.getInstance(string));
 				logger.info("  tradeValue       {}", TradeValue.getInstance(string));
