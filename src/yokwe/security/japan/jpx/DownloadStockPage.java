@@ -15,17 +15,7 @@ import yokwe.util.DownloadUtil;
 
 public class DownloadStockPage {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadStockPage.class);
-	
-	public static final String PATH_DIR_DATA = "tmp/download/page";
-	
-	private static File getPageFile(String stockCode) {
-		return new File(String.format("%s/%s", PATH_DIR_DATA, stockCode));
-	}
-	private static String getPageURL(String stockCode) {
-		String stockCode4 = Stock.toStockCode4(stockCode);
-		return String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode4);
-	}
-	
+		
 	public static void main(String[] args) {
 		logger.info("START");
 
@@ -40,8 +30,8 @@ public class DownloadStockPage {
 			LinkedList<DownloadUtil.Target> targetList = new LinkedList<>();
 			for(Stock e: Stock.getList()) {
 				String stockCode = e.stockCode;
-				String url  = getPageURL(stockCode);
-				File   file = getPageFile(stockCode);
+				String url  = StockPage.getPageURL(stockCode);
+				File   file = StockPage.getPageFile(stockCode);
 				targetList.add(new DownloadUtil.Target(url, file));
 			}
 			Collections.shuffle(targetList);

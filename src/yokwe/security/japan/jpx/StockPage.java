@@ -13,6 +13,16 @@ import yokwe.util.ScrapeUtil;
 public class StockPage {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockPage.class);
 	
+	public static final String PATH_DIR_DATA = "tmp/download/page";
+	
+	public static File getPageFile(String stockCode) {
+		return new File(String.format("%s/%s", PATH_DIR_DATA, stockCode));
+	}
+	public static String getPageURL(String stockCode) {
+		String stockCode4 = Stock.toStockCode4(stockCode);
+		return String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode4);
+	}
+
 	public static final String NO_INFORMATION = "指定された銘柄が見つかりません";
 	
 	// 会社基本情報  コード ISINコード 業種 所属部
@@ -337,7 +347,7 @@ public class StockPage {
 		logger.info("START");
 		
 		{
-			for(File file: FileUtil.listFile(DownloadStockPage.PATH_DIR_DATA)) {
+			for(File file: FileUtil.listFile(PATH_DIR_DATA)) {
 				String string = FileUtil.read().file(file);
 				if (string.contains(NO_INFORMATION)) continue;
 
