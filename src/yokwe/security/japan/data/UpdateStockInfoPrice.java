@@ -17,13 +17,29 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.Stock;
+import yokwe.security.japan.jpx.StockPage;
 import yokwe.util.FileUtil;
+import yokwe.util.HttpUtil;
 import yokwe.util.JapanHoliday;
 import yokwe.util.StringUtil;
 
 public class UpdateStockInfoPrice {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockInfoPrice.class);
 
+	private static String getPage(String stockCode) {
+		String url = StockPage.getPageURL(stockCode);
+		
+		HttpUtil.Result result = HttpUtil.getInstance().
+				withReferer("https://www.jpx.co.jp/").
+				download(url);
+		if (result.result == null) {
+			logger.error("result is null %s", stockCode);
+			throw new UnexpectedException("result is null");
+		}
+		String ret = StringUtil.unescapceHTMLChar(result.result);
+		return ret;
+	}
+	
 	private static class BasicInfo {
 		private static final Pattern PAT = Pattern.compile(
 				"<tr>\\s+" +
@@ -225,15 +241,14 @@ public class UpdateStockInfoPrice {
 		return map;
 	}
 	
-	private static String getPagePath(String stockCode) {
-		return String.format("tmp/download/page/%s", stockCode);
-	}
-	
 	private static final int MAX_COUNT_NO_DATA = 10;
 	
 	private static void updatePrice(List<Stock> list) {
 		boolean forceDownload = Boolean.getBoolean("forceDownload");
 		logger.info("forceDownload {}", forceDownload);
+		
+		boolean usePageFile = Boolean.getBoolean("usePageFile");
+		logger.info("usePageFile   {}", usePageFile);
 
 		// delist if necessary
 		{
@@ -307,17 +322,12 @@ public class UpdateStockInfoPrice {
 				}
 			}
 			
-//			// download page and save to file
-//			String page = getPage(stockCode);
-//
-//			// FIXME Who will use saved file?
-//			{
-//				String path = getPagePath(stockCode);
-//				File   file = new File(path);
-//				FileUtil.write().file(file, page);
-//			}
-			// FIXME read page from tmp/download/page/*
-			String page = FileUtil.read().file(getPagePath(stockCode));
+			String page;
+			if (usePageFile) {
+				page = FileUtil.read().file(StockPage.getPageFile(stockCode));
+			} else {
+				page = getPage(stockCode);
+			}
 			
 			// check page
 			if (page.contains("指定された銘柄が見つかりません")) {
