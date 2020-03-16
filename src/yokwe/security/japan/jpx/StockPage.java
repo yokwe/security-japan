@@ -167,8 +167,8 @@ public class StockPage {
 			"<td .+?><font .+?>前日終値</font></td>\\s*" +
 			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
 		);
-		public static OpenPrice getInstance(String page) {
-			return ScrapeUtil.get(OpenPrice.class, PAT, page);
+		public static LastClosePrice getInstance(String page) {
+			return ScrapeUtil.get(LastClosePrice.class, PAT, page);
 		}
 
 		@ScrapeUtil.AsNumber
