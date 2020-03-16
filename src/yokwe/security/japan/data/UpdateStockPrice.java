@@ -25,11 +25,11 @@ public class UpdateStockPrice {
 
 	private static final DateTimeFormatter FORMAT_HHMM = DateTimeFormatter.ofPattern("HH:mm");
 	
-	public static void main(String[] args) {
-		logger.info("START");
-		
+	private static void updateStockPrice() {
+		// Read old data
 		List<StockPrice> list = StockPrice.getList();
 		
+		// Append new data
 		for(File file: FileUtil.listFile(StockPage.PATH_DIR_DATA)) {
 			String        stockCode = file.getName();
 			LocalDateTime dateTime  = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), TimeZone.getDefault().toZoneId());  
@@ -49,6 +49,7 @@ public class UpdateStockPrice {
 			TradeValue       tradeValue       = TradeValue.getInstance(page);
 			
 //			String stockCode;
+			String date = dateTime.toLocalDate().toString();
 			String time = dateTime.toLocalTime().format(FORMAT_HHMM);
 			
 			String price     = currentPriceTime.price.orElse("");
@@ -67,6 +68,7 @@ public class UpdateStockPrice {
 			String trade = tradeValue.value.orElse("");
 			
 			StockPrice stockPrice = new StockPrice(
+					date,
 					time,
 					stockCode,
 					
@@ -89,9 +91,16 @@ public class UpdateStockPrice {
 			list.add(stockPrice);
 		}
 		
+		// Save data
 		logger.info("save {}", list.size());
 		StockPrice.save(list);
+	}
+	
+	public static void main(String[] args) {
+		logger.info("START");
 		
+		updateStockPrice();
+				
 		logger.info("STOP");
 	}
 }

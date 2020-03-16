@@ -26,8 +26,8 @@ public class StockPrice implements Comparable<StockPrice> {
 		CSVUtil.write(StockPrice.class).file(PATH_FILE, list);
 	}
 	
-
-	public String time;      // HH:mm -- taken from file modified time
+	public String date;      // YYYY-MM-DD -- taken from file modified time
+	public String time;      // HH:mm      -- taken from file modified time
 	public String stockCode; // 5 digits
 	
 	public String price;
@@ -47,6 +47,7 @@ public class StockPrice implements Comparable<StockPrice> {
 	public String trade;
 	
 	public StockPrice(
+			String date,
 			String time,
 			String stockCode,
 			
@@ -66,6 +67,7 @@ public class StockPrice implements Comparable<StockPrice> {
 			String volume,
 			String trade
 		) {
+		this.date = date;
 		this.time = time;
 		this.stockCode = stockCode;
 		
@@ -86,13 +88,14 @@ public class StockPrice implements Comparable<StockPrice> {
 		this.trade = trade;
 	}
 	public StockPrice() {
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 	
 	@Override
 	public int compareTo(StockPrice that) {
 		int ret = 0;
 		if (ret == 0) ret = this.stockCode.compareTo(that.stockCode);
+		if (ret == 0) ret = this.date.compareTo(that.date);
 		if (ret == 0) ret = this.time.compareTo(that.time);
 		return ret;
 	}
