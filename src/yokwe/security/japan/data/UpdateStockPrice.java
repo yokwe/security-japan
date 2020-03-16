@@ -9,7 +9,7 @@ import java.util.TimeZone;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.jpx.DownloadStockPage;
+import yokwe.security.japan.jpx.StockPage;
 import yokwe.security.japan.jpx.StockPage.BuyPriceTime;
 import yokwe.security.japan.jpx.StockPage.CurrentPriceTime;
 import yokwe.security.japan.jpx.StockPage.HighPrice;
@@ -30,7 +30,7 @@ public class UpdateStockPrice {
 		
 		List<StockPrice> list = StockPrice.getList();
 		
-		for(File file: FileUtil.listFile(DownloadStockPage.PATH_DIR_DATA)) {
+		for(File file: FileUtil.listFile(StockPage.PATH_DIR_DATA)) {
 			String        stockCode = file.getName();
 			LocalDateTime dateTime  = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), TimeZone.getDefault().toZoneId());  
 //			logger.info("{}  {}", stockCode, dateTime);
