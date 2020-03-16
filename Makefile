@@ -48,7 +48,7 @@ download-stock-page:
 	ant update-stock-price
 
 clear-stock-price:
-	echo -n >tmp/data/stock-price.csv
+	rm tmp/data/stock-price.csv
 
 save-stock-price:
 	cp tmp/data/stock-price.csv      tmp/data/stock-price/stock-price_$$(date +%Y%m%d).csv
