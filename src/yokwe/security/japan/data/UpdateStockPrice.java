@@ -16,6 +16,7 @@ import yokwe.security.japan.jpx.StockPage;
 import yokwe.security.japan.jpx.StockPage.BuyPriceTime;
 import yokwe.security.japan.jpx.StockPage.CurrentPriceTime;
 import yokwe.security.japan.jpx.StockPage.HighPrice;
+import yokwe.security.japan.jpx.StockPage.LastClosePrice;
 import yokwe.security.japan.jpx.StockPage.LowPrice;
 import yokwe.security.japan.jpx.StockPage.OpenPrice;
 import yokwe.security.japan.jpx.StockPage.SellPriceTime;
@@ -52,6 +53,7 @@ public class UpdateStockPrice {
 			LowPrice         lowPrice         = LowPrice.getInstance(page);
 			TradeVolume      tradeVolume      = TradeVolume.getInstance(page);
 			TradeValue       tradeValue       = TradeValue.getInstance(page);
+			LastClosePrice   lastClosePrice   = LastClosePrice.getInstance(page);
 			
 //			String stockCode;
 			String date = dateTime.toLocalDate().toString();
@@ -72,6 +74,8 @@ public class UpdateStockPrice {
 			String volume = tradeVolume.value.orElse("");
 			String trade = tradeValue.value.orElse("");
 			
+			String lastClose = lastClosePrice.value.orElse("");
+
 			StockPrice stockPrice = new StockPrice(
 					date,
 					time,
@@ -91,7 +95,9 @@ public class UpdateStockPrice {
 					low,
 					
 					volume,
-					trade
+					trade,
+					
+					lastClose
 				);
 			list.add(stockPrice);
 		}

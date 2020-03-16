@@ -46,6 +46,8 @@ public class StockPrice implements Comparable<StockPrice> {
 	public String volume;
 	public String trade;
 	
+	public String lastClose;
+	
 	public StockPrice(
 			String date,
 			String time,
@@ -65,7 +67,9 @@ public class StockPrice implements Comparable<StockPrice> {
 			String low,
 			
 			String volume,
-			String trade
+			String trade,
+			
+			String lastClose
 		) {
 		this.date = date;
 		this.time = time;
@@ -86,9 +90,11 @@ public class StockPrice implements Comparable<StockPrice> {
 		
 		this.volume = volume;
 		this.trade = trade;
+		
+		this.lastClose = lastClose;
 	}
 	public StockPrice() {
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 	
 	@Override
