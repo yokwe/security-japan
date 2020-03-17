@@ -15,12 +15,12 @@ import yokwe.util.CSVUtil;
 public class StockInfo implements Comparable<StockInfo> {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockInfo.class);
 
-	public static final String PATH_DATA = "tmp/data/stock-info.csv";
+	public static final String PATH_FILE = "tmp/data/stock-info.csv";
 
 	private static List<StockInfo> list = null;
 	public static List<StockInfo> getList() {
 		if (list == null) {
-			list = CSVUtil.read(StockInfo.class).file(PATH_DATA);
+			list = CSVUtil.read(StockInfo.class).file(PATH_FILE);
 			if (list == null) {
 				list = new ArrayList<>();
 			}
@@ -59,7 +59,7 @@ public class StockInfo implements Comparable<StockInfo> {
 	public static void save(List<StockInfo> list) {
 		// Sort before save
 		Collections.sort(list);
-		CSVUtil.write(StockInfo.class).file(PATH_DATA, list);
+		CSVUtil.write(StockInfo.class).file(PATH_FILE, list);
 	}
 
 	public String stockCode; // コード 4 or 5 digits
