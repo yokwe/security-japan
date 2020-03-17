@@ -362,6 +362,10 @@ public class StockPage {
 			this.volume = volume;
 		}
 		
+		public String getDate() {
+			return String.format("%s-%s-%s", yyyy, mm, dd);
+		}
+		
 		@Override
 		public String toString() {
 			return String.format("{%s %s %s %s %s %s %s %s}", yyyy, mm, dd, open, high, low, close, volume);
