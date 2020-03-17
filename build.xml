@@ -72,26 +72,6 @@
                  </java>
         </target>
 
-        <target name="update-stock-info-price">
-                <java classname="yokwe.security.japan.data.UpdateStockInfoPrice" fork="true">
-                        <classpath location="${jar.security-japan}" />
-                        <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
-                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
-                        <sysproperty key="forceDownload" value="false"/>
-                 </java>
-        </target>
-
-        <target name="update-stock-info-price-all">
-                <java classname="yokwe.security.japan.data.UpdateStockInfoPrice" fork="true">
-                        <classpath location="${jar.security-japan}" />
-                        <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
-                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
-                        <sysproperty key="forceDownload" value="true"/>
-                 </java>
-        </target>
-
         <target name="download-ufocatch">
                 <java classname="yokwe.security.japan.ufocatch.DownloadUFOCatch" fork="true">
                         <classpath location="${jar.security-japan}" />

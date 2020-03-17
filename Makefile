@@ -55,21 +55,6 @@ save-stock-price:
 
 
 #
-# stock-info.csv price/*.csv
-#
-update-stock-info-price:
-ifneq (,$(wildcard tmp/data/price))
-	rm -rf tmp/data/price-OLD
-	cp -rp tmp/data/price      tmp/data/price-OLD
-endif
-ifneq (,$(wildcard tmp/data/stock-info.csv))
-	rm -f tmp/data/stock-info-OLD.csv
-	cp -p tmp/data/stock-info.csv  tmp/data/stock-info-OLD.csv
-endif
-	ant update-stock-info-price
-
-
-#
 # tdnet.touch
 #   "ant download-ufocatch" download file, it will touch tmp/data/tdnet.touch
 #
