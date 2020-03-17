@@ -203,12 +203,8 @@ public class ReportStatsJP {
 		final LocalDate firstPriceDate;
 		{
 			LocalDate date = DATE_LAST.minusYears(1).plusDays(1);
-			for(;;) {
-				if (JapanHoliday.isClosed(date)) {
-					date = date.plusDays(1);
-					continue;
-				}
-				break;
+			if (JapanHoliday.isClosed(date)) {
+				date = JapanHoliday.getNextTradingDate(date);
 			}
 			firstPriceDate = date;
 		}
@@ -322,30 +318,36 @@ public class ReportStatsJP {
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		boolean onlyCSV = Boolean.getBoolean("onlyCSV");
+		logger.info("onlyCSV {}", onlyCSV);
+
 		List<StatsJP> statsList = getStatsList();
 		logger.info("save {} {}", StatsJP.PATH_FILE, statsList.size());
 		StatsJP.save(statsList);
 		
-		try (
-			SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
-			SpreadSheet docSave = new SpreadSheet()) {
+		if (!onlyCSV) {
+			logger.info("build report");
+			try (
+					SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
+					SpreadSheet docSave = new SpreadSheet()) {
 
-			String sheetName = Sheet.getSheetName(StatsJP.class);
-			docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
-			Sheet.fillSheet(docSave, statsList);
-			
-			String newSheetName = String.format("%s",  DATE_LAST.toString());
-			logger.info("sheet {}", newSheetName);
-			docSave.renameSheet(sheetName, newSheetName);
+					String sheetName = Sheet.getSheetName(StatsJP.class);
+					docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, statsList);
+					
+					String newSheetName = String.format("%s",  DATE_LAST.toString());
+					logger.info("sheet {}", newSheetName);
+					docSave.renameSheet(sheetName, newSheetName);
 
-			// remove first sheet
-			docSave.removeSheet(docSave.getSheetName(0));
+					// remove first sheet
+					docSave.removeSheet(docSave.getSheetName(0));
 
-			docSave.store(URL_REPORT);
-			logger.info("output {}", URL_REPORT);
-			docLoad.close();
+					docSave.store(URL_REPORT);
+					logger.info("output {}", URL_REPORT);
+					docLoad.close();
+				}
 		}
-		logger.info("stats  {}", String.format("%4d", statsList.size()));
+		
 		logger.info("STOP");
 		System.exit(0);
 	}
