@@ -198,6 +198,9 @@ endif
 
 report-stats-jp: tmp/data/stats-jp.csv
 
+update-stats-jp:
+	ant update-stats-jp
+	cp tmp/data/stats-jp.csv ~/Dropbox/Trade/stats-jp.csv
 
 #
 # edinet-document.csv
