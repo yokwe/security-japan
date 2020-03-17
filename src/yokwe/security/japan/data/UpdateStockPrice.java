@@ -16,13 +16,16 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.StockPage;
 import yokwe.security.japan.jpx.StockPage.BuyPriceTime;
+import yokwe.security.japan.jpx.StockPage.CompanyInfo;
 import yokwe.security.japan.jpx.StockPage.CurrentPriceTime;
 import yokwe.security.japan.jpx.StockPage.HighPrice;
+import yokwe.security.japan.jpx.StockPage.Issued;
 import yokwe.security.japan.jpx.StockPage.LastClosePrice;
 import yokwe.security.japan.jpx.StockPage.LowPrice;
 import yokwe.security.japan.jpx.StockPage.OpenPrice;
 import yokwe.security.japan.jpx.StockPage.PriceVolume;
 import yokwe.security.japan.jpx.StockPage.SellPriceTime;
+import yokwe.security.japan.jpx.StockPage.TradeUnit;
 import yokwe.security.japan.jpx.StockPage.TradeValue;
 import yokwe.security.japan.jpx.StockPage.TradeVolume;
 import yokwe.util.FileUtil;
@@ -37,6 +40,8 @@ public class UpdateStockPrice {
 		List<StockPrice> list = StockPrice.getList();
 		logger.info("load old data {}", list.size());
 		
+		List<StockInfo> stockInfoList = new ArrayList<>();
+		
 		// Append new data
 		logger.info("build new data");
 		for(File file: FileUtil.listFile(StockPage.PATH_DIR_DATA)) {
@@ -48,6 +53,9 @@ public class UpdateStockPrice {
 			
 			if (page.contains("指定された銘柄が見つかりません")) continue;
 			
+			CompanyInfo      companyInfo      = CompanyInfo.getInstance(page);
+			TradeUnit        tradeUnit        = TradeUnit.getInstance(page);
+			Issued           issued           = Issued.getInstance(page);
 			CurrentPriceTime currentPriceTime = CurrentPriceTime.getInstance(page);
 			BuyPriceTime     buyPriceTime     = BuyPriceTime.getInstance(page);
 			SellPriceTime    sellPriceTime    = SellPriceTime.getInstance(page);
@@ -61,6 +69,13 @@ public class UpdateStockPrice {
 
 			// save for later use
 			priceVolumeMap.put(stockCode, priceVolumeList);
+			
+			// build stockInfoList
+			{
+				// String stockCode, String isin, int tradeUnit, long issued, String industry
+				StockInfo stockInfo = new StockInfo(stockCode, companyInfo.isin, tradeUnit.value, issued.value);
+				stockInfoList.add(stockInfo);
+			}
 			
 //			String stockCode;
 			String date = dateTime.toLocalDate().toString();
@@ -125,6 +140,9 @@ public class UpdateStockPrice {
 		// Save data
 		logger.info("save {}", list.size());
 		StockPrice.save(list);
+		
+		logger.info("save {}", stockInfoList.size());
+		StockInfo.save(stockInfoList);
 	}
 	
 	private static void updatePrice(Map<String, List<PriceVolume>> priceVolumeMap) {
