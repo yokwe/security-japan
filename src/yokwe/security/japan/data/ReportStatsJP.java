@@ -172,7 +172,7 @@ public class ReportStatsJP {
 
 		// marketCap
 		{
-			BigDecimal numberOfIssued = BigDecimal.valueOf(stockInfo.numberOfIssued);
+			BigDecimal numberOfIssued = BigDecimal.valueOf(stockInfo.issued);
 			BigDecimal price          = BigDecimal.valueOf(ret.price);
 			BigDecimal vol            = BigDecimal.valueOf(ret.vol);
 			
@@ -182,7 +182,7 @@ public class ReportStatsJP {
 			ret.numberOfIssuedK = numberOfIssued.divide(kilo).longValue();
 			ret.marketCapM      = marketCap.longValue();
 			ret.tradeCapM       = trade.longValue();
-			ret.volPCT          = DoubleUtil.round((double)ret.vol / (double)stockInfo.numberOfIssued, 3);
+			ret.volPCT          = DoubleUtil.round((double)ret.vol / (double)stockInfo.issued, 3);
 		}
 		
 		// feb17pct
