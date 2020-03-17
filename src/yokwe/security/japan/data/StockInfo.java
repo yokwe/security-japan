@@ -62,16 +62,16 @@ public class StockInfo implements Comparable<StockInfo> {
 		CSVUtil.write(StockInfo.class).file(PATH_DATA, list);
 	}
 
-	public String stockCode;      // コード 4 or 5 digits
-	public String isinCode;       // ISINコード
-	public int    tradeUnit;      // 売買単位
-	public long   numberOfIssued; // 発行済株式数
+	public String stockCode; // コード 4 or 5 digits
+	public String isin;      // ISINコード
+	public int    tradeUnit; // 売買単位
+	public long   issued;    // 発行済株式数
 	
-	public StockInfo(String stockCode, String isinCode, int tradeUnit, long numberOfIssued) {
-		this.stockCode      = stockCode;
-		this.isinCode       = isinCode;
-		this.tradeUnit      = tradeUnit;
-		this.numberOfIssued = numberOfIssued;
+	public StockInfo(String stockCode, String isin, int tradeUnit, long issued) {
+		this.stockCode = stockCode;
+		this.isin      = isin;
+		this.tradeUnit = tradeUnit;
+		this.issued    = issued;
 	}
 	public StockInfo() {
 		this(null, null, 0, 0);
@@ -79,7 +79,7 @@ public class StockInfo implements Comparable<StockInfo> {
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s %d %d", stockCode, isinCode, tradeUnit, numberOfIssued);
+		return String.format("{%s %s %d %d %s}", stockCode, isin, tradeUnit, issued);
 	}
 	
 	@Override
