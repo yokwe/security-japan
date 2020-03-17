@@ -7,11 +7,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.UnexpectedException;
 import yokwe.security.japan.jpx.StockPage;
 import yokwe.security.japan.jpx.StockPage.BuyPriceTime;
 import yokwe.security.japan.jpx.StockPage.CurrentPriceTime;
@@ -19,6 +21,7 @@ import yokwe.security.japan.jpx.StockPage.HighPrice;
 import yokwe.security.japan.jpx.StockPage.LastClosePrice;
 import yokwe.security.japan.jpx.StockPage.LowPrice;
 import yokwe.security.japan.jpx.StockPage.OpenPrice;
+import yokwe.security.japan.jpx.StockPage.PriceVolume;
 import yokwe.security.japan.jpx.StockPage.SellPriceTime;
 import yokwe.security.japan.jpx.StockPage.TradeValue;
 import yokwe.security.japan.jpx.StockPage.TradeVolume;
@@ -29,13 +32,13 @@ public class UpdateStockPrice {
 
 	private static final DateTimeFormatter FORMAT_HHMM = DateTimeFormatter.ofPattern("HH:mm");
 	
-	private static void updateStockPrice() {
+	private static void updateStockPrice(Map<String, List<PriceVolume>> priceVolumeMap) {
 		// Load old data
 		List<StockPrice> list = StockPrice.getList();
 		logger.info("load old data {}", list.size());
 		
 		// Append new data
-		logger.info("append new data");
+		logger.info("build new data");
 		for(File file: FileUtil.listFile(StockPage.PATH_DIR_DATA)) {
 			String        stockCode = file.getName();
 			LocalDateTime dateTime  = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), TimeZone.getDefault().toZoneId());  
@@ -54,6 +57,10 @@ public class UpdateStockPrice {
 			TradeVolume      tradeVolume      = TradeVolume.getInstance(page);
 			TradeValue       tradeValue       = TradeValue.getInstance(page);
 			LastClosePrice   lastClosePrice   = LastClosePrice.getInstance(page);
+			List<PriceVolume> priceVolumeList = PriceVolume.getInstance(page);
+
+			// save for later use
+			priceVolumeMap.put(stockCode, priceVolumeList);
 			
 //			String stockCode;
 			String date = dateTime.toLocalDate().toString();
@@ -65,14 +72,15 @@ public class UpdateStockPrice {
 			String sell      = sellPriceTime.price.orElse("");
 			String sellTime  = sellPriceTime.time.orElse("");
 			
-			String buy      = buyPriceTime.price.orElse("");
-			String buyTime  = buyPriceTime.time.orElse("");
+			String buy       = buyPriceTime.price.orElse("");
+			String buyTime   = buyPriceTime.time.orElse("");
 			
-			String open  = openPrice.value.orElse("");
-			String high  = highPrice.value.orElse("");
-			String low   = lowPrice.value.orElse("");
-			String volume = tradeVolume.value.orElse("");
-			String trade = tradeValue.value.orElse("");
+			String open      = openPrice.value.orElse("");
+			String high      = highPrice.value.orElse("");
+			String low       = lowPrice.value.orElse("");
+			
+			String volume    = tradeVolume.value.orElse("");
+			String trade     = tradeValue.value.orElse("");
 			
 			String lastClose = lastClosePrice.value.orElse("");
 
@@ -119,7 +127,7 @@ public class UpdateStockPrice {
 		StockPrice.save(list);
 	}
 	
-	private static void updatePrice() {
+	private static void updatePrice(Map<String, List<PriceVolume>> priceVolumeMap) {
 		// build list contains oldest time StockPrice record for each stockCode
 		List<StockPrice> list;
 		{
@@ -140,58 +148,112 @@ public class UpdateStockPrice {
 			list = new ArrayList<>(map.values());
 		}
 		
-		// update price file
+		// update price using list (StockPrice)
 		int count       = 0;
 		int countUpdate = 0;
 		int countSkip   = 0;
 		int countZero   = 0;
 		int countTotal  = list.size();
-		for(StockPrice e: list) {
-			String date      = e.date;
-			String stockCode = e.stockCode;
+		for(StockPrice stockPrice: list) {
+			String date      = stockPrice.date;
+			String stockCode = stockPrice.stockCode;
 			
 			if ((count % 100) == 0) {
 				logger.info("{}", String.format("%4d / %4d  %s", count, countTotal, stockCode));
 			}
 			count++;
 			
+			// Map of price of stock
 			TreeMap<String, Price> priceMap = new TreeMap<>();
-			//  date
+			//      date
 			for(Price price: Price.getList(stockCode)) {
 				priceMap.put(price.date, price);
 			}
 			
-			double open;
-			double high;
-			double low;
-			double close;
-			long   volume; //  = Long.parseLong(e.volume)
-			if (e.open.isEmpty() || e.high.isEmpty() || e.low.isEmpty() || e.price.isEmpty() || e.volume.isEmpty()) {
-				// Cannot get lastPrice, skip to this entry
-				if (priceMap.isEmpty()) {
-					countSkip++;
-					continue;
+			// Update priceMap with priceVolumeList
+			//   Because if stock split, historical price will be adjusted.
+			{
+				double lastClose = -1;
+				for(PriceVolume priceVolume: priceVolumeMap.get(stockCode)) {
+					String           priceDate = priceVolume.getDate();
+					Optional<String> open      = priceVolume.open;
+					Optional<String> high      = priceVolume.high;
+					Optional<String> low       = priceVolume.low;
+					Optional<String> close     = priceVolume.close;
+					long             volume    = priceVolume.volume;
+					
+					if (priceMap.containsKey(priceDate)) {
+						Price price = priceMap.get(priceDate);
+						
+						if (volume == 0) {
+							// no price
+							if (lastClose != -1) {
+								price.open   = lastClose;
+								price.high   = lastClose;
+								price.low    = lastClose;
+								price.close  = lastClose;
+								price.volume = 0;
+							}
+						} else {
+							if (open.isPresent() && high.isPresent() && low.isPresent() && close.isPresent()) {
+								price.open   = Double.parseDouble(open.get());
+								price.high   = Double.parseDouble(high.get());
+								price.low    = Double.parseDouble(low.get());
+								price.close  = Double.parseDouble(close.get());
+								price.volume = volume;
+								
+								priceMap.put(priceDate, price);
+								
+								lastClose = price.close;
+							} else {
+								logger.error("Unexpected");
+								logger.error("  priceVolume {}", priceVolume);
+								throw new UnexpectedException("Unexpected");
+							}
+						}
+					}
 				}
-				
-				Price lastPrice = priceMap.lastEntry().getValue();
-				open   = lastPrice.close;
-				high   = lastPrice.close;
-				low    = lastPrice.close;
-				close  = lastPrice.close;
-				volume = e.volume.isEmpty() ? 0 : Long.parseLong(e.volume);
-				countZero++;
-			} else {
-				open   = Double.parseDouble(e.open);
-				high   = Double.parseDouble(e.high);
-				low    = Double.parseDouble(e.low);
-				close  = Double.parseDouble(e.price);
-				volume = Long.parseLong(e.volume);
-				countUpdate++;
 			}
+			
+			// update priceMap with data from StockPrice
+			{
+				double open;
+				double high;
+				double low;
+				double close;
+				long   volume;
+				if (stockPrice.open.isEmpty() || stockPrice.high.isEmpty() || stockPrice.low.isEmpty() || stockPrice.price.isEmpty() || stockPrice.volume.isEmpty()) {
+					// Cannot get lastPrice, skip to this entry
+					if (priceMap.isEmpty()) {
+						countSkip++;
+						continue;
+					}
+					
+					Price lastPrice;
+					if (priceMap.containsKey(date)) {
+						lastPrice = priceMap.get(date);
+					} else {
+						lastPrice = priceMap.lastEntry().getValue();
+					}
+					open   = lastPrice.close;
+					high   = lastPrice.close;
+					low    = lastPrice.close;
+					close  = lastPrice.close;
+					volume = stockPrice.volume.isEmpty() ? 0 : Long.parseLong(stockPrice.volume);
+					countZero++;
+				} else {
+					open   = Double.parseDouble(stockPrice.open);
+					high   = Double.parseDouble(stockPrice.high);
+					low    = Double.parseDouble(stockPrice.low);
+					close  = Double.parseDouble(stockPrice.price);
+					volume = Long.parseLong(stockPrice.volume);
+					countUpdate++;
+				}
 
-			Price price = new Price(date, stockCode, open, low, high, close, volume);
-			// Over write old entry or add new entry
-			priceMap.put(date, price);
+				Price price = new Price(date, stockCode, open, high, low, close, volume);
+				// Over write old entry or add new entry
+				priceMap.put(date, price);
+			}
 			
 			Price.save(priceMap.values());
 		}
@@ -205,8 +267,13 @@ public class UpdateStockPrice {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		updateStockPrice();
-		updatePrice();
+		Map<String, List<PriceVolume>> priceVolumeMap = new TreeMap<>();
+		//  stockCode
+		
+		updateStockPrice(priceVolumeMap);
+		
+		updatePrice(priceVolumeMap);
+		
 		logger.info("STOP");
 	}
 }
