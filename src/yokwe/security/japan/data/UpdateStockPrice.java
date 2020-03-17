@@ -43,7 +43,7 @@ public class UpdateStockPrice {
 		List<StockInfo> stockInfoList = new ArrayList<>();
 		
 		// Append new data
-		logger.info("build new data");
+		logger.info("build data from download page");
 		for(File file: FileUtil.listFile(StockPage.PATH_DIR_DATA)) {
 			String        stockCode = file.getName();
 			LocalDateTime dateTime  = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), TimeZone.getDefault().toZoneId());  
@@ -138,10 +138,10 @@ public class UpdateStockPrice {
 		}
 		
 		// Save data
-		logger.info("save {}", list.size());
+		logger.info("save {} {}", StockPrice.PATH_FILE, list.size());
 		StockPrice.save(list);
 		
-		logger.info("save {}", stockInfoList.size());
+		logger.info("save {} {}",StockInfo.PATH_FILE,  stockInfoList.size());
 		StockInfo.save(stockInfoList);
 	}
 	
