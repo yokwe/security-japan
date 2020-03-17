@@ -286,16 +286,15 @@ public class StockPage {
 			return ScrapeUtil.get(Issued.class, PAT, page);
 		}
 
-		@ScrapeUtil.AsNumber
-		public final Optional<String> value;
+		public final long value;
 		
-		public Issued(Optional<String> value) {
+		public Issued(long value) {
 			this.value = value;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s}", value);
+			return String.format("%d", value);
 		}
 	}
 
@@ -309,15 +308,15 @@ public class StockPage {
 			return ScrapeUtil.get(TradeUnit.class, PAT, page);
 		}
 		
-		public final long value;
+		public final int value;
 		
-		public TradeUnit(long value) {
+		public TradeUnit(int value) {
 			this.value = value;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s}", value);
+			return String.format("%d", value);
 		}
 	}
 
