@@ -63,16 +63,6 @@ public class ReportStatsJP {
 		}
 		
 		{
-			StockInfo stockInfo = StockInfo.get(ret.stockCode);
-			if (stockInfo == null) {
-				ret.unit = -1;
-				logger.warn("                    {} no StockInfo {}", ret.stockCode, String.format("%-10s %s", ret.sector33, ret.name));
-			} else {
-				ret.unit = stockInfo.tradeUnit;
-			}
-		}
-		
-		{
 			Price lastPrice = priceList.get(priceList.size() - 1);
 			ret.date  = lastPrice.date;
 			ret.price = DoubleUtil.round(lastPrice.close, 2);
@@ -250,6 +240,14 @@ public class ReportStatsJP {
 
 			count++;
 			if (showOutput) logger.info("{}  update {}", String.format("%4d / %4d",  count, total), stockCode);
+			
+			{
+				StockInfo stockInfo = StockInfo.get(stockCode);
+				if (stockInfo == null) {
+					logger.info("{}  no StockInfo {}", String.format("%4d / %4d",  count, total), stockCode);
+					continue;
+				}
+			}
 			
 			File priceFile    = new File(Price.getPath(stockCode));
 			
