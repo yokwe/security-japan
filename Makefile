@@ -46,13 +46,6 @@ download-stock-page:
 	ant download-stock-page 
 	ant update-stock-price
 
-clear-stock-price:
-	rm tmp/data/stock-price.csv
-
-save-stock-price:
-	cp tmp/data/stock-price.csv      tmp/data/stock-price/stock-price_$$(date +%Y%m%d).csv
-
-
 #
 # tdnet.touch
 #   "ant download-ufocatch" download file, it will touch tmp/data/tdnet.touch
