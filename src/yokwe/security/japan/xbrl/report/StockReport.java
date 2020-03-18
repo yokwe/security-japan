@@ -234,6 +234,11 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 			throw new UnexpectedException("Unexpected quarterlyPeriod");
 		}
 		
+		// FIXME If annual dividend is zero, calculate annual from q1-4
+		if (ret.annualDividendPerShare.equals(BigDecimal.ZERO)) {
+			ret.annualDividendPerShare = ret.dividendPerShareQ1.add(ret.dividendPerShareQ2).add(ret.dividendPerShareQ3).add(ret.dividendPerShareQ4);
+		}
+		
 		ret.stockCode = InlineXBRL.normalizeNumberCharacter(ret.stockCode);
 
 		// Sanity check
