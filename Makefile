@@ -36,7 +36,6 @@ ifneq (,$(wildcard tmp/data/stock.csv))
 	cp -p tmp/data/stock.csv     tmp/data/stock-OLD.csv
 endif
 	ant update-stock
-	cp tmp/data/stock.csv ~/Dropbox/Trade/stock-jp.csv
 
 
 #
@@ -97,7 +96,6 @@ ifneq (,$(wildcard tmp/data/stock-report.csv))
 	cp -p tmp/data/stock-report.csv     tmp/data/stock-report-OLD.csv
 endif
 	ant update-stock-report
-	cp tmp/data/stock.csv ~/Dropbox/Trade/stock-jp.csv
 
 
 #
