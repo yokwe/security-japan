@@ -35,15 +35,16 @@ public class UpdateStockPrice {
 
 	private static final DateTimeFormatter FORMAT_HHMM = DateTimeFormatter.ofPattern("HH:mm");
 	
-	private static void updateStockPrice(Map<String, List<PriceVolume>> priceVolumeMap) {
-		// Load old data
-		List<StockPrice> list = StockPrice.getList();
-		logger.info("load old data {}", list.size());
+	private static void updateStockPrice(List<StockPrice> list, Map<String, List<PriceVolume>> map) {
+// FIXME SIMPLE
+//		// Load old data
+//		List<StockPrice> list = StockPrice.getList();
+//		logger.info("load old data {}", list.size());
 		
 		List<StockInfo> stockInfoList = new ArrayList<>();
 		
 		// Append new data
-		logger.info("build data from download page");
+		logger.info("build list from page");
 		for(File file: FileUtil.listFile(StockPage.PATH_DIR_DATA)) {
 			String        stockCode = file.getName();
 			LocalDateTime dateTime  = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), TimeZone.getDefault().toZoneId());  
@@ -68,7 +69,7 @@ public class UpdateStockPrice {
 			List<PriceVolume> priceVolumeList = PriceVolume.getInstance(page);
 
 			// save for later use
-			priceVolumeMap.put(stockCode, priceVolumeList);
+			map.put(stockCode, priceVolumeList);
 			
 			// build stockInfoList
 			{
@@ -124,18 +125,19 @@ public class UpdateStockPrice {
 				);
 			list.add(stockPrice);
 		}
-		
-		// Remove duplicate record
-		logger.info("remove duplicate data");
-		{
-			Map<String, StockPrice> map = new TreeMap<>();
-			for(StockPrice e: list) {
-				String key = String.format("%s %s %s", e.date, e.time, e.stockCode);
-				map.put(key, e);
-			}
-			list.clear();
-			list.addAll(map.values());
-		}
+
+// FIXME SIMPLE
+//		// Remove duplicate record
+//		logger.info("remove duplicate data");
+//		{
+//			Map<String, StockPrice> map = new TreeMap<>();
+//			for(StockPrice e: list) {
+//				String key = String.format("%s %s %s", e.date, e.time, e.stockCode);
+//				map.put(key, e);
+//			}
+//			list.clear();
+//			list.addAll(map.values());
+//		}
 		
 		// Save data
 		logger.info("save {} {}", StockPrice.PATH_FILE, list.size());
@@ -145,26 +147,28 @@ public class UpdateStockPrice {
 		StockInfo.save(stockInfoList);
 	}
 	
-	private static void updatePrice(Map<String, List<PriceVolume>> priceVolumeMap) {
-		// build list contains oldest time StockPrice record for each stockCode
-		List<StockPrice> list;
-		{
-			Map<String, StockPrice> map = new TreeMap<>();
-			for(StockPrice e: StockPrice.getList()) {
-				String stockCode = e.stockCode;
-				if (map.containsKey(stockCode)) {
-					StockPrice oldData = map.get(stockCode);
-					String oldTime = oldData.time;
-					String newTime = e.time;
-					if (oldTime.compareTo(newTime) < 0) {
-						map.put(stockCode, e);
-					}
-				} else {
-					map.put(stockCode, e);
-				}
-			}
-			list = new ArrayList<>(map.values());
-		}
+	private static void updatePrice(List<StockPrice> list, Map<String, List<PriceVolume>> map) {
+// FIXME SIMPLE
+//		// build list contains oldest time StockPrice record for each stockCode
+//		List<StockPrice> list;
+//		{
+//			Map<String, StockPrice> map = new TreeMap<>();
+//			for(StockPrice e: StockPrice.getList()) {
+//				String stockCode = e.stockCode;
+//				if (map.containsKey(stockCode)) {
+//					StockPrice oldData = map.get(stockCode);
+//					String oldTime = oldData.time;
+//					String newTime = e.time;
+//					if (oldTime.compareTo(newTime) < 0) {
+//						map.put(stockCode, e);
+//					}
+//				} else {
+//					map.put(stockCode, e);
+//				}
+//			}
+//			list = new ArrayList<>(map.values());
+//		}
+//		List<StockPrice> list = StockPrice.getList();
 		
 		// update price using list (StockPrice)
 		int count       = 0;
@@ -192,7 +196,7 @@ public class UpdateStockPrice {
 			//   Because if stock split, historical price will be adjusted.
 			{
 				double lastClose = -1;
-				for(PriceVolume priceVolume: priceVolumeMap.get(stockCode)) {
+				for(PriceVolume priceVolume: map.get(stockCode)) {
 					String           priceDate = priceVolume.getDate();
 					Optional<String> open      = priceVolume.open;
 					Optional<String> high      = priceVolume.high;
@@ -285,12 +289,14 @@ public class UpdateStockPrice {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		Map<String, List<PriceVolume>> priceVolumeMap = new TreeMap<>();
+		List<StockPrice> list = new ArrayList<>();
+
+		Map<String, List<PriceVolume>> map = new TreeMap<>();
 		//  stockCode
 		
-		updateStockPrice(priceVolumeMap);
+		updateStockPrice(list, map);
 		
-		updatePrice(priceVolumeMap);
+		updatePrice(list, map);
 		
 		logger.info("STOP");
 	}
