@@ -45,6 +45,15 @@ public class DividendAnnual implements Comparable<DividendAnnual> {
 		}
 		return map;
 	}
+	public static DividendAnnual get(String stockCode) {
+		Map<String, DividendAnnual> map = getMap();
+		if (map.containsKey(stockCode)) {
+			return map.get(stockCode);
+		} else {
+			return null;
+		}
+	}
+	
 	public static void save(Collection<DividendAnnual> collection) {
 		List<DividendAnnual> list = new ArrayList<>(collection);
 		save(list);
