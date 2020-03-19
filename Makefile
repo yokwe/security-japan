@@ -39,11 +39,9 @@ endif
 
 
 #
-# download/page
-# download stock page and update stock-price.csv
+# update stock-price.csv, stock-info.csv and price
 #
-download-stock-page:
-	ant download-stock-page 
+update-stock-price:
 	ant update-stock-price
 
 #
