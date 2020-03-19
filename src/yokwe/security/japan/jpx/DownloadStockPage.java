@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -75,12 +74,12 @@ public class DownloadStockPage {
 			headers.add(new BasicHeader("Referer",    "https://www.jpx.co.jp/"));
 			headers.add(new BasicHeader("Connection", "keep-alive"));
 
-			LinkedList<DownloadUtil.Target> targetList = new LinkedList<>();
+			ArrayList<DownloadUtil.Target> targetList = new ArrayList<>();
 			for(Stock e: Stock.getList()) {
 				String stockCode = e.stockCode;
 				String url  = StockPage.getPageURL(stockCode);
 				File   file = StockPage.getPageFile(stockCode);
-				targetList.add(new DownloadUtil.Target(url, file));
+				targetList.add(new DownloadUtil.FileTarget(url, file));
 			}
 			Collections.shuffle(targetList);
 			
