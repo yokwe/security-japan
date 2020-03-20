@@ -1,9 +1,7 @@
 package yokwe.security.japan.data;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,7 +32,7 @@ import yokwe.security.japan.jpx.StockPage.TradeUnit;
 import yokwe.security.japan.jpx.StockPage.TradeValue;
 import yokwe.security.japan.jpx.StockPage.TradeVolume;
 import yokwe.util.DownloadUtil;
-import yokwe.util.DownloadUtil.Target;
+import yokwe.util.JapanHoliday;
 
 public class UpdateStockPrice {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockPrice.class);
@@ -145,55 +143,28 @@ public class UpdateStockPrice {
 
 	}
 
-	private static class StringTarget implements Target {
-		private final String  url;
+	private static class MyStringTarget extends DownloadUtil.StringTarget {
 		private final String  stockCode;
-		
+		private final Context context;
 		private LocalDateTime dateTime;
-		private StringWriter  sw;
-		
-		private Context context;
 
-		
-		public StringTarget(String url, String stockCode, Context context) {
-			this.url     = url;
-			this.stockCode    = stockCode;
+		public MyStringTarget(String url, String stockCode, Context context) {
+			super(url, o -> myAction(o));
 			
-			this.dateTime = null;
-			this.sw       = null;
-			
-			this.context = context;
-		}
-		
-		@Override
-		public String getName() {
-			return stockCode;
-		}
-		@Override
-		public String getURL() {
-			return url;
-		}
-		
-		@Override
-		public OutputStream getOutputStream() {
-			logger.error("Unexpeced");
-			throw new UnexpectedException("Unexpeced");
-		}
-		
-		@Override
-		public Writer getWriter() {
-			this.sw = new StringWriter();
-			return this.sw;
+			this.stockCode = stockCode;
+			this.context   = context;
+			this.dateTime  = null;
 		}
 		
 		@Override
 		public void beforeProcess() {
+			super.beforeProcess();
 			this.dateTime = LocalDateTime.now();
 		}
 		
-		@Override
-		public void afterProcess() {
-			buildContextFromPage(context, dateTime, stockCode, this.sw.toString());
+		public static void myAction(DownloadUtil.StringTarget target) {
+			MyStringTarget myTarget = (MyStringTarget)target;
+			buildContextFromPage(myTarget.context, myTarget.dateTime, myTarget.stockCode, myTarget.stringWriter.toString());
 		}
 	}
 	
@@ -209,7 +180,7 @@ public class UpdateStockPrice {
 		for(Stock e: Stock.getList()) {
 			String stockCode = e.stockCode;
 			String url  = StockPage.getPageURL(stockCode);
-			targetList.add(new StringTarget(url, stockCode, context));
+			targetList.add(new MyStringTarget(url, stockCode, context));
 		}
 		Collections.shuffle(targetList);
 		
@@ -235,6 +206,8 @@ public class UpdateStockPrice {
 			TreeMap<String, Price> priceMap = new TreeMap<>();
 			//      date
 			for(Price price: Price.getList(stockCode)) {
+				if (JapanHoliday.isClosed(price.date)) continue;
+				
 				priceMap.put(price.date, price);
 			}
 			
@@ -271,7 +244,6 @@ public class UpdateStockPrice {
 								price.volume = volume;
 								
 								priceMap.put(priceDate, price);
-								
 								lastClose = price.close;
 							} else {
 								logger.error("Unexpected");
@@ -318,9 +290,11 @@ public class UpdateStockPrice {
 					countUpdate++;
 				}
 
-				Price price = new Price(date, stockCode, open, high, low, close, volume);
-				// Over write old entry or add new entry
-				priceMap.put(date, price);
+				if (!JapanHoliday.isClosed(date)) {
+					Price price = new Price(date, stockCode, open, high, low, close, volume);
+					// Over write old entry or add new entry
+					priceMap.put(date, price);
+				}
 			}
 			
 			Price.save(priceMap.values());
@@ -332,10 +306,7 @@ public class UpdateStockPrice {
 		logger.info("countUpdate {}", String.format("%4d", countUpdate));
 	}
 
-	
-	public static void main(String[] args) throws IOException {
-		logger.info("START");
-		
+	private static void updateFiles() {
 		Context context = new Context();
 		
 		buildContext(context);
@@ -355,7 +326,18 @@ public class UpdateStockPrice {
 
 		// update each price file
 		updatePrice(context);
+	}
+	
+	public static void main(String[] args) throws IOException {
+		logger.info("START");
 		
+		LocalDate today = LocalDate.now();
+		if (JapanHoliday.isClosed(today)) {
+			logger.warn("market is closed today");
+		} else {
+			updateFiles();
+		}
+
 		logger.info("STOP");
 	}
 }
