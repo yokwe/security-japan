@@ -149,7 +149,7 @@ public class UpdateStockPrice {
 		private LocalDateTime dateTime;
 
 		public MyStringTarget(String url, String stockCode, Context context) {
-			super(url, o -> myAction(o));
+			super(url, MyStringTarget::myAction);
 			
 			this.stockCode = stockCode;
 			this.context   = context;
