@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.http.Header;
@@ -73,13 +74,19 @@ public class DownloadStockPage {
 			headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"));
 			headers.add(new BasicHeader("Referer",    "https://www.jpx.co.jp/"));
 			headers.add(new BasicHeader("Connection", "keep-alive"));
+			
+//			Consumer<DownloadUtil.FileTarget>   fileAction   = o -> {logger.info("file   {}", String.format("%5d %s", o.file.length(), o.url));};
+//			Consumer<DownloadUtil.FileTarget>   fileAction   = o -> {};
+			Consumer<DownloadUtil.StringTarget> stringAction = o -> {logger.info("string {}", String.format("%5d %s", o.stringWriter.getBuffer().length(), o.url));};
+//			Consumer<DownloadUtil.StringTarget> stringAction = o -> {logger.info("string {}", String.format("%5d %s", o.stringWriter.getBuffer().toString().getBytes(StandardCharsets.UTF_8).length, o.url));};
 
-			ArrayList<DownloadUtil.Target> targetList = new ArrayList<>();
+			List<DownloadUtil.Target> targetList = new ArrayList<>();
 			for(Stock e: Stock.getList()) {
 				String stockCode = e.stockCode;
 				String url  = StockPage.getPageURL(stockCode);
-				File   file = StockPage.getPageFile(stockCode);
-				targetList.add(new DownloadUtil.FileTarget(url, file));
+//				File   file = StockPage.getPageFile(stockCode);
+//				targetList.add(new DownloadUtil.FileTarget(url, fileAction, file));
+				targetList.add(new DownloadUtil.StringTarget(url, stringAction));
 			}
 			Collections.shuffle(targetList);
 			
