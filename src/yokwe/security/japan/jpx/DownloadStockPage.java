@@ -60,6 +60,7 @@ public class DownloadStockPage {
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
+	
 	public static void main(String[] args) {
 		logger.info("START");
 
@@ -75,20 +76,32 @@ public class DownloadStockPage {
 			headers.add(new BasicHeader("Referer",    "https://www.jpx.co.jp/"));
 			headers.add(new BasicHeader("Connection", "keep-alive"));
 			
-//			Consumer<DownloadUtil.FileTarget>   fileAction   = o -> {logger.info("file   {}", String.format("%5d %s", o.file.length(), o.url));};
-//			Consumer<DownloadUtil.FileTarget>   fileAction   = o -> {};
-			Consumer<DownloadUtil.StringTarget> stringAction = o -> {logger.info("string {}", String.format("%5d %s", o.stringWriter.getBuffer().length(), o.url));};
-//			Consumer<DownloadUtil.StringTarget> stringAction = o -> {logger.info("string {}", String.format("%5d %s", o.stringWriter.getBuffer().toString().getBytes(StandardCharsets.UTF_8).length, o.url));};
+			Consumer<DownloadUtil.FileTarget> nullFileAction  = o -> {};
 
 			List<DownloadUtil.Target> targetList = new ArrayList<>();
 			for(Stock e: Stock.getList()) {
 				String stockCode = e.stockCode;
 				String url  = StockPage.getPageURL(stockCode);
-//				File   file = StockPage.getPageFile(stockCode);
-//				targetList.add(new DownloadUtil.FileTarget(url, fileAction, file));
-				targetList.add(new DownloadUtil.StringTarget(url, stringAction));
+				targetList.add(new DownloadUtil.TextFileTarget(url, nullFileAction, StockPage.getPageFile(stockCode)));
 			}
 			Collections.shuffle(targetList);
+			
+//			// Test code
+//			{
+//				Consumer<DownloadUtil.FileTarget>      textFileAction  = o -> {logger.info("textFile   {}", String.format("%5d %s", o.getFile().length(), o.getURL()));};
+//				Consumer<DownloadUtil.FileTarget>      binaryileAction = o -> {logger.info("binaryFile {}", String.format("%5d %s", o.getFile().length(), o.getURL()));};
+//				Consumer<DownloadUtil.StringTarget>    stringAction    = o -> {logger.info("string     {}", String.format("%5d %s", o.getString().length(), o.getURL()));};
+////				Consumer<DownloadUtil.StringTarget>    stringAction    = o -> {logger.info("string     {}", String.format("%5d %s", o.getString().getBytes(StandardCharsets.UTF_8).length, o.getURL()));};
+//				Consumer<DownloadUtil.ByteArrayTarget> byteArrayAction = o -> {logger.info("byteArray  {}", String.format("%5d %s", o.getByteArray().length, o.getURL()));};
+//
+//				targetList.clear();
+//				
+//				String url = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsSymbolSearchGST";
+//				targetList.add(new DownloadUtil.TextFileTarget(url, textFileAction, new File("tmp/a")));
+//				targetList.add(new DownloadUtil.BinaryFileTarget(url, binaryileAction, new File("tmp/a")));
+//				targetList.add(new DownloadUtil.StringTarget(url, stringAction));
+//				targetList.add(new DownloadUtil.ByteArrayTarget(url, byteArrayAction));
+//			}
 			
 			DownloadUtil.getInstance().withHeader(headers).withTarget(targetList).withMaxThread(maxThread).download();
 		}
