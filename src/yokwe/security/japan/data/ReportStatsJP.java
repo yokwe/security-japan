@@ -255,10 +255,7 @@ public class ReportStatsJP {
 			if (priceFile.exists()) {
 				priceList = new ArrayList<>();
 				
-				List<Price> list = Price.getList(stockCode);
-				Collections.sort(list);
-				
-				for(Price e: list) {
+				for(Price e: Price.getList(stockCode)) {
 					if (0 < e.open && 0 < e.high && 0 < e.low && 0 < e.close) {
 						LocalDate date = LocalDate.parse(e.date);
 						if (date.isEqual(firstPriceDate) || date.isAfter(firstPriceDate)) {
@@ -266,7 +263,7 @@ public class ReportStatsJP {
 						}
 					}
 				}
-				Collections.sort(list);
+				Collections.sort(priceList);
 				
 				{
 					if (priceList.size() != priceListCount) {
@@ -296,7 +293,7 @@ public class ReportStatsJP {
 								if (dateList.size() == 1) {
 									logger.warn("{}  SMALL  {}", String.format("%4d / %4d",  count, total), String.format("%5s %4d  %3d[%s]", stockCode, priceListCount, dateList.size()), dateList.get(0));
 								} else {
-									logger.warn("{}  SMALL  {}", String.format("%4d / %4d",  count, total), String.format("%5s %4d  %3d[%s .. %s]", stockCode, priceListCount, dateList.size()), dateList.get(0), dateList.get(dateList.size() - 1));
+									logger.warn("{}  SMALL  {}", String.format("%4d / %4d",  count, total), String.format("%5s %4d  %3d[%s .. %s]", stockCode, priceListCount, dateList.size(), dateList.get(0), dateList.get(dateList.size() - 1)));
 								}
 							}
 						}
