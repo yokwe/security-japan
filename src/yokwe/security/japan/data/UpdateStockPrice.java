@@ -164,7 +164,7 @@ public class UpdateStockPrice {
 		
 		public static void myAction(DownloadUtil.StringTarget target) {
 			MyStringTarget myTarget = (MyStringTarget)target;
-			buildContextFromPage(myTarget.context, myTarget.dateTime, myTarget.stockCode, myTarget.stringWriter.toString());
+			buildContextFromPage(myTarget.context, myTarget.dateTime, myTarget.stockCode, myTarget.getString());
 		}
 	}
 	
