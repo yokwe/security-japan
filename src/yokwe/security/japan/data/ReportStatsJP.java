@@ -42,10 +42,15 @@ public class ReportStatsJP {
 	private static StatsJP getInstance(Stock stock, List<Price> priceList) {
 		StatsJP ret = new StatsJP();
 		
+		StockInfo stockInfo = StockInfo.get(stock.stockCode);
+		EDINET    edinet    = EDINET.getFromStockCode(stock.stockCode);
+		Fund      fund      = Fund.getFromStockCodeFundName(stock.stockCode, stock.name);
+
 //		this.exchange = stock.exchange;
 		ret.stockCode = stock.stockCode;
 		
 		ret.name      = stock.name;
+		ret.unit      = stockInfo.tradeUnit;
 		if (stock.sector33.equals("-") && stock.sector17.equals("-")) {
 			if (stock.isETF()) {
 				ret.sector33 = "ETF";
@@ -137,10 +142,6 @@ public class ReportStatsJP {
 			ret.vol30 = (long)vol30.getValue();
 		}
 		
-		EDINET    edinet    = EDINET.getFromStockCode(ret.stockCode);
-		Fund      fund      = Fund.getFromStockCodeFundName(ret.stockCode, ret.name);
-		StockInfo stockInfo = StockInfo.get(ret.stockCode);
-
 		// endDate1 endDate2
 		{
 			if (fund != null) {
