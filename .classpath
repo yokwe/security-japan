@@ -19,5 +19,7 @@
 	<classpathentry kind="lib" path="/usr/lib/libreoffice/program/classes/ridl.jar"/>
 	<classpathentry kind="lib" path="data/jar/misc-lib.jar" sourcepath="/misc-lib/src"/>
 	<classpathentry kind="lib" path="data/jar/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="data/jar/javax.mail.jar"/>
+	<classpathentry kind="lib" path="data/jar/javamail-JAVAMAIL-1_6_2.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
