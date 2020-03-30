@@ -107,9 +107,9 @@ public class StatsJP extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
 	public long   vol5;
 	
-	@ColumnName("vol30")
+	@ColumnName("vol21")
 	@NumberFormat(SpreadSheet.FORMAT_INTEGER)
-	public long   vol30;
+	public long   vol21;
 	
 	// price change detection
 	@ColumnName("last")

@@ -138,8 +138,8 @@ public class ReportStatsJP {
 			MA vol5 = MA.sma(5, volArray);
 			ret.vol5 = (long)vol5.getValue();
 
-			MA vol30 = MA.sma(30, volArray);
-			ret.vol30 = (long)vol30.getValue();
+			MA vol21 = MA.sma(21, volArray);
+			ret.vol21 = (long)vol21.getValue();
 		}
 		
 		// endDate1 endDate2
