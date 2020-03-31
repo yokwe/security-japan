@@ -26,16 +26,15 @@ save-ods:
 	cp ~/Dropbox/Trade/dividend-etf.ods      ~/Dropbox/Trade/SAVE/dividend-etf_$$(date +%Y%m%d).ods
 	cp ~/Dropbox/Trade/TEMPLATE_STATS_JP.ods ~/Dropbox/Trade/SAVE/TEMPLATE_STATS_JP_$$(date +%Y%m%d).ods
 
+delete-save:
+	find tmp/save -mtime 7 -delete
 
 #
 # stock.csv
 #
 update-stock:
-ifneq (,$(wildcard tmp/data/stock.csv))
-	rm -f tmp/data/stock-OLD.csv
-	cp -p tmp/data/stock.csv     tmp/data/stock-OLD.csv
-endif
 	ant update-stock
+	cp -p tmp/data/stock.csv     tmp/save/stock_$$(date +%Y%m%d).csv
 
 
 #
@@ -43,6 +42,10 @@ endif
 #
 update-stock-price:
 	ant update-stock-price
+	cp -p tmp/data/stock-price.csv tmp/save/stock-price_$$(date +%Y%m%d).csv
+	cp -p tmp/data/stock-info.csv  tmp/save/stock-info_$$(date +%Y%m%d).csv
+	tar cfz tmp/save/price_$$(date +%Y%m%d).taz tmp/data/price
+
 
 #
 # tdnet.touch
@@ -69,11 +72,8 @@ download-release-all:
 # reit-report.csv
 #
 tmp/data/reit-report.csv: tmp/data/tdnet.touch
-ifneq (,$(wildcard tmp/data/reit-report.csv))
-	rm -f tmp/data/reit-report-OLD.csv
-	cp -p tmp/data/reit-report.csv     tmp/data/reit-report-OLD.csv
-endif
 	ant update-reit-report
+	cp -p tmp/data/reit-report.csv  tmp/save/reit-report_$$(date +%Y%m%d).csv
 
 update-reit-report: tmp/data/reit-report.csv
 
@@ -82,22 +82,16 @@ update-reit-report: tmp/data/reit-report.csv
 # stock-report.csv
 #
 tmp/data/stock-report.csv: tmp/data/tdnet.touch
-ifneq (,$(wildcard tmp/data/stock-report.csv))
-	rm -f tmp/data/stock-report-OLD.csv
-	cp -p tmp/data/stock-report.csv     tmp/data/stock-report-OLD.csv
-endif
 	ant update-stock-report
+	cp -p tmp/data/stock-report.csv  tmp/save/stock-report_$$(date +%Y%m%d).csv
 
 
 #
 # dividend-etf.csv
 #
 tmp/data/dividend-etf.csv: ~/Dropbox/Trade/dividend-etf.ods
-ifneq (,$(wildcard tmp/data/dividend-etf.csv))
-	rm -f tmp/data/dividend-etf-OLD.csv
-	cp -p tmp/data/dividend-etf.csv     tmp/data/dividend-etf-OLD.csv
-endif
 	ant update-dividend-etf
+	cp -p tmp/data/dividend-etf.csv  tmp/save/dividend-etf_$$(date +%Y%m%d).csv
 
 update-dividend-etf: tmp/data/dividend-etf.csv
 
@@ -106,11 +100,8 @@ update-dividend-etf: tmp/data/dividend-etf.csv
 # dividend-reit.csv
 #
 tmp/data/dividend-reit.csv: tmp/data/reit-report.csv
-ifneq (,$(wildcard tmp/data/dividend-reit.csv))
-	rm -f tmp/data/dividend-reit-OLD.csv
-	cp -p tmp/data/dividend-reit.csv     tmp/data/dividend-reit-OLD.csv
-endif
 	ant update-dividend-reit
+	cp -p tmp/data/dividend-reit.csv  tmp/save/dividend-reit_$$(date +%Y%m%d).csv
 
 update-dividend-reit: tmp/data/dividend-reit.csv
 
@@ -119,11 +110,8 @@ update-dividend-reit: tmp/data/dividend-reit.csv
 # dividend-stock.csv
 #
 tmp/data/dividend-stock.csv: tmp/data/stock-info.csv
-ifneq (,$(wildcard tmp/data/dividend-stock.csv))
-	rm -f tmp/data/dividend-stock-OLD.csv
-	cp -p tmp/data/dividend-stock.csv     tmp/data/dividend-stock-OLD.csv
-endif
 	ant update-dividend-stock
+	cp -p tmp/data/dividend-stock.csv  tmp/save/dividend-stock_$$(date +%Y%m%d).csv
 
 update-dividend-stock: tmp/data/dividend-stock.csv
 
@@ -132,12 +120,8 @@ update-dividend-stock: tmp/data/dividend-stock.csv
 # dividend.touch
 #
 tmp/data/dividend.touch: tmp/data/dividend-etf.csv tmp/data/dividend-reit.csv tmp/data/dividend-stock.csv
-ifneq (,$(wildcard tmp/data/dividend))
-	rm -rf tmp/data/dividend-OLD
-	mv     tmp/data/dividend      tmp/data/dividend-OLD
-	mkdir  tmp/data/dividend
-endif
 	ant update-dividend
+	tar cfz tmp/save/dividend_$$(date +%Y%m%d).taz tmp/data/dividend
 	touch tmp/data/dividend.touch
 
 update-dividend: tmp/data/dividend.touch
@@ -147,11 +131,8 @@ update-dividend: tmp/data/dividend.touch
 # dividend-annual.csv
 #
 tmp/data/dividend-annual.csv: tmp/data/dividend-etf.csv tmp/data/dividend-reit.csv tmp/data/dividend-stock.csv
-ifneq (,$(wildcard tmp/data/dividend-annual.csv))
-	rm -f tmp/data/dividend-annual-OLD.csv
-	cp -p tmp/data/dividend-annual.csv     tmp/data/dividend-annual-OLD.csv
-endif
 	ant update-dividend-annual
+	cp -p tmp/data/dividend-annual.csv  tmp/save/dividend-annual_$$(date +%Y%m%d).csv
 
 update-dividend-annual: tmp/data/dividend-annual.csv
 
@@ -163,28 +144,23 @@ update-dividend-annual: tmp/data/dividend-annual.csv
 #  dividend-annual.csv change frequently, so ignore dependency in this target
 #
 tmp/data/stats-jp.csv: tmp/data/dividend-annual.csv tmp/data/stock-info.csv
-ifneq (,$(wildcard tmp/data/stats-jp.csv))
-	rm -rf tmp/data/stats-jp-OLD.csv
-	cp     tmp/data/stats-jp.csv      tmp/data/stats-jp-OLD.csv
-endif
 	ant report-stats-jp
-	cp tmp/data/stats-jp.csv ~/Dropbox/Trade/stats-jp.csv
+	cp -p tmp/data/stats-jp.csv  tmp/save/stats-jp_$$(date +%Y%m%d).csv
+	cp -p tmp/data/stats-jp.csv  ~/Dropbox/Trade/stats-jp.csv
 
 report-stats-jp: tmp/data/stats-jp.csv
 
 update-stats-jp:
 	ant update-stats-jp
-	cp tmp/data/stats-jp.csv ~/Dropbox/Trade/stats-jp.csv
+	cp -p tmp/data/stats-jp.csv  tmp/save/stats-jp_$$(date +%Y%m%d).csv
+	cp -p tmp/data/stats-jp.csv  ~/Dropbox/Trade/stats-jp.csv
 
 #
 # edinet-document.csv
 #
 update-edinet-document:
-ifneq (,$(wildcard tmp/data/edinet-document.csv))
-	rm -rf tmp/data/edinet-document-OLD.csv
-	cp     tmp/data/edinet-document.csv      tmp/data/edinet-document-OLD.csv
-endif
 	ant update-edinet-document
+	cp -p tmp/data/edinet-document.csv  tmp/save/edinet-document_$$(date +%Y%m%d).csv
 
 
 #
