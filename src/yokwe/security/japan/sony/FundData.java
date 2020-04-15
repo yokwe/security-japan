@@ -45,52 +45,157 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 		CSVUtil.write(FundData.class).file(PATH_FILE, list);
 	}
 
+	public static enum Area {
+		WORLD        ("01"),
+		JAPAN        ("10"),
+		NORTH_AMERICA("20"),
+		EUROPE       ("30"),
+		ASIA         ("40"),
+		OCEANIA      ("50"),
+		OTHER        ("60");
+		
+		public final String value;
+		Area(String value) {
+			this.value = value;
+		}
+		@Override
+		public String toString() {
+			return name();
+		}
+		
+		public static Area get(String value) {
+			for(Area e: Area.values()) {
+				if (e.value.equals(value)) return e;
+			}
+			logger.error("Unexpected value {}!", value);
+			throw new UnexpectedException("Unexpected value");
+		}
+	}
+	
+	public static enum Target {
+		STOCK   ("01"),
+		BOND    ("10"),
+		REIT    ("20"),
+		BALANCE ("30"),
+		COMODITY("40");
+		
+		public final String value;
+		Target(String value) {
+			this.value = value;
+		}
+		@Override
+		public String toString() {
+			return name();
+		}
+		
+		public static Target get(String value) {
+			for(Target e: Target.values()) {
+				if (e.value.equals(value)) return e;
+			}
+			logger.error("Unexpected value {}!", value);
+			throw new UnexpectedException("Unexpected value");
+		}
+	}
+	
+	public static enum Company {
+		ASAHILIFE("002", "朝日ライフ"),
+		ASEMANE  ("004", "アセマネOne"),
+		AMUNDI   ("006", "アムンディ"),
+		EAST     ("009", "イーストS"),
+		INVESCO  ("011", "インベスコ"),
+		HSBC     ("012", "HSBC"),
+		NN       ("014", "NN"),
+		COMMONS  ("024", "コモンズ"),
+		SCHRODER ("027", "シュローダー"),
+		JPM      ("033", "JPモルガン"),
+		JANAS    ("034", "ジャナス・キャピタル"),
+		SOMPO    ("039", "SOMPO"),
+		DAIWA    ("041", "大和"),
+		TD       ("046", "T&D"),
+		DEUTSCH  ("049", "ドイチェ"),
+		NIKKOU   ("050", "日興"),
+		NIKKOUAM ("051", "日興AMヨーロッパ"),
+		NISSEI   ("052", "ニッセイ"),
+		NOMURA   ("055", "野村"),
+		BNP      ("061", "BNPパリバ"),
+		PICTE    ("063", "ピクテ"),
+		FIVESTAR ("065", "ファイブスター"),
+		FEDILITY ("067", "フィデリティ"),
+		BLACKROCK("070", "ブラックロック"),
+		MANULIFE ("077", "マニュライフ"),
+		SMDS     ("079", "三井住友DS"),
+		SMTAM    ("080", "三井住友TAM"),
+		UFJ      ("081", "三菱UFJ国際"),
+		UBS      ("087", "UBS"),
+		RAKUTEN  ("089", "楽天"),
+		RHEOS    ("093", "レオス"),
+		LM       ("094", "L・メイソン");
+		
+		public final String code;
+		public final String name;
+		Company(String code, String name) {
+			this.code = code;
+			this.name = name;
+		}
+		@Override
+		public String toString() {
+			return name;
+		}
+		
+		public static Company get(String code) {
+			for(Company e: Company.values()) {
+				if (e.code.equals(code)) return e;
+			}
+			logger.error("Unexpected code {}!", code);
+			throw new UnexpectedException("Unexpected value");
+		}
+	}
 	
 	public LocalDateTime dateTime;    // 2020-04-14 23:00:33
-	public String isinCode;           // IE0030804631
+	public String  isinCode;           // IE0030804631
 	//
-    public double bunpaiKinriFM;      // 14.97%
-//  public String bunpaiKinriRank;    // 6
-    public String categoryMeisyo;     // 国際REIT型
-//  public String flgFromSSeimei;     // 0
-//  public String flgHanbaiteisi;     // 0
-//  public String flgHRiskFund;       // 0
-//  public String flgSWOnly;          // 0
-//  public String fundAisyo;          // −
-    public String fundMei;            // ワールド・リート・オープン（毎月決算型）
-//  public String fundRyaku;          // ワールド・リート・オープン（毎月決算型）
-//  public double hanbaigakuFM;       // 4,359,962円
-//  public String hanbaigakuRanking;  // 127
-    public double hanbaiTesuryo;      // -
-//  public String hanbaiTesuryoFM;    // なし
-    public String hyokaKijyunbi;      // 2020年03月
-    public double jyunsisanEn;        // 142588
-//  public String jyunsisanEnFM;      // 142,588
-//  public String jyunsisanRank;      // 15
-    public String kanaCode;           // 081
-    public int    kessanHindo;        // 12
-//  public String kessanHindoFM;      // 毎月
-    public double kijyunKagaku;       // 1403
-//  public String kijyunKagakuFM;     // 1,403円
-    public String msCategoryCodeDai;  // 13
-//  public String nisaHanbaigakuFM;   // 696,961円
-//  public String nisaHanbaigakuRank; // 97
-//  public String returnRank;         // 221
-//  public String sbFundCode;         // 09111041
-    public double sintakHosyu;        // 1.705
-//  public String sintakHosyuFM;      // 1.705%
-    public int    sougouRating;       // 2
-//  public String sougouRatingFM;     // ★★
-    public String toshiArea;          // 01
-    public String toshiTarget;        // 20
-    public double totalReturn;        // -33.36
-//  public String totalReturnFM;      // -33.36%
-    public String tukaCode;           // JPY
-//  public String tumitateKensu;      // 96
-//  public String tumitateKensuRank;  // 77
-//  public String tumitatePlan;       // 1
-//  public String tumitatePlanFM;     // ○
-    public double zenjituhiFM;        // -47円
+    public double  bunpaiKinriFM;      // 14.97%
+//  public String  bunpaiKinriRank;    // 6
+    public String  categoryMeisyo;     // 国際REIT型
+//  public String  flgFromSSeimei;     // 0
+//  public String  flgHanbaiteisi;     // 0
+//  public String  flgHRiskFund;       // 0
+//  public String  flgSWOnly;          // 0
+//  public String  fundAisyo;          // −
+    public String  fundMei;            // ワールド・リート・オープン（毎月決算型）
+//  public String  fundRyaku;          // ワールド・リート・オープン（毎月決算型）
+//  public double  hanbaigakuFM;       // 4,359,962円
+//  public String  hanbaigakuRanking;  // 127
+    public double  hanbaiTesuryo;      // -
+//  public String  hanbaiTesuryoFM;    // なし
+    public String  hyokaKijyunbi;      // 2020年03月
+    public long    jyunsisanEn;        // 142588
+//  public String  jyunsisanEnFM;      // 142,588
+//  public String  jyunsisanRank;      // 15
+    public Company kanaCode;           // 081
+    public int     kessanHindo;        // 12
+//  public String  kessanHindoFM;      // 毎月
+    public double  kijyunKagaku;       // 1403
+//  public String  kijyunKagakuFM;     // 1,403円
+//  public String  msCategoryCodeDai;  // 13
+//  public String  nisaHanbaigakuFM;   // 696,961円
+//  public String  nisaHanbaigakuRank; // 97
+//  public String  returnRank;         // 221
+//  public String  sbFundCode;         // 09111041
+    public double  sintakHosyu;        // 1.705
+//  public String  sintakHosyuFM;      // 1.705%
+    public int     sougouRating;       // 2
+//  public String  sougouRatingFM;     // ★★
+    public Area    toshiArea;          // 01
+    public Target  toshiTarget;        // 20
+    public double  totalReturn;        // -33.36
+//  public String  totalReturnFM;      // -33.36%
+    public String  tukaCode;           // JPY
+//  public String  tumitateKensu;      // 96
+//  public String  tumitateKensuRank;  // 77
+//  public String  tumitatePlan;       // 1
+//  public String  tumitatePlanFM;     // ○
+    public double  zenjituhiFM;        // -47円
 
 	
 	public FundData(LocalDateTime dateTime, String isinCode, RawFundData raw) {
@@ -112,15 +217,15 @@ public class FundData extends JSONBase implements Comparable<FundData> {
         this.hanbaiTesuryo      = raw.hanbaiTesuryo.equals("-") ? -1 : DoubleUtil.round(Double.parseDouble(raw.hanbaiTesuryo), 4);
 //      this.hanbaiTesuryoFM    = raw.hanbaiTesuryoFM;
         this.hyokaKijyunbi      = raw.hyokaKijyunbi.replace("年", "-").replace("月", "");
-        this.jyunsisanEn        = raw.jyunsisanEn.equals("-") ? -1 : Double.parseDouble(raw.jyunsisanEn);
+        this.jyunsisanEn        = raw.jyunsisanEn.equals("-") ? -1 : Math.round(Double.parseDouble(raw.jyunsisanEn) * 1000000);
 //      this.jyunsisanEnFM      = raw.jyunsisanEnFM;
 //      this.jyunsisanRank      = raw.jyunsisanRank;
-        this.kanaCode           = raw.kanaCode;
+        this.kanaCode           = Company.get(raw.kanaCode);
         this.kessanHindo        = raw.kessanHindo.equals("-") ? -1 : Integer.parseInt(raw.kessanHindo);
 //      this.kessanHindoFM      = raw.kessanHindoFM;
         this.kijyunKagaku       = raw.kijyunKagaku.equals("-") ? -1 : Double.parseDouble(raw.kijyunKagaku);
 //      this.kijyunKagakuFM     = raw.kijyunKagakuFM;
-        this.msCategoryCodeDai  = raw.msCategoryCodeDai;
+//      this.msCategoryCodeDai  = raw.msCategoryCodeDai;
 //      this.nisaHanbaigakuFM   = raw.nisaHanbaigakuFM;
 //      this.nisaHanbaigakuRank = raw.nisaHanbaigakuRank;
 //      this.returnRank         = raw.returnRank;
@@ -129,8 +234,8 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 //      this.sintakHosyuFM      = raw.sintakHosyuFM;
         this.sougouRating       = raw.sougouRating.equals("-") ? -1 : Integer.parseInt(raw.sougouRating);
 //      this.sougouRatingFM     = raw.sougouRatingFM;
-        this.toshiArea          = raw.toshiArea;
-        this.toshiTarget        = raw.toshiTarget;
+        this.toshiArea          = Area.get(raw.toshiArea);
+        this.toshiTarget        = Target.get(raw.toshiTarget);
         this.totalReturn        = raw.totalReturn.equals("-") ? -1 : DoubleUtil.round(Double.parseDouble(raw.totalReturn) * 0.01, 4);
 //      this.totalReturnFM      = raw.totalReturnFM;
         this.tukaCode           = raw.tukaCode;
@@ -167,7 +272,7 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 //	    this.kessanHindoFM      = null;
 	    this.kijyunKagaku       = 0;
 //	    this.kijyunKagakuFM     = null;
-	    this.msCategoryCodeDai  = null;
+//      this.msCategoryCodeDai  = null;
 //	    this.nisaHanbaigakuFM   = null;
 //	    this.nisaHanbaigakuRank = null;
 //	    this.returnRank         = null;
