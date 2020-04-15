@@ -46,53 +46,57 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 	}
 
 	public static enum Area {
-		WORLD        ("01"),
-		JAPAN        ("10"),
-		NORTH_AMERICA("20"),
-		EUROPE       ("30"),
-		ASIA         ("40"),
-		OCEANIA      ("50"),
-		OTHER        ("60");
+		WORLD        ("01", "世界全体"),
+		JAPAN        ("10", "日本"),
+		NORTH_AMERICA("20", "北米"),
+		EUROPE       ("30", "欧州"),
+		ASIA         ("40", "アジア"),
+		OCEANIA      ("50", "オセアニア"),
+		OTHER        ("60", "その他");
 		
-		public final String value;
-		Area(String value) {
-			this.value = value;
+		public final String code;
+		public final String name;
+		Area(String code, String name) {
+			this.code = code;
+			this.name = name;
 		}
 		@Override
 		public String toString() {
-			return name();
+			return name;
 		}
 		
-		public static Area get(String value) {
+		public static Area get(String code) {
 			for(Area e: Area.values()) {
-				if (e.value.equals(value)) return e;
+				if (e.code.equals(code)) return e;
 			}
-			logger.error("Unexpected value {}!", value);
+			logger.error("Unexpected code {}!", code);
 			throw new UnexpectedException("Unexpected value");
 		}
 	}
 	
 	public static enum Target {
-		STOCK   ("01"),
-		BOND    ("10"),
-		REIT    ("20"),
-		BALANCE ("30"),
-		COMODITY("40");
+		STOCK   ("01", "株式"),
+		BOND    ("10", "債券"),
+		REIT    ("20", "REIT"),
+		BALANCE ("30", "バランス"),
+		COMODITY("40", "コモディティ・資源");
 		
-		public final String value;
-		Target(String value) {
-			this.value = value;
+		public final String code;
+		public final String name;
+		Target(String code, String name) {
+			this.code = code;
+			this.name = name;
 		}
 		@Override
 		public String toString() {
-			return name();
+			return name;
 		}
 		
-		public static Target get(String value) {
+		public static Target get(String code) {
 			for(Target e: Target.values()) {
-				if (e.value.equals(value)) return e;
+				if (e.code.equals(code)) return e;
 			}
-			logger.error("Unexpected value {}!", value);
+			logger.error("Unexpected code {}!", code);
 			throw new UnexpectedException("Unexpected value");
 		}
 	}
@@ -184,11 +188,11 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 //  public String  sbFundCode;         // 09111041
     public double  sintakHosyu;        // 1.705
 //  public String  sintakHosyuFM;      // 1.705%
-    public int     sougouRating;       // 2
+//  public int     sougouRating;       // 2
 //  public String  sougouRatingFM;     // ★★
     public Area    toshiArea;          // 01
     public Target  toshiTarget;        // 20
-    public double  totalReturn;        // -33.36
+//  public double  totalReturn;        // -33.36
 //  public String  totalReturnFM;      // -33.36%
     public String  tukaCode;           // JPY
 //  public String  tumitateKensu;      // 96
@@ -232,11 +236,11 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 //      this.sbFundCode         = raw.sbFundCode;
         this.sintakHosyu        = DoubleUtil.round(Double.parseDouble(raw.sintakHosyu) * 0.01, 4);
 //      this.sintakHosyuFM      = raw.sintakHosyuFM;
-        this.sougouRating       = raw.sougouRating.equals("-") ? -1 : Integer.parseInt(raw.sougouRating);
+//      this.sougouRating       = raw.sougouRating.equals("-") ? -1 : Integer.parseInt(raw.sougouRating);
 //      this.sougouRatingFM     = raw.sougouRatingFM;
         this.toshiArea          = Area.get(raw.toshiArea);
         this.toshiTarget        = Target.get(raw.toshiTarget);
-        this.totalReturn        = raw.totalReturn.equals("-") ? -1 : DoubleUtil.round(Double.parseDouble(raw.totalReturn) * 0.01, 4);
+//      this.totalReturn        = raw.totalReturn.equals("-") ? -1 : DoubleUtil.round(Double.parseDouble(raw.totalReturn) * 0.01, 4);
 //      this.totalReturnFM      = raw.totalReturnFM;
         this.tukaCode           = raw.tukaCode;
 //      this.tumitateKensu      = raw.tumitateKensu;
@@ -279,11 +283,11 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 //	    this.sbFundCode         = null;
 	    this.sintakHosyu        = 0;
 //	    this.sintakHosyuFM      = null;
-	    this.sougouRating       = 0;
+//	    this.sougouRating       = 0;
 //	    this.sougouRatingFM     = null;
 	    this.toshiArea          = null;
 	    this.toshiTarget        = null;
-	    this.totalReturn        = 0;
+//	    this.totalReturn        = 0;
 //	    this.totalReturnFM      = null;
 	    this.tukaCode           = null;
 //	    this.tumitateKensu      = null;
