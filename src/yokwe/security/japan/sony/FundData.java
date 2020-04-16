@@ -20,8 +20,6 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 
 	public static final String PATH_FILE = "tmp/data/sony/sony-fund-data.csv";
 
-	public static final int MISSING_DATA = 0;
-	
 	private static List<FundData> list = null;
 	public static List<FundData> getList() {
 		if (list == null) {
