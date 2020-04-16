@@ -48,7 +48,7 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 		CSVUtil.write(FundData.class).file(PATH_FILE, list);
 	}
 
-	public static enum Area {
+	public static enum Region {
 		WORLD        ("01", "世界全体"),
 		JAPAN        ("10", "日本"),
 		NORTH_AMERICA("20", "北米"),
@@ -59,7 +59,7 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 		
 		public final String code;
 		public final String name;
-		Area(String code, String name) {
+		Region(String code, String name) {
 			this.code = code;
 			this.name = name;
 		}
@@ -68,8 +68,8 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 			return name;
 		}
 		
-		public static Area get(String code) {
-			for(Area e: Area.values()) {
+		public static Region get(String code) {
+			for(Region e: Region.values()) {
 				if (e.code.equals(code)) return e;
 			}
 			logger.error("Unexpected code {}!", code);
@@ -172,48 +172,48 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 	public LocalDateTime dateTime;    // 2020-04-14 23:00:33
 	public String  isinCode;           // IE0030804631
 	//
-    public String  bunpaiKinriFM;      // 14.97%
+	public String  divRatio;      // 14.97%
 //  public String  bunpaiKinriRank;    // 6
-    public String  categoryMeisyo;     // 国際REIT型
+	public String  category;     // 国際REIT型
 //  public String  flgFromSSeimei;     // 0
 //  public String  flgHanbaiteisi;     // 0
 //  public String  flgHRiskFund;       // 0
 //  public String  flgSWOnly;          // 0
 //  public String  fundAisyo;          // −
-    public String  fundMei;            // ワールド・リート・オープン（毎月決算型）
+	public String  fundName;            // ワールド・リート・オープン（毎月決算型）
 //  public String  fundRyaku;          // ワールド・リート・オープン（毎月決算型）
 //  public double  hanbaigakuFM;       // 4,359,962円
 //  public String  hanbaigakuRanking;  // 127
-    public String  hanbaiTesuryo;      // -
+	public String  salesFee;      // -
 //  public String  hanbaiTesuryoFM;    // なし
     public String  hyokaKijyunbi;      // 2020年03月
-    public String  jyunsisanEn;        // 142588
+    public String  marketCap;        // 142588
 //  public String  jyunsisanEnFM;      // 142,588
 //  public String  jyunsisanRank;      // 15
-    public Company kanaCode;           // 081
-    public String  kessanHindo;        // 12
+    public Company company;           // 081
+    public String  divFreq;        // 12
 //  public String  kessanHindoFM;      // 毎月
-    public String  kijyunKagaku;       // 1403
+    public String  price;       // 1403
 //  public String  kijyunKagakuFM;     // 1,403円
 //  public String  msCategoryCodeDai;  // 13
 //  public String  nisaHanbaigakuFM;   // 696,961円
 //  public String  nisaHanbaigakuRank; // 97
 //  public String  returnRank;         // 221
 //  public String  sbFundCode;         // 09111041
-    public String  sintakHosyu;        // 1.705
+    public String  expenseRatio;        // 1.705
 //  public String  sintakHosyuFM;      // 1.705%
 //  public int     sougouRating;       // 2
 //  public String  sougouRatingFM;     // ★★
-    public Area    toshiArea;          // 01
-    public Target  toshiTarget;        // 20
+    public Region  region;          // 01
+    public Target  target;        // 20
 //  public double  totalReturn;        // -33.36
 //  public String  totalReturnFM;      // -33.36%
-    public Currency  tukaCode;         // JPY
+    public Currency currency;         // JPY
 //  public String  tumitateKensu;      // 96
 //  public String  tumitateKensuRank;  // 77
 //  public String  tumitatePlan;       // 1
 //  public String  tumitatePlanFM;     // ○
-    public String  zenjituhiFM;        // -47円
+//  public String  zenjituhiFM;        // -47円
 
 	private static String toString(BigDecimal value) {
 		return value.compareTo(BigDecimal.ZERO) == 0 ? "0" : value.toPlainString();
@@ -223,95 +223,95 @@ public class FundData extends JSONBase implements Comparable<FundData> {
         this.dateTime           = dateTime;
         this.isinCode           = isinCode;
         //
-        this.bunpaiKinriFM      = raw.bunpaiKinriFM.equals("-") ? "" : toString(new BigDecimal(raw.bunpaiKinriFM.replace("%", "")).movePointLeft(2));
+        this.divRatio           = raw.bunpaiKinriFM.equals("-") ? "" : toString(new BigDecimal(raw.bunpaiKinriFM.replace("%", "")).movePointLeft(2));
 //      this.bunpaiKinriRank    = raw.bunpaiKinriRank;
-        this.categoryMeisyo     = raw.categoryMeisyo;
+        this.category           = raw.categoryMeisyo;
 //      this.flgFromSSeimei     = raw.flgFromSSeimei;
 //      this.flgHanbaiteisi     = raw.flgHanbaiteisi;
 //      this.flgHRiskFund       = raw.flgHRiskFund;
 //      this.flgSWOnly          = raw.flgSWOnly;
 //      this.fundAisyo          = raw.fundAisyo;
-        this.fundMei            = raw.fundMei;
+        this.fundName           = raw.fundMei;
 //      this.fundRyaku          = raw.fundRyaku;
 //      this.hanbaigakuFM       = raw.hanbaigakuFM;
 //      this.hanbaigakuRanking  = raw.hanbaigakuRanking;
-        this.hanbaiTesuryo      = raw.hanbaiTesuryo.equals("-") ? "" : toString(new BigDecimal(raw.hanbaiTesuryo));
+        this.salesFee           = raw.hanbaiTesuryo.equals("-") ? "" : toString(new BigDecimal(raw.hanbaiTesuryo));
 //      this.hanbaiTesuryoFM    = raw.hanbaiTesuryoFM;
         this.hyokaKijyunbi      = raw.hyokaKijyunbi.replace("年", "-").replace("月", "");
-        this.jyunsisanEn        = raw.jyunsisanEn.equals("-") ? "" : toString(new BigDecimal(raw.jyunsisanEn).movePointRight(6));
+        this.marketCap          = raw.jyunsisanEn.equals("-") ? "" : toString(new BigDecimal(raw.jyunsisanEn).movePointRight(6));
 //      this.jyunsisanEnFM      = raw.jyunsisanEnFM;
 //      this.jyunsisanRank      = raw.jyunsisanRank;
-        this.kanaCode           = Company.get(raw.kanaCode);
-        this.kessanHindo        = raw.kessanHindo.equals("-") ? "" : toString(new BigDecimal(raw.kessanHindo));
+        this.company            = Company.get(raw.kanaCode);
+        this.divFreq            = raw.kessanHindo.equals("-") ? "" : toString(new BigDecimal(raw.kessanHindo));
 //      this.kessanHindoFM      = raw.kessanHindoFM;
-        this.kijyunKagaku       = raw.kijyunKagaku.equals("-") ? "" : toString(new BigDecimal(raw.kijyunKagaku));
+        this.price              = raw.kijyunKagaku.equals("-") ? "" : toString(new BigDecimal(raw.kijyunKagaku));
 //      this.kijyunKagakuFM     = raw.kijyunKagakuFM;
 //      this.msCategoryCodeDai  = raw.msCategoryCodeDai;
 //      this.nisaHanbaigakuFM   = raw.nisaHanbaigakuFM;
 //      this.nisaHanbaigakuRank = raw.nisaHanbaigakuRank;
 //      this.returnRank         = raw.returnRank;
 //      this.sbFundCode         = raw.sbFundCode;
-        this.sintakHosyu        = toString(new BigDecimal(raw.sintakHosyu).movePointLeft(2));
+        this.expenseRatio       = toString(new BigDecimal(raw.sintakHosyu).movePointLeft(2));
 //      this.sintakHosyuFM      = raw.sintakHosyuFM;
 //      this.sougouRating       = raw.sougouRating.equals("-") ? MISSING_DATA : Integer.parseInt(raw.sougouRating);
 //      this.sougouRatingFM     = raw.sougouRatingFM;
-        this.toshiArea          = Area.get(raw.toshiArea);
-        this.toshiTarget        = Target.get(raw.toshiTarget);
+        this.region             = Region.get(raw.toshiArea);
+        this.target             = Target.get(raw.toshiTarget);
 //      this.totalReturn        = raw.totalReturn.equals("-") ? MISSING_DATA : DoubleUtil.round(Double.parseDouble(raw.totalReturn) * 0.01, 4);
 //      this.totalReturnFM      = raw.totalReturnFM;
-        this.tukaCode           = Currency.get(raw.tukaCode);
+        this.currency           = Currency.get(raw.tukaCode);
 //      this.tumitateKensu      = raw.tumitateKensu;
 //      this.tumitateKensuRank  = raw.tumitateKensuRank;
 //      this.tumitatePlan       = raw.tumitatePlan;
 //      this.tumitatePlanFM     = raw.tumitatePlanFM;
-        this.zenjituhiFM        = raw.zenjituhiFM.equals("-") ? "" : toString(new BigDecimal(raw.zenjituhiFM.replace(",", "").replace("円", "").replace("USD", "")));
+//      this.zenjituhiFM      = raw.zenjituhiFM.equals("-") ? "" : toString(new BigDecimal(raw.zenjituhiFM.replace(",", "").replace("円", "").replace("USD", "")));
 	}
 	public FundData() {
 		this.dateTime           = null;
 		this.isinCode           = null;
 		//
-	    this.bunpaiKinriFM      = null;
+	    this.divRatio      = null;
 //	    this.bunpaiKinriRank    = null;
-	    this.categoryMeisyo     = null;
+	    this.category     = null;
 //	    this.flgFromSSeimei     = null;
 //	    this.flgHanbaiteisi     = null;
 //	    this.flgHRiskFund       = null;
 //	    this.flgSWOnly          = null;
 //	    this.fundAisyo          = null;
-	    this.fundMei            = null;
+	    this.fundName            = null;
 //	    this.fundRyaku          = null;
 //	    this.hanbaigakuFM       = null;
 //	    this.hanbaigakuRanking  = null;
 //	    this.hanbaiTesuryo      = null;
 //	    this.hanbaiTesuryoFM    = null;
 	    this.hyokaKijyunbi      = null;
-	    this.jyunsisanEn        = null;
+	    this.marketCap        = null;
 //	    this.jyunsisanEnFM      = null;
 //	    this.jyunsisanRank      = null;
-	    this.kanaCode           = null;
-	    this.kessanHindo        = null;
+	    this.company           = null;
+	    this.divFreq        = null;
 //	    this.kessanHindoFM      = null;
-	    this.kijyunKagaku       = null;
+	    this.price       = null;
 //	    this.kijyunKagakuFM     = null;
 //      this.msCategoryCodeDai  = null;
 //	    this.nisaHanbaigakuFM   = null;
 //	    this.nisaHanbaigakuRank = null;
 //	    this.returnRank         = null;
 //	    this.sbFundCode         = null;
-	    this.sintakHosyu        = null;
+	    this.expenseRatio        = null;
 //	    this.sintakHosyuFM      = null;
 //	    this.sougouRating       = 0;
 //	    this.sougouRatingFM     = null;
-	    this.toshiArea          = null;
-	    this.toshiTarget        = null;
+	    this.region          = null;
+	    this.target        = null;
 //	    this.totalReturn        = 0;
 //	    this.totalReturnFM      = null;
-	    this.tukaCode           = null;
+	    this.currency           = null;
 //	    this.tumitateKensu      = null;
 //	    this.tumitateKensuRank  = null;
 //	    this.tumitatePlan       = null;
 //	    this.tumitatePlanFM     = null;
-	    this.zenjituhiFM        = null;
+//	    this.zenjituhiFM        = null;
 	}
 	
 	public FundData(JsonObject jsonObject) {
