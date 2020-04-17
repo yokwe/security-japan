@@ -1,6 +1,7 @@
 package yokwe.security.japan.sony;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,16 +46,20 @@ public class Price implements Comparable<Price> {
 	}
 
 	
-	public LocalDate date;
-	public String    isinCode;
-	public String    price;
-	public String    volume;
+	public LocalDate  date;
+	public String     isinCode;
+	public Currency   currency;
+	public BigDecimal price;
+	public long       volume;
 	
+	public Price(LocalDate date, String isinCode, BigDecimal price, long volume) {
+		this.date     = date;
+		this.isinCode = isinCode;
+		this.price    = price;
+		this.volume   = volume;
+	}
 	public Price() {
-		date     = null;
-		isinCode = null;
-		price    = null;
-		volume   = null;
+		this(null, null, null, 0);
 	}
 
 	@Override
