@@ -30,16 +30,15 @@ public class FundInfo implements Comparable<FundInfo> {
 		Collections.sort(list);
 		CSVUtil.write(FundInfo.class).file(PATH_FILE, list);
 	}
-
 	
-	
-	public String isinCode;
+	// from Fund
+	public String   isinCode;
+	public Company  company;
+	public String   fundName;
+	public Currency currency;
 	
 	// var msFundCode = '2013121001';
 	public String msFundCode;
-	
-	// ファンドの特色
-	public String description;
 	
 	// 設定日
 	public String inceptionDate;
@@ -85,8 +84,9 @@ public class FundInfo implements Comparable<FundInfo> {
 	// 信託財産留保額
 	public String cancelFee;
 
-	// 分配金履歴：直近12回分
-//	public String divHistory;
+	// ファンドの特色
+	public String description;
+	
 	
 	@Override
 	public int compareTo(FundInfo that) {

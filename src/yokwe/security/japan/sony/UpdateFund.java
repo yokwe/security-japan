@@ -1,6 +1,5 @@
 package yokwe.security.japan.sony;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,15 +13,13 @@ import javax.json.JsonObject;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.security.japan.sony.FundData.Company;
-import yokwe.security.japan.sony.FundData.Currency;
-import yokwe.security.japan.sony.FundData.Region;
-import yokwe.security.japan.sony.FundData.Target;
+import yokwe.security.japan.sony.Fund.Region;
+import yokwe.security.japan.sony.Fund.Target;
 import yokwe.util.HttpUtil;
 import yokwe.util.json.JSONBase;
 
-public class UpdateFundData {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFundData.class);
+public class UpdateFund {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFund.class);
 
 	public static class RawFundData extends JSONBase {
 	    @JSONName("BunpaiKinriFM")       public String bunpaiKinriFM;      // 14.97%
@@ -130,16 +127,17 @@ public class UpdateFundData {
 		}
 	}
 	
-	private static String toString(BigDecimal value) {
-		return value.compareTo(BigDecimal.ZERO) == 0 ? "0" : value.toPlainString();
-	}
+//	private static String toString(BigDecimal value) {
+//		return value.compareTo(BigDecimal.ZERO) == 0 ? "0" : value.toPlainString();
+//	}
 	
-	public static FundData getInstance(LocalDateTime dateTime, String isinCode, RawFundData raw) {
-		FundData ret = new FundData();
+	public static Fund getInstance(LocalDateTime dateTime, String isinCode, RawFundData raw) {
+		Fund ret = new Fund();
         ret.dateTime           = dateTime;
         ret.isinCode           = isinCode;
         //
-        ret.divRatio           = raw.bunpaiKinriFM.equals("-") ? "" : toString(new BigDecimal(raw.bunpaiKinriFM.replace("%", "")).movePointLeft(2));
+//        ret.divRatio           = raw.bunpaiKinriFM.equals("-") ? "" : toString(new BigDecimal(raw.bunpaiKinriFM.replace("%", "")).movePointLeft(2));
+        ret.divRatio           = raw.bunpaiKinriFM.equals("-") ? "" : raw.bunpaiKinriFM;
 //      ret.bunpaiKinriRank    = raw.bunpaiKinriRank;
         ret.category           = raw.categoryMeisyo;
 //      ret.flgFromSSeimei     = raw.flgFromSSeimei;
@@ -151,23 +149,28 @@ public class UpdateFundData {
 //      ret.fundRyaku          = raw.fundRyaku;
 //      ret.hanbaigakuFM       = raw.hanbaigakuFM;
 //      ret.hanbaigakuRanking  = raw.hanbaigakuRanking;
-        ret.salesFee           = raw.hanbaiTesuryo.equals("-") ? "" : toString(new BigDecimal(raw.hanbaiTesuryo));
+//        ret.salesFee           = raw.hanbaiTesuryo.equals("-") ? "" : toString(new BigDecimal(raw.hanbaiTesuryo));
+        ret.salesFee           = raw.hanbaiTesuryo.equals("-") ? "" : raw.hanbaiTesuryo;
 //      ret.hanbaiTesuryoFM    = raw.hanbaiTesuryoFM;
-        ret.hyokaKijyunbi      = raw.hyokaKijyunbi.replace("年", "-").replace("月", "");
-        ret.marketCap          = raw.jyunsisanEn.equals("-") ? "" : toString(new BigDecimal(raw.jyunsisanEn).movePointRight(6));
+//        ret.hyokaKijyunbi      = raw.hyokaKijyunbi.replace("年", "-").replace("月", "");
+//        ret.marketCap          = raw.jyunsisanEn.equals("-") ? "" : toString(new BigDecimal(raw.jyunsisanEn).movePointRight(6));
+        ret.marketCap          = raw.jyunsisanEn.equals("-") ? "" : raw.jyunsisanEn;
 //      ret.jyunsisanEnFM      = raw.jyunsisanEnFM;
 //      ret.jyunsisanRank      = raw.jyunsisanRank;
         ret.company            = Company.get(raw.kanaCode);
-        ret.divFreq            = raw.kessanHindo.equals("-") ? "" : toString(new BigDecimal(raw.kessanHindo));
+//        ret.divFreq            = raw.kessanHindo.equals("-") ? "" : toString(new BigDecimal(raw.kessanHindo));
+        ret.divFreq            = raw.kessanHindo.equals("-") ? "" : raw.kessanHindo;
 //      ret.kessanHindoFM      = raw.kessanHindoFM;
-        ret.price              = raw.kijyunKagaku.equals("-") ? "" : toString(new BigDecimal(raw.kijyunKagaku));
+//        ret.price              = raw.kijyunKagaku.equals("-") ? "" : toString(new BigDecimal(raw.kijyunKagaku));
+        ret.price              = raw.kijyunKagaku.equals("-") ? "" : raw.kijyunKagaku;
 //      ret.kijyunKagakuFM     = raw.kijyunKagakuFM;
 //      ret.msCategoryCodeDai  = raw.msCategoryCodeDai;
 //      ret.nisaHanbaigakuFM   = raw.nisaHanbaigakuFM;
 //      ret.nisaHanbaigakuRank = raw.nisaHanbaigakuRank;
 //      ret.returnRank         = raw.returnRank;
 //      ret.sbFundCode         = raw.sbFundCode;
-        ret.expenseRatio       = toString(new BigDecimal(raw.sintakHosyu).movePointLeft(2));
+//        ret.expenseRatio       = toString(new BigDecimal(raw.sintakHosyu).movePointLeft(2));
+        ret.expenseRatio       = raw.sintakHosyu;
 //      ret.sintakHosyuFM      = raw.sintakHosyuFM;
 //      ret.sougouRating       = raw.sougouRating.equals("-") ? MISSING_DATA : Integer.parseInt(raw.sougouRating);
 //      ret.sougouRatingFM     = raw.sougouRatingFM;
@@ -187,7 +190,7 @@ public class UpdateFundData {
 
 	private static final String URL = "https://moneykit.net/data/fund/SFBA1700F471.js";
 
-	public static List<FundData> updateList() {
+	public static List<Fund> updateList() {
 		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(URL);
 		
 		String string = result.result;
@@ -221,7 +224,7 @@ public class UpdateFundData {
 		}
 		RawData rawData = JSONBase.getInstance(RawData.class, jsonString);
 
-		List<FundData> list = new ArrayList<>();
+		List<Fund> list = new ArrayList<>();
 		for(Map.Entry<String, RawFundData> entry: rawData.map.entrySet()) {
 			String      isinCode = entry.getKey();
 			RawFundData raw      = entry.getValue();
@@ -235,14 +238,14 @@ public class UpdateFundData {
 		logger.info("START");
 
 		{
-			List<FundData> list = updateList();
+			List<Fund> list = updateList();
 			
-			logger.info("save {} {}", list.size(), FundData.PATH_FILE);
-			FundData.save(list);
+			logger.info("save {} {}", list.size(), Fund.PATH_FILE);
+			Fund.save(list);
 		}
 		
 		{
-			List<FundData> list = FundData.getList();
+			List<Fund> list = Fund.getList();
 			logger.info("list {}", list.size());
 		}
 		

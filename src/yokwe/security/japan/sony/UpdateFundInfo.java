@@ -1,41 +1,44 @@
 package yokwe.security.japan.sony;
 
+import java.io.File;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.UnexpectedException;
 import yokwe.util.FileUtil;
+import yokwe.util.HttpUtil;
 import yokwe.util.ScrapeUtil;
 
 public class UpdateFundInfo {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFundInfo.class);
 
-	private static String URL = "https://apl.morningstar.co.jp/webasp/sonybk/detail/%s.html";
-	public static String getURL(String isinCode) {
-		return String.format(URL, isinCode);
-	}
-	
 	// 現在値
 	// var msFundCode = '2013121001';
 	public static class MSFundCode {
 		public static final Pattern PAT = Pattern.compile(
-			"var msFundCode = '(?<msFundCode>.+?)';"
+			"var msFundCode = '(?<value>.+?)';"
 		);
 		public static MSFundCode getInstance(String page) {
 			return ScrapeUtil.get(MSFundCode.class, PAT, page);
 		}
 
-		public final String msFundCode;
+		public final String value;
 		
-		public MSFundCode(String msFundCode) {
-			this.msFundCode = msFundCode;
+		public MSFundCode(String value) {
+			this.value = value;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s}", msFundCode);
+			return String.format("{%s}", value);
 		}
 	}
 	
@@ -439,6 +442,27 @@ public class UpdateFundInfo {
 			this.value = value;
 		}
 		
+		static final Pattern JYMD = Pattern.compile("(?<yy>.+)年(?<mm>.+)月(?<dd>.+)日");
+		public LocalDate getLocalDate() {
+			Matcher m = JYMD.matcher(date);
+			if (m.find()) {
+				String yy = m.group("yy");
+				String mm = m.group("mm");
+				String dd = m.group("dd");
+				
+				String string = String.format("%s-%s-%s", yy, mm, dd);
+				return LocalDate.parse(string);
+			} else {
+				logger.error("Unexpected string");
+				logger.error("  date {}!", date);
+				throw new UnexpectedException("Unexpected string");
+			}
+		}
+		public BigDecimal getValue() {
+			String string = value.replace(",", "").replace("円", "").replace("米ドル", "");
+			return new BigDecimal(string);
+		}
+		
 		@Override
 		public String toString() {
 			return String.format("{%s %s}", date, value);
@@ -446,7 +470,7 @@ public class UpdateFundInfo {
 	}
 
 	
-	private static FundInfo getInstance(String isinCode, String page) {
+	private static void updateList(List<FundInfo> infoList, List<Dividend> divList, Fund fund, String page) {
 		MSFundCode        msFundCode        = MSFundCode.getInstance(page);
 		Description       description       = Description.getInstance(page);
 		InceptionDate     inceptionDate     = InceptionDate.getInstance(page);
@@ -463,61 +487,108 @@ public class UpdateFundInfo {
 		TrustFee          trustFee          = TrustFee.getInstance(page);
 		RealTrustFee      realTrustFee      = RealTrustFee.getInstance(page);
 		CancelFee         cancelFee         = CancelFee.getInstance(page);
-//		List<DivHistory>  divHistoryList    = DivHistory.getInstance(page);
+		List<DivHistory>  divHistoryList    = DivHistory.getInstance(page);
 		
-		FundInfo ret = new FundInfo();
+		FundInfo fundInfo = new FundInfo();
 		
-		ret.isinCode          = isinCode;
-		ret.msFundCode        = (msFundCode == null) ? "" : msFundCode.msFundCode;
-		ret.description       = description.value;
-		ret.inceptionDate     = inceptionDate.value;
-		ret.redemptionDate    = redemptionDate.value;
-		ret.closingDate       = closingDate.value;
-		ret.purchaseUnit      = purchaseUnit.value;
-		ret.purchaseDate      = purchaseDate.value;
-		ret.purchasePrice     = purchasePrice.value;
-		ret.cancelUnit        = cancelUnit.value;
-		ret.cancelPrice       = cancelPrice.value;
-		ret.cancelPaymentDate = cancelPaymentDate.value;
-		ret.deadline          = deadline.value;
-		ret.cancelFee         = (cancelFee == null) ? "" : cancelFee.value;
-		ret.salesFeeA         = (salesFee == null) ? "" : salesFee.a;
-		ret.salesFeeB         = (salesFee == null) ? "" : salesFee.b;
-		ret.salesFeeC         = (salesFee == null) ? "" : salesFee.c;
-		ret.trustFee          = trustFee.value;
-		ret.realTrustFee      = realTrustFee.value;
-//		ret.divHistory        = divHistoryList.toString();
+		fundInfo.isinCode          = fund.isinCode;
+		fundInfo.fundName          = fund.fundName;
+		fundInfo.currency          = fund.currency;
+		fundInfo.company           = fund.company;
+		
+		fundInfo.msFundCode        = (msFundCode == null) ? "" : msFundCode.value;
+		fundInfo.description       = description.value;
+		fundInfo.inceptionDate     = inceptionDate.value;
+		fundInfo.redemptionDate    = redemptionDate.value;
+		fundInfo.closingDate       = closingDate.value;
+		fundInfo.purchaseUnit      = purchaseUnit.value;
+		fundInfo.purchaseDate      = purchaseDate.value;
+		fundInfo.purchasePrice     = purchasePrice.value;
+		fundInfo.cancelUnit        = cancelUnit.value;
+		fundInfo.cancelPrice       = cancelPrice.value;
+		fundInfo.cancelPaymentDate = cancelPaymentDate.value;
+		fundInfo.deadline          = deadline.value;
+		fundInfo.cancelFee         = (cancelFee == null) ? "" : cancelFee.value;
+		fundInfo.salesFeeA         = (salesFee == null) ? "" : salesFee.a;
+		fundInfo.salesFeeB         = (salesFee == null) ? "" : salesFee.b;
+		fundInfo.salesFeeC         = (salesFee == null) ? "" : salesFee.c;
+		fundInfo.trustFee          = trustFee.value;
+		fundInfo.realTrustFee      = realTrustFee.value;
+		
+		infoList.add(fundInfo);
 
-		return ret;
+		for(DivHistory e: divHistoryList) {
+			Dividend dividend = new Dividend(e.getLocalDate(), fund.isinCode, fund.currency, e.getValue());
+			divList.add(dividend);
+		}
+		
+	}
+
+	private static String FORMAT_URL = "https://apl.morningstar.co.jp/webasp/sonybk/detail/%s.html";
+	public static String getURL(String isinCode) {
+		return String.format(FORMAT_URL, isinCode);
 	}
 	
+	public static final String PATH_DIR_DATA = "tmp/download/sony/page";
+	public static String getPath(String isinCode) {
+		return String.format("%s/%s", PATH_DIR_DATA, isinCode);
+	}
+
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<FundInfo> list = new ArrayList<>();
+		List<FundInfo> infoList = new ArrayList<>();
+		List<Dividend> divList  = new ArrayList<>();
 		
-		for(FundData e: FundData.getList()) {
-			String isinCode = e.isinCode;
-			String path = String.format("tmp/download/sony/%s", isinCode);
-//			String url = getURL(isinCode);
-			
-//			HttpUtil.Result result = HttpUtil.getInstance().download(url);
-//			String string = result.result;
-//			FileUtil.write().file(path, string);
-			String string = FileUtil.read().file(path);
-			
-//			if (!string.contains("var msFundCode =")) continue;
-			
-			logger.info("isinCode {}", isinCode);
-			FundInfo fundInfo = getInstance(e.isinCode, string);
-			logger.info("  {}", fundInfo);
-			list.add(fundInfo);
+		{
+			for(Fund e: Fund.getList()) {
+				String isinCode = e.isinCode;
+				logger.info("isinCode {}", isinCode);
+				
+				String page;
+				{
+					String path = getPath(isinCode);
+					File file = new File(path);
+					if (file.exists()) {
+						page = FileUtil.read().file(file);
+					} else {
+						logger.info("  download {}", isinCode);
+						String url = getURL(isinCode);
+						HttpUtil.Result result = HttpUtil.getInstance().download(url);
+						page = result.result;
+						FileUtil.write().file(file, page);
+					}
+				}
+				
+				updateList(infoList, divList, e, page);
+			}
 		}
 		
-		logger.info("save {} {}", list.size(), FundInfo.PATH_FILE);
-		FundInfo.save(list);
+		// Save infoList
+		logger.info("save {} {}", infoList.size(), FundInfo.PATH_FILE);
+		FundInfo.save(infoList);
+		
+		// Save divList
+		{
+			logger.info("divList {}", divList.size());
+			Map<String, List<Dividend>> map = new TreeMap<>();
+			//  isinCode
+			for(Dividend e: divList) {
+				String key = e.isinCode;
+				if (map.containsKey(key)) {
+					map.get(key).add(e);
+				} else {
+					List<Dividend> list = new ArrayList<>();
+					list.add(e);
+					map.put(key, list);
+				}
+			}
+			logger.info("divList map {}", map.size());
+			for(List<Dividend> list: map.values()) {
+				Dividend.save(list);
+			}
+		}
 		
 		logger.info("STOP");
 	}
-
 }

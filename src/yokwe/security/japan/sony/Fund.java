@@ -12,18 +12,17 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
-import yokwe.util.EnumUtil;
 import yokwe.util.json.JSONBase;
 
-public class FundData extends JSONBase implements Comparable<FundData> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FundData.class);
+public class Fund extends JSONBase implements Comparable<Fund> {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Fund.class);
 
-	public static final String PATH_FILE = "tmp/data/sony/sony-fund-data.csv";
+	public static final String PATH_FILE = "tmp/data/sony/fund.csv";
 
-	private static List<FundData> list = null;
-	public static List<FundData> getList() {
+	private static List<Fund> list = null;
+	public static List<Fund> getList() {
 		if (list == null) {
-			list = CSVUtil.read(FundData.class).file(PATH_FILE);
+			list = CSVUtil.read(Fund.class).file(PATH_FILE);
 			if (list == null) {
 				list = new ArrayList<>();
 			}
@@ -31,13 +30,13 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 		return list;
 	}
 
-	public static void save(Collection<FundData> collection) {
+	public static void save(Collection<Fund> collection) {
 		save(new ArrayList<>(collection));
 	}
-	public static void save(List<FundData> list) {
+	public static void save(List<Fund> list) {
 		// Sort before save
 		Collections.sort(list);
-		CSVUtil.write(FundData.class).file(PATH_FILE, list);
+		CSVUtil.write(Fund.class).file(PATH_FILE, list);
 	}
 
 	public static enum Region {
@@ -96,71 +95,6 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 		}
 	}
 	
-	public static enum Company {
-		ASAHILIFE("002", "朝日ライフ"),
-		ASEMANE  ("004", "アセマネOne"),
-		AMUNDI   ("006", "アムンディ"),
-		EAST     ("009", "イーストS"),
-		INVESCO  ("011", "インベスコ"),
-		HSBC     ("012", "HSBC"),
-		NN       ("014", "NN"),
-		COMMONS  ("024", "コモンズ"),
-		SCHRODER ("027", "シュローダー"),
-		JPM      ("033", "JPモルガン"),
-		JANAS    ("034", "ジャナス・キャピタル"),
-		SOMPO    ("039", "SOMPO"),
-		DAIWA    ("041", "大和"),
-		TD       ("046", "T&D"),
-		DEUTSCH  ("049", "ドイチェ"),
-		NIKKOU   ("050", "日興"),
-		NIKKOUAM ("051", "日興AMヨーロッパ"),
-		NISSEI   ("052", "ニッセイ"),
-		NOMURA   ("055", "野村"),
-		BNP      ("061", "BNPパリバ"),
-		PICTE    ("063", "ピクテ"),
-		FIVESTAR ("065", "ファイブスター"),
-		FEDILITY ("067", "フィデリティ"),
-		BLACKROCK("070", "ブラックロック"),
-		MANULIFE ("077", "マニュライフ"),
-		SMDS     ("079", "三井住友DS"),
-		SMTAM    ("080", "三井住友TAM"),
-		UFJ      ("081", "三菱UFJ国際"),
-		UBS      ("087", "UBS"),
-		RAKUTEN  ("089", "楽天"),
-		RHEOS    ("093", "レオス"),
-		LM       ("094", "L・メイソン");
-		
-		public final String code;
-		public final String name;
-		Company(String code, String name) {
-			this.code = code;
-			this.name = name;
-		}
-		@Override
-		public String toString() {
-			return name;
-		}
-		
-		public static Company get(String code) {
-			for(Company e: Company.values()) {
-				if (e.code.equals(code)) return e;
-			}
-			logger.error("Unexpected code {}!", code);
-			throw new UnexpectedException("Unexpected value");
-		}
-	}
-	
-	public static enum Currency {
-		AUD,
-		CAD,
-		JPY,
-		NZD,
-		USD;
-		public static Currency get(String value) {
-			return EnumUtil.getInstance(Currency.class, value);
-		}
-	}
-	
 	public LocalDateTime dateTime;    // 2020-04-14 23:00:33
 	public String        isinCode;    // IE0030804631
 	//
@@ -168,7 +102,7 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 	public String  category;      // 国際REIT型
 	public String  fundName;      // ワールド・リート・オープン（毎月決算型）
 	public String  salesFee;      // -
-    public String  hyokaKijyunbi; // 2020年03月
+//    public String  hyokaKijyunbi; // 2020年03月
     public String  marketCap;     // 142588
     public Company company;       // 081
     public String  divFreq;       // 12
@@ -178,14 +112,14 @@ public class FundData extends JSONBase implements Comparable<FundData> {
     public Target  target;        // 20
     public Currency currency;     // JPY
 
-	public FundData() {
+	public Fund() {
 		this.dateTime      = null;
 		this.isinCode      = null;
 		//
 	    this.divRatio      = null;
 	    this.category      = null;
 	    this.fundName      = null;
-	    this.hyokaKijyunbi = null;
+//	    this.hyokaKijyunbi = null;
 	    this.marketCap     = null;
 	    this.company       = null;
 	    this.divFreq       = null;
@@ -196,12 +130,12 @@ public class FundData extends JSONBase implements Comparable<FundData> {
 	    this.currency      = null;
 	}
 	
-	public FundData(JsonObject jsonObject) {
+	public Fund(JsonObject jsonObject) {
 		super(jsonObject);
 	}
 	
 	@Override
-	public int compareTo(FundData that) {
+	public int compareTo(Fund that) {
 		int ret = this.dateTime.compareTo(that.dateTime);
 		if (ret == 0) ret = this.isinCode.compareTo(that.isinCode);
 		return ret;
