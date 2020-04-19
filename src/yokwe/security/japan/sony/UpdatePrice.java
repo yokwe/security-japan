@@ -28,9 +28,12 @@ public class UpdatePrice {
 		return String.format("%s/%s.xml", URL_BASE_FUNDDATA, msFundCode);
 	}
 	
-	public static String getPath(String msFundCode) {
-		return String.format("%s/%s.xml", Price.PATH_DIR_DATA, msFundCode);
+	public static final String PATH_DIR_DATA = "tmp/download/sony/page";
+	public static final String FORMAT_PATH   = String.format("%s/%%s.xml", PATH_DIR_DATA);
+	public static String getPath(String isinCode) {
+		return String.format(FORMAT_PATH, isinCode);
 	}
+
 
 	public static void main(String[] arsg) {
 		logger.info("START");
