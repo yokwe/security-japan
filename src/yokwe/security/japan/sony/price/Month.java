@@ -12,9 +12,8 @@ public class Month {
 //	  value="01">
 	
 	@XmlAttribute(name="value") public String value;
-
-	@XmlElement(name = "day")
-	public List<Day> dayList;
+	
+	@XmlElement(name = "day")   public List<Day> dayList;
 	
 	@Override
 	public String toString() {

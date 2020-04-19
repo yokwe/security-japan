@@ -14,8 +14,7 @@ public class Year {
 	
 	@XmlAttribute(name="value") public String value;
 
-	@XmlElement(name = "month")
-	public List<Month> monthList;
+	@XmlElement(name = "month") public List<Month> monthList;
 	
 	@Override
 	public String toString() {

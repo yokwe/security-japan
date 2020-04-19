@@ -1,5 +1,7 @@
 package yokwe.security.japan.sony.price;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -17,7 +19,7 @@ public class Fund {
 	@XmlAttribute(name="period_start") public String periodStart;
 	@XmlAttribute(name="period_end")   public String periodEnd;
 
-	@XmlElement(name = "year") public Year year;
+	@XmlElement(name = "year")         public List<Year> yearList;
 	
 	@Override
 	public String toString() {
