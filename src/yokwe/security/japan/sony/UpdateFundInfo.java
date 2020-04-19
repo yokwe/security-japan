@@ -530,8 +530,9 @@ public class UpdateFundInfo {
 	}
 	
 	public static final String PATH_DIR_DATA = "tmp/download/sony/page";
+	public static final String FORMAT_PATH   = String.format("%s/%%s.html", PATH_DIR_DATA);
 	public static String getPath(String isinCode) {
-		return String.format("%s/%s", PATH_DIR_DATA, isinCode);
+		return String.format(FORMAT_PATH, isinCode);
 	}
 
 	public static void main(String[] args) {
@@ -543,7 +544,7 @@ public class UpdateFundInfo {
 		{
 			for(Fund e: Fund.getList()) {
 				String isinCode = e.isinCode;
-				logger.info("isinCode {}", isinCode);
+				logger.info("{}", isinCode);
 				
 				String page;
 				{
@@ -552,8 +553,8 @@ public class UpdateFundInfo {
 					if (file.exists()) {
 						page = FileUtil.read().file(file);
 					} else {
-						logger.info("  download {}", isinCode);
 						String url = getURL(isinCode);
+						logger.info("  download {}", url);
 						HttpUtil.Result result = HttpUtil.getInstance().download(url);
 						page = result.result;
 						FileUtil.write().file(file, page);
