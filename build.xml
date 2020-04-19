@@ -206,4 +206,35 @@
                 </java>
         </target>
 
+	<!-- -->
+        <target name="update-sony-fund">
+                <java classname="yokwe.security.japan.sony.UpdateFund" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyCSV" value="true"/>
+                </java>
+        </target>
+
+        <target name="update-sony-fund-info">
+                <java classname="yokwe.security.japan.sony.UpdateFundInfo" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyCSV" value="true"/>
+                </java>
+        </target>
+
+        <target name="update-sony-price">
+                <java classname="yokwe.security.japan.sony.UpdatePrice" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyCSV" value="true"/>
+                </java>
+        </target>
+	
 </project>
