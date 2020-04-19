@@ -95,28 +95,28 @@ public class Fund extends JSONBase implements Comparable<Fund> {
 		}
 	}
 	
-	public LocalDateTime dateTime;    // 2020-04-14 23:00:33
-	public String        isinCode;    // IE0030804631
+	public LocalDateTime dateTime; // 2020-04-14 23:00:33
+	public String        isinCode; // IE0030804631
 	//
-	public String  category;      // 国際REIT型
-	public String  fundName;      // ワールド・リート・オープン（毎月決算型）
-    public Company company;       // 081
-    public String  divFreq;       // 12
-    public Region  region;        // 01
-    public Target  target;        // 20
-    public Currency currency;     // JPY
+	public String        category; // 国際REIT型
+	public String        fundName; // ワールド・リート・オープン（毎月決算型）
+    public Company       company;  // 081
+    public String        divFreq;  // 12
+    public Region        region;   // 01
+    public Target        target;   // 20
+    public Currency      currency; // JPY
 
 	public Fund() {
-		this.dateTime      = null;
-		this.isinCode      = null;
+		this.dateTime = null;
+		this.isinCode = null;
 		//
-	    this.category      = null;
-	    this.fundName      = null;
-	    this.company       = null;
-	    this.divFreq       = null;
-	    this.region        = null;
-	    this.target        = null;
-	    this.currency      = null;
+	    this.category = null;
+	    this.fundName = null;
+	    this.company  = null;
+	    this.divFreq  = null;
+	    this.region   = null;
+	    this.target   = null;
+	    this.currency = null;
 	}
 	
 	public Fund(JsonObject jsonObject) {
