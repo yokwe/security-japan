@@ -174,6 +174,16 @@ download-edinet-document: tmp/data/edinet.touch
 
 
 #
+#
+#
+clear-sony-download:
+	rm -rf tmp/download/sony/*
+
+update-sony-fund:
+	ant update-sony-fund update-sony-fund-info update-sony-price
+	tar cfz tmp/save/sony_$$(date +%Y%m%d).taz tmp/data/sony
+
+#
 # Taxonomy file
 #
 download-taxonomy-file:
