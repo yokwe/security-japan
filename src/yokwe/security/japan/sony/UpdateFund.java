@@ -137,7 +137,7 @@ public class UpdateFund {
         ret.isinCode           = isinCode;
         //
 //        ret.divRatio           = raw.bunpaiKinriFM.equals("-") ? "" : toString(new BigDecimal(raw.bunpaiKinriFM.replace("%", "")).movePointLeft(2));
-        ret.divRatio           = raw.bunpaiKinriFM.equals("-") ? "" : raw.bunpaiKinriFM;
+//        ret.divRatio           = raw.bunpaiKinriFM.equals("-") ? "" : raw.bunpaiKinriFM;
 //      ret.bunpaiKinriRank    = raw.bunpaiKinriRank;
         ret.category           = raw.categoryMeisyo;
 //      ret.flgFromSSeimei     = raw.flgFromSSeimei;
@@ -150,11 +150,11 @@ public class UpdateFund {
 //      ret.hanbaigakuFM       = raw.hanbaigakuFM;
 //      ret.hanbaigakuRanking  = raw.hanbaigakuRanking;
 //        ret.salesFee           = raw.hanbaiTesuryo.equals("-") ? "" : toString(new BigDecimal(raw.hanbaiTesuryo));
-        ret.salesFee           = raw.hanbaiTesuryo.equals("-") ? "" : raw.hanbaiTesuryo;
+//        ret.salesFee           = raw.hanbaiTesuryo.equals("-") ? "" : raw.hanbaiTesuryo;
 //      ret.hanbaiTesuryoFM    = raw.hanbaiTesuryoFM;
 //        ret.hyokaKijyunbi      = raw.hyokaKijyunbi.replace("年", "-").replace("月", "");
 //        ret.marketCap          = raw.jyunsisanEn.equals("-") ? "" : toString(new BigDecimal(raw.jyunsisanEn).movePointRight(6));
-        ret.marketCap          = raw.jyunsisanEn.equals("-") ? "" : raw.jyunsisanEn;
+//        ret.marketCap          = raw.jyunsisanEn.equals("-") ? "" : raw.jyunsisanEn;
 //      ret.jyunsisanEnFM      = raw.jyunsisanEnFM;
 //      ret.jyunsisanRank      = raw.jyunsisanRank;
         ret.company            = Company.get(raw.kanaCode);
@@ -162,7 +162,7 @@ public class UpdateFund {
         ret.divFreq            = raw.kessanHindo.equals("-") ? "" : raw.kessanHindo;
 //      ret.kessanHindoFM      = raw.kessanHindoFM;
 //        ret.price              = raw.kijyunKagaku.equals("-") ? "" : toString(new BigDecimal(raw.kijyunKagaku));
-        ret.price              = raw.kijyunKagaku.equals("-") ? "" : raw.kijyunKagaku;
+//        ret.price              = raw.kijyunKagaku.equals("-") ? "" : raw.kijyunKagaku;
 //      ret.kijyunKagakuFM     = raw.kijyunKagakuFM;
 //      ret.msCategoryCodeDai  = raw.msCategoryCodeDai;
 //      ret.nisaHanbaigakuFM   = raw.nisaHanbaigakuFM;
@@ -170,7 +170,7 @@ public class UpdateFund {
 //      ret.returnRank         = raw.returnRank;
 //      ret.sbFundCode         = raw.sbFundCode;
 //        ret.expenseRatio       = toString(new BigDecimal(raw.sintakHosyu).movePointLeft(2));
-        ret.expenseRatio       = raw.sintakHosyu;
+ //       ret.expenseRatio       = raw.sintakHosyu;
 //      ret.sintakHosyuFM      = raw.sintakHosyuFM;
 //      ret.sougouRating       = raw.sougouRating.equals("-") ? MISSING_DATA : Integer.parseInt(raw.sougouRating);
 //      ret.sougouRatingFM     = raw.sougouRatingFM;

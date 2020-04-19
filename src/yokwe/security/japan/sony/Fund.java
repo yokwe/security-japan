@@ -98,16 +98,10 @@ public class Fund extends JSONBase implements Comparable<Fund> {
 	public LocalDateTime dateTime;    // 2020-04-14 23:00:33
 	public String        isinCode;    // IE0030804631
 	//
-	public String  divRatio;      // 14.97%
 	public String  category;      // 国際REIT型
 	public String  fundName;      // ワールド・リート・オープン（毎月決算型）
-	public String  salesFee;      // -
-//    public String  hyokaKijyunbi; // 2020年03月
-    public String  marketCap;     // 142588
     public Company company;       // 081
     public String  divFreq;       // 12
-    public String  price;         // 1403
-    public String  expenseRatio;  // 1.705
     public Region  region;        // 01
     public Target  target;        // 20
     public Currency currency;     // JPY
@@ -116,15 +110,10 @@ public class Fund extends JSONBase implements Comparable<Fund> {
 		this.dateTime      = null;
 		this.isinCode      = null;
 		//
-	    this.divRatio      = null;
 	    this.category      = null;
 	    this.fundName      = null;
-//	    this.hyokaKijyunbi = null;
-	    this.marketCap     = null;
 	    this.company       = null;
 	    this.divFreq       = null;
-	    this.price         = null;
-	    this.expenseRatio  = null;
 	    this.region        = null;
 	    this.target        = null;
 	    this.currency      = null;
