@@ -4,21 +4,21 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.data.Price;
-import yokwe.util.DownloadUtil;
 import yokwe.util.FileUtil;
+import yokwe.util.http.Download;
+import yokwe.util.http.FileTask;
+import yokwe.util.http.RequesterBuilder;
+import yokwe.util.http.Task;
 
 
 public class DownloadStockPage {
@@ -69,41 +69,39 @@ public class DownloadStockPage {
 
 		// download
 		{
-			int maxThread = 50;
-			
-			List<Header> headers = new ArrayList<>();
-			headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"));
-			headers.add(new BasicHeader("Referer",    "https://www.jpx.co.jp/"));
-			headers.add(new BasicHeader("Connection", "keep-alive"));
-			
-			Consumer<DownloadUtil.FileTarget> nullFileAction  = o -> {};
+			RequesterBuilder requesterBuilder = RequesterBuilder.custom()
+					.setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+					.setSoTimeout(10)
+					.setMaxTotal(50)
+					.setDefaultMaxPerRoute(50);
 
-			List<DownloadUtil.Target> targetList = new ArrayList<>();
-			for(Stock e: Stock.getList()) {
-				String stockCode = e.stockCode;
-				String url  = StockPage.getPageURL(stockCode);
-				targetList.add(new DownloadUtil.TextFileTarget(url, nullFileAction, StockPage.getPageFile(stockCode)));
+			Download download = new Download();
+			
+			download.setRequesterBuilder(requesterBuilder);
+			
+			// Configure custom header
+			download.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit");
+			download.setReferer("https://www.jpx.co.jp/");
+			
+			// Configure TaskProcessor
+			download.setThreadCount(50);
+
+			List<Stock> stockList = Stock.getList();
+			Collections.shuffle(stockList);
+			
+			for(Stock stock: stockList) {
+				String stockCode = stock.stockCode;
+				String uriString = StockPage.getPageURL(stockCode);
+				File   file      = StockPage.getPageFile(stock.stockCode);
+				
+				Task task = FileTask.text(uriString, file);
+				download.addTask(task);
 			}
-			Collections.shuffle(targetList);
-			
-//			// Test code
-//			{
-//				Consumer<DownloadUtil.FileTarget>      textFileAction  = o -> {logger.info("textFile   {}", String.format("%5d %s", o.getFile().length(), o.getURL()));};
-//				Consumer<DownloadUtil.FileTarget>      binaryileAction = o -> {logger.info("binaryFile {}", String.format("%5d %s", o.getFile().length(), o.getURL()));};
-//				Consumer<DownloadUtil.StringTarget>    stringAction    = o -> {logger.info("string     {}", String.format("%5d %s", o.getString().length(), o.getURL()));};
-////				Consumer<DownloadUtil.StringTarget>    stringAction    = o -> {logger.info("string     {}", String.format("%5d %s", o.getString().getBytes(StandardCharsets.UTF_8).length, o.getURL()));};
-//				Consumer<DownloadUtil.ByteArrayTarget> byteArrayAction = o -> {logger.info("byteArray  {}", String.format("%5d %s", o.getByteArray().length, o.getURL()));};
-//
-//				targetList.clear();
-//				
-//				String url = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsSymbolSearchGST";
-//				targetList.add(new DownloadUtil.TextFileTarget(url, textFileAction, new File("tmp/a")));
-//				targetList.add(new DownloadUtil.BinaryFileTarget(url, binaryileAction, new File("tmp/a")));
-//				targetList.add(new DownloadUtil.StringTarget(url, stringAction));
-//				targetList.add(new DownloadUtil.ByteArrayTarget(url, byteArrayAction));
-//			}
-			
-			DownloadUtil.getInstance().withHeader(headers).withTarget(targetList).withMaxThread(maxThread).download();
+
+			logger.info("BEFORE RUN");
+			download.startAndWait();
+			logger.info("AFTER  RUN");
+			download.showRunCount();
 		}
 
 		logger.info("STOP");

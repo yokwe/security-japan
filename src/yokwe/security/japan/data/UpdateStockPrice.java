@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
@@ -31,8 +31,11 @@ import yokwe.security.japan.jpx.StockPage.SellPriceTime;
 import yokwe.security.japan.jpx.StockPage.TradeUnit;
 import yokwe.security.japan.jpx.StockPage.TradeValue;
 import yokwe.security.japan.jpx.StockPage.TradeVolume;
-import yokwe.util.DownloadUtil;
 import yokwe.util.JapanHoliday;
+import yokwe.util.http.Download;
+import yokwe.util.http.RequesterBuilder;
+import yokwe.util.http.StringTask;
+import yokwe.util.http.Task;
 
 public class UpdateStockPrice {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockPrice.class);
@@ -41,6 +44,7 @@ public class UpdateStockPrice {
 		private List<StockPrice>               stockPriceList;
 		private List<StockInfo>                stockInfoList;
 		private Map<String, List<PriceVolume>> priceVolumeMap;
+		private Integer                        buildCount;
 				
 		public void add(StockPrice newValue) {
 			synchronized(stockPriceList) {
@@ -58,10 +62,24 @@ public class UpdateStockPrice {
 			}
 		}
 
+		public void incrementBuildCount() {
+			synchronized(buildCount) {
+				buildCount = buildCount + 1;
+			}
+		}
+		public int getBuildCount() {
+			int ret;
+			synchronized(buildCount) {
+				ret = buildCount;
+			}
+			return ret;
+		}
+
 		public Context() {
 			this.stockPriceList = new ArrayList<>();
 			this.stockInfoList  = new ArrayList<>();
 			this.priceVolumeMap = new TreeMap<>();
+			this.buildCount     = 0;
 		}
 	}
 	
@@ -143,48 +161,91 @@ public class UpdateStockPrice {
 
 	}
 
-	private static class MyStringTarget extends DownloadUtil.StringTarget {
-		private final String  stockCode;
-		private final Context context;
-		private LocalDateTime dateTime;
-
-		public MyStringTarget(String url, String stockCode, Context context) {
-			super(url, MyStringTarget::myAction);
-			
-			this.stockCode = stockCode;
+	private static class MyConsumer implements Consumer<String> {
+		private final Context       context;
+		private final String        stockCode;
+		private final LocalDateTime dateTime;
+		
+		MyConsumer(Context context, String stockCode, LocalDateTime dateTime) {
 			this.context   = context;
-			this.dateTime  = null;
+			this.stockCode = stockCode;
+			this.dateTime  = dateTime;
 		}
-		
 		@Override
-		public void beforeProcess() {
-			super.beforeProcess();
-			this.dateTime = LocalDateTime.now();
-		}
-		
-		public static void myAction(DownloadUtil.StringTarget target) {
-			MyStringTarget myTarget = (MyStringTarget)target;
-			buildContextFromPage(myTarget.context, myTarget.dateTime, myTarget.stockCode, myTarget.getString());
+		public void accept(String page) {
+			context.incrementBuildCount();
+			buildContextFromPage(context, dateTime, stockCode, page);			
 		}
 	}
-	
-	private static void buildContext(Context context) {
-		int maxThread = 50;
-		
-		List<Header> headers = new ArrayList<>();
-		headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"));
-		headers.add(new BasicHeader("Referer",    "https://www.jpx.co.jp/"));
-		headers.add(new BasicHeader("Connection", "keep-alive"));
 
-		ArrayList<DownloadUtil.Target> targetList = new ArrayList<>();
-		for(Stock e: Stock.getList()) {
-			String stockCode = e.stockCode;
-			String url  = StockPage.getPageURL(stockCode);
-			targetList.add(new MyStringTarget(url, stockCode, context));
-		}
-		Collections.shuffle(targetList);
+	private static void buildContext(Context context) {
+		int threadCount = 50;
+		int maxPerRoute = 50;
+		int maxTotal    = 100;
+		int soTimeout   = 30;
+		logger.info("threadCount {}", threadCount);
+		logger.info("maxPerRoute {}", maxPerRoute);
+		logger.info("maxTotal    {}", maxTotal);
+		logger.info("soTimeout   {}", soTimeout);
 		
-		DownloadUtil.getInstance().withHeader(headers).withTarget(targetList).withMaxThread(maxThread).download();
+		RequesterBuilder requesterBuilder = RequesterBuilder.custom()
+				.setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+				.setSoTimeout(soTimeout)
+				.setMaxTotal(maxTotal)
+				.setDefaultMaxPerRoute(maxPerRoute);
+
+		Download download = new Download();
+		
+		download.setRequesterBuilder(requesterBuilder);
+		
+		// Configure custom header
+		download.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit");
+		download.setReferer("https://www.jpx.co.jp/");
+		
+		// Configure TaskProcessor
+		download.setThreadCount(threadCount);
+
+		List<Stock> stockList = Stock.getList();
+		Collections.shuffle(stockList);
+		final int stockListSize = stockList.size();
+		
+		LocalDateTime dateTime = LocalDateTime.now();
+		
+		for(Stock stock: stockList) {
+			String stockCode = stock.stockCode;
+			String uriString = StockPage.getPageURL(stockCode);
+			
+			Task task = StringTask.text(uriString, new MyConsumer(context, stockCode, dateTime));
+			download.addTask(task);
+		}
+
+		logger.info("BEFORE RUN");
+		download.startAndWait();
+		logger.info("AFTER  RUN");
+//		download.showRunCount();
+
+		try {
+			for(int i = 0; i < 10; i++) {
+				int buildCount = context.getBuildCount();
+				if (buildCount == stockListSize) break;
+				logger.info("buildCount {} / {}", buildCount, stockListSize);
+				Thread.sleep(1000);
+			}
+			{
+				int buildCount = context.getBuildCount();
+				if (buildCount != stockListSize) {
+					logger.error("Unexpected");
+					logger.error("  buildCount    {}", buildCount);
+					logger.error("  stockListSize {}", stockListSize);
+					throw new UnexpectedException("Unexpected");
+				}
+			}
+			logger.info("AFTER  WAIT");
+		} catch (InterruptedException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		}
 	}
 	private static void updatePrice(Context context) {
 		// update price using list (StockPrice)
@@ -197,7 +258,7 @@ public class UpdateStockPrice {
 			String date      = stockPrice.date;
 			String stockCode = stockPrice.stockCode;
 			
-			if ((count % 100) == 0) {
+			if ((count % 1000) == 0) {
 				logger.info("{}", String.format("%4d / %4d  %s", count, countTotal, stockCode));
 			}
 			count++;
