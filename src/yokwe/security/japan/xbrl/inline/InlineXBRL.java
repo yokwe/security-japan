@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.xbrl.XBRL;
 import yokwe.security.japan.xbrl.XML;
-import yokwe.util.XMLUtil.QValue;
-import yokwe.util.XMLUtil.XMLElement;
+import yokwe.util.xml.QValue;
+import yokwe.util.xml.Element;
 
 public abstract class InlineXBRL {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(InlineXBRL.class);
@@ -26,22 +26,22 @@ public abstract class InlineXBRL {
 	}
 	
 	private interface Builder {
-		public InlineXBRL getInstance(XMLElement xmlElement);
+		public InlineXBRL getInstance(Element element);
 	}
 	
 	private static class BooleanBuilder implements Builder {
-		public InlineXBRL getInstance(XMLElement xmlElement) {
-			return new BooleanValue(xmlElement);
+		public InlineXBRL getInstance(Element element) {
+			return new BooleanValue(element);
 		}
 	}
 	private static class DateBuilder implements Builder {
-		public InlineXBRL getInstance(XMLElement xmlElement) {
-			return new DateValue(xmlElement);
+		public InlineXBRL getInstance(Element element) {
+			return new DateValue(element);
 		}
 	}
 	private static class NumberBuilder implements Builder {
-		public InlineXBRL getInstance(XMLElement xmlElement) {
-			return new NumberValue(xmlElement);
+		public InlineXBRL getInstance(Element element) {
+			return new NumberValue(element);
 		}
 	}
 	
@@ -53,18 +53,18 @@ public abstract class InlineXBRL {
 		nonNumericBuilderMap.put(XBRL.IXT_DATE_ERA_YEAR_MONTH_DAY_JP, new DateBuilder());
 	}
 	private static class NonNumericBuilder implements Builder {
-		public InlineXBRL getInstance(XMLElement xmlElement) {
-			QValue qFormat = getQFormat(xmlElement);
+		public InlineXBRL getInstance(Element element) {
+			QValue qFormat = getQFormat(element);
 			if (qFormat == null) {
-				return new StringValue(xmlElement);
+				return new StringValue(element);
 			} else {
 				if (nonNumericBuilderMap.containsKey(qFormat)) {
 					Builder builder = nonNumericBuilderMap.get(qFormat);
-					return builder.getInstance(xmlElement);
+					return builder.getInstance(element);
 				} else {
-					logger.error("Unexpected xmlElement {}", xmlElement);
+					logger.error("Unexpected element {}", element);
 					logger.error("  qFormat {}", qFormat);
-					throw new UnexpectedException("Unexpected xmlElement");	
+					throw new UnexpectedException("Unexpected element");	
 				}
 			}
 		}
@@ -76,17 +76,17 @@ public abstract class InlineXBRL {
 		nonFractionalBuilderMap.put(XBRL.IXT_NUM_UNIT_DECIMAL, new NumberBuilder());
 	}
 	private static class NonFractionBuilder implements Builder {
-		public InlineXBRL getInstance(XMLElement xmlElement) {
-			if (isNull(xmlElement)) {
-				return new NumberValue(xmlElement);
+		public InlineXBRL getInstance(Element element) {
+			if (isNull(element)) {
+				return new NumberValue(element);
 			} else {
-				QValue qFormat = getQFormat(xmlElement);
+				QValue qFormat = getQFormat(element);
 				if (qFormat == null) {
-					return new NumberValue(xmlElement);
+					return new NumberValue(element);
 				} else {
 					if (nonFractionalBuilderMap.containsKey(qFormat)) {
 						Builder builder = nonFractionalBuilderMap.get(qFormat);
-						return builder.getInstance(xmlElement);
+						return builder.getInstance(element);
 					} else {
 						logger.error("Unexpected format");
 						logger.error("  qFormat {}", qFormat);
@@ -102,8 +102,8 @@ public abstract class InlineXBRL {
 		elementBuilderMap.put(XBRL.IX_NON_NUMERIC,  new NonNumericBuilder());
 		elementBuilderMap.put(XBRL.IX_NON_FRACTION, new NonFractionBuilder());
 	}
-	private static Builder getBuilder(XMLElement xmlElement) {
-		QValue key = new QValue(xmlElement);
+	private static Builder getBuilder(Element element) {
+		QValue key = new QValue(element);
 		if (elementBuilderMap.containsKey(key)) {
 			return elementBuilderMap.get(key);
 		} else {
@@ -112,30 +112,30 @@ public abstract class InlineXBRL {
 		}
 	}
 	
-	public static boolean canGetInstance(XMLElement xmlElement) {
-		QValue key = new QValue(xmlElement);
+	public static boolean canGetInstance(Element element) {
+		QValue key = new QValue(element);
 		return elementBuilderMap.containsKey(key);
 	}
-	public static InlineXBRL getInstance(XMLElement xmlElement) {
-		if (canGetInstance(xmlElement)) {
-			Builder builder = getBuilder(xmlElement);
-			return builder.getInstance(xmlElement);
+	public static InlineXBRL getInstance(Element element) {
+		if (canGetInstance(element)) {
+			Builder builder = getBuilder(element);
+			return builder.getInstance(element);
 		} else {
-			logger.error("Unexpected name {}", xmlElement.name);
+			logger.error("Unexpected name {}", element.name);
 			throw new UnexpectedException("Unexpected name");
 		}
 	}
-	public static QValue getQName(XMLElement xmlElement) {
-		String name  = xmlElement.getAttribute("name");
-		QValue qName = xmlElement.expandNamespacePrefix(name);
+	public static QValue getQName(Element element) {
+		String name  = element.getAttribute("name");
+		QValue qName = element.expandNamespacePrefix(name);
 		return qName;
 	}
-	public static QValue getQFormat(XMLElement xmlElement) {
-		String format = xmlElement.getAttributeOrNull("format");
-		return (format == null) ? null : xmlElement.expandNamespacePrefix(format);
+	public static QValue getQFormat(Element element) {
+		String format = element.getAttributeOrNull("format");
+		return (format == null) ? null : element.expandNamespacePrefix(format);
 	}
-	public static boolean isNull(XMLElement xmlElement) {
-		String nilValue = xmlElement.getAttributeOrNull(XML.XSI_NIL);
+	public static boolean isNull(Element element) {
+		String nilValue = element.getAttributeOrNull(XML.XSI_NIL);
 		if (nilValue == null) {
 			return false;
 		} else {
@@ -177,7 +177,7 @@ public abstract class InlineXBRL {
 	}
 
 	public final Kind       kind;
-	public final XMLElement xmlElement;
+	public final Element element;
 	
 	public final Set<String> contextSet;
 	
@@ -189,23 +189,23 @@ public abstract class InlineXBRL {
 	public final QValue  qFormat;
 	public final boolean isNull;
 
-	protected InlineXBRL(Kind kind, XMLElement xmlElement) {
+	protected InlineXBRL(Kind kind, Element element) {
 		this.kind         = kind;
-		this.xmlElement   = xmlElement;
+		this.element   = element;
 		
 		{
-			String contextRef = xmlElement.getAttribute("contextRef");
+			String contextRef = element.getAttribute("contextRef");
 			TreeSet<String> set = new TreeSet<>(Arrays.asList(contextRef.split("_")));
 			this.contextSet = Collections.unmodifiableSet(set);
 		}
 		
-		this.name   = xmlElement.getAttribute("name");
-		this.format = xmlElement.getAttributeOrNull("format");
-		this.value  = xmlElement.content;
+		this.name   = element.getAttribute("name");
+		this.format = element.getAttributeOrNull("format");
+		this.value  = element.content;
 		
-		this.qName   = getQName(xmlElement);
-		this.qFormat = getQFormat(xmlElement);
-		this.isNull  = isNull(xmlElement);
+		this.qName   = getQName(element);
+		this.qFormat = getQFormat(element);
+		this.isNull  = isNull(element);
 	}
 	
 	

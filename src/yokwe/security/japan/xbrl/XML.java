@@ -1,6 +1,6 @@
 package yokwe.security.japan.xbrl;
 
-import yokwe.util.XMLUtil.QValue;
+import yokwe.util.xml.QValue;
 
 public class XML {
 	// Namespace

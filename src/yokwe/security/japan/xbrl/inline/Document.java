@@ -11,8 +11,8 @@ import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import yokwe.security.japan.tdnet.SummaryFilename;
-import yokwe.util.XMLUtil;
-import yokwe.util.XMLUtil.QValue;
+import yokwe.util.xml.QValue;
+import yokwe.util.xml.XMLStream;
 
 public class Document {
 	private static final List<InlineXBRL> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
@@ -46,7 +46,7 @@ public class Document {
 		List<InlineXBRL>              all = new ArrayList<>();
 		Map<QValue, List<InlineXBRL>> map = new TreeMap<>();
 		
-		XMLUtil.buildStream(file).filter(InlineXBRL::canGetInstance).forEach(o -> buildMap(all, map, InlineXBRL.getInstance(o)));
+		XMLStream.buildStream(file).filter(InlineXBRL::canGetInstance).forEach(o -> buildMap(all, map, InlineXBRL.getInstance(o)));
 		
 		return new Document(file, all, map);
 	}

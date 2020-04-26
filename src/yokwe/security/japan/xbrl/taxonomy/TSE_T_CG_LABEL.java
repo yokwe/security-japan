@@ -1,6 +1,6 @@
 package yokwe.security.japan.xbrl.taxonomy;
 
-import yokwe.util.XMLUtil.QValue;
+import yokwe.util.xml.QValue;
 
 public enum TSE_T_CG_LABEL {
     ACTIVITIES_CONCERNING_RESPECT_FOR_STAKEHOLDERS_ABSTRACT(

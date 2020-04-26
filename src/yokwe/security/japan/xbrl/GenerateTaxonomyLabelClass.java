@@ -43,7 +43,7 @@ public class GenerateTaxonomyLabelClass {
 //			out.println("import java.util.TreeMap;");
 //			out.println();
 //			out.println("import yokwe.UnexpectedException;");
-			out.println("import yokwe.util.XMLUtil.QValue;");
+			out.println("import yokwe.util.xml.QValue;");
 			out.println();
 			
 			out.println("public enum %s {", className);

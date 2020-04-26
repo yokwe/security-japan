@@ -6,9 +6,9 @@ import java.util.TreeSet;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.xbrl.XML;
-import yokwe.util.XMLUtil.QValue;
-import yokwe.util.XMLUtil.XMLAttribute;
-import yokwe.util.XMLUtil.XMLElement;
+import yokwe.util.xml.Attribute;
+import yokwe.util.xml.Element;
+import yokwe.util.xml.QValue;
 
 public class NumberValue extends InlineXBRL {
 	public static Set<QValue> validAttributeSet = new TreeSet<>();
@@ -33,9 +33,9 @@ public class NumberValue extends InlineXBRL {
 	public final BigDecimal numberValue;
 	public final BigDecimal precision;
 	
-	public NumberValue(XMLElement xmlElement) {
-		super(Kind.NUMBER, xmlElement);
-		this.unitRef  = xmlElement.getAttribute("unitRef");
+	public NumberValue(Element element) {
+		super(Kind.NUMBER, element);
+		this.unitRef  = element.getAttribute("unitRef");
 		
 		if (isNull) {
 			decimals      = 0;
@@ -45,9 +45,9 @@ public class NumberValue extends InlineXBRL {
 			numberValue   = null;
 			precision     = null;
 		} else {
-			final String decimalsString = xmlElement.getAttribute("decimals");
-			final String scaleString    = xmlElement.getAttribute("scale");
-			final String signString     = xmlElement.getAttributeOrNull("sign");
+			final String decimalsString = element.getAttribute("decimals");
+			final String scaleString    = element.getAttribute("scale");
+			final String signString     = element.getAttributeOrNull("sign");
 
 			decimals = Integer.parseInt(decimalsString);
 			scale    = Integer.parseInt(scaleString);
@@ -61,7 +61,7 @@ public class NumberValue extends InlineXBRL {
 					break;
 				default:
 					logger.error("Unexpected signString {}!", signString);
-					logger.error("xmlElement {}!", xmlElement);
+					logger.error("element {}!", element);
 					throw new UnexpectedException("Unexpected attribute");
 				}
 			}
@@ -90,11 +90,11 @@ public class NumberValue extends InlineXBRL {
 		}
 	
 		// Sanity check
-		for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
-			QValue value = new QValue(xmlAttribute);
+		for(Attribute attribute: element.attributeList) {
+			QValue value = new QValue(attribute);
 			if (validAttributeSet.contains(value)) continue;
-			logger.error("Unexpected attribute {}!", xmlAttribute);
-			logger.error("xmlElement {}!", xmlElement);
+			logger.error("Unexpected attribute {}!", attribute);
+			logger.error("element {}!", element);
 			throw new UnexpectedException("Unexpected attribute");
 		}
 	}

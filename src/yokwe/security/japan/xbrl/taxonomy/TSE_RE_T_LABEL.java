@@ -1,6 +1,6 @@
 package yokwe.security.japan.xbrl.taxonomy;
 
-import yokwe.util.XMLUtil.QValue;
+import yokwe.util.xml.QValue;
 
 public enum TSE_RE_T_LABEL {
     AMOUNT_CHANGE_NET_INCOME(

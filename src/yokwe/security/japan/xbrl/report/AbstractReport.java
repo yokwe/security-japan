@@ -26,7 +26,7 @@ import yokwe.security.japan.xbrl.inline.NumberValue;
 import yokwe.security.japan.xbrl.inline.StringValue;
 import yokwe.security.japan.xbrl.taxonomy.TSE_ED_T_LABEL;
 import yokwe.security.japan.xbrl.taxonomy.TSE_RE_T_LABEL;
-import yokwe.util.XMLUtil.QValue;
+import yokwe.util.xml.QValue;
 
 public abstract class AbstractReport {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractReport.class);

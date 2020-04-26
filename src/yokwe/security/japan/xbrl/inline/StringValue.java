@@ -5,9 +5,9 @@ import java.util.TreeSet;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.xbrl.XML;
-import yokwe.util.XMLUtil.QValue;
-import yokwe.util.XMLUtil.XMLAttribute;
-import yokwe.util.XMLUtil.XMLElement;
+import yokwe.util.xml.Attribute;
+import yokwe.util.xml.Element;
+import yokwe.util.xml.QValue;
 
 public class StringValue extends InlineXBRL {
 	public static Set<QValue> validAttributeSet = new TreeSet<>();
@@ -23,15 +23,15 @@ public class StringValue extends InlineXBRL {
 	public final String escape;
 	public final String stringValue;
 	
-	public StringValue(XMLElement xmlElement) {
-		super(Kind.STRING, xmlElement);
-		this.escape = xmlElement.getAttributeOrNull("escape");
+	public StringValue(Element element) {
+		super(Kind.STRING, element);
+		this.escape = element.getAttributeOrNull("escape");
 		
 		if (isNull) {
 			this.stringValue = null;
 		} else {
 			if (qFormat == null) {
-				this.stringValue = xmlElement.content;
+				this.stringValue = element.content;
 			} else {
 				logger.error("Unexpected format", value);
 				logger.error("  format  {}", format);
@@ -41,11 +41,11 @@ public class StringValue extends InlineXBRL {
 		}
 		
 		// Sanity check
-		for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
-			QValue value = new QValue(xmlAttribute);
+		for(Attribute attribute: element.attributeList) {
+			QValue value = new QValue(attribute);
 			if (validAttributeSet.contains(value)) continue;
-			logger.error("Unexpected attribute {}", xmlAttribute.name);
-			logger.error("xmlElement {}!", xmlElement);
+			logger.error("Unexpected attribute {}", attribute.name);
+			logger.error("element {}!", element);
 			throw new UnexpectedException("Unexpected attribute");
 		}
 	}

@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.xbrl.XBRL;
 import yokwe.security.japan.xbrl.XML;
-import yokwe.util.XMLUtil.QValue;
-import yokwe.util.XMLUtil.XMLAttribute;
-import yokwe.util.XMLUtil.XMLElement;
+import yokwe.util.xml.QValue;
+import yokwe.util.xml.Attribute;
+import yokwe.util.xml.Element;
 
 public class DateValue extends InlineXBRL {
 	public static Set<QValue> validAttributeSet = new TreeSet<>();
@@ -76,18 +76,18 @@ public class DateValue extends InlineXBRL {
 	public final String    escape;
 	public final LocalDate dateValue;
 	
-	public DateValue(XMLElement xmlElement) {
-		super(Kind.DATE, xmlElement);
+	public DateValue(Element element) {
+		super(Kind.DATE, element);
 		
-		this.escape = xmlElement.getAttributeOrNull("escape");
+		this.escape = element.getAttributeOrNull("escape");
 
 		if (isNull) {
 			this.dateValue = null;
 		} else {
 			if (qFormat.equals(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK)) {
-				this.dateValue = convertDateYearMonthDayCJK(xmlElement.content);
+				this.dateValue = convertDateYearMonthDayCJK(element.content);
 			} else if (qFormat.equals(XBRL.IXT_DATE_ERA_YEAR_MONTH_DAY_JP)) {
-				this.dateValue = convertDateEraYearMonthDayJP(xmlElement.content);
+				this.dateValue = convertDateEraYearMonthDayJP(element.content);
 			} else {
 				logger.error("Unexpected format", value);
 				logger.error("  format  {}", format);
@@ -97,11 +97,11 @@ public class DateValue extends InlineXBRL {
 		}
 
 		// Sanity check
-		for(XMLAttribute xmlAttribute: xmlElement.attributeList) {
-			QValue value = new QValue(xmlAttribute);
+		for(Attribute attribute: element.attributeList) {
+			QValue value = new QValue(attribute);
 			if (validAttributeSet.contains(value)) continue;
-			logger.error("Unexpected attribute {}", xmlAttribute.name);
-			logger.error("xmlElement {}!", xmlElement);
+			logger.error("Unexpected attribute {}", attribute.name);
+			logger.error("element {}!", element);
 			throw new UnexpectedException("Unexpected attribute");
 		}
 	}
