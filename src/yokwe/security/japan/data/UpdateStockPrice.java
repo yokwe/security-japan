@@ -32,7 +32,8 @@ import yokwe.security.japan.jpx.StockPage.TradeUnit;
 import yokwe.security.japan.jpx.StockPage.TradeValue;
 import yokwe.security.japan.jpx.StockPage.TradeVolume;
 import yokwe.util.JapanHoliday;
-import yokwe.util.http.ClassicDownload;
+import yokwe.util.http.Download;
+import yokwe.util.http.DownloadSync;
 import yokwe.util.http.RequesterBuilder;
 import yokwe.util.http.StringTask;
 import yokwe.util.http.Task;
@@ -194,7 +195,8 @@ public class UpdateStockPrice {
 				.setMaxTotal(maxTotal)
 				.setDefaultMaxPerRoute(maxPerRoute);
 
-		ClassicDownload download = new ClassicDownload();
+//		Download download = new DownloadAsync();
+		Download download = new DownloadSync();
 		
 		download.setRequesterBuilder(requesterBuilder);
 		

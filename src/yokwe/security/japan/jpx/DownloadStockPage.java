@@ -16,6 +16,7 @@ import yokwe.UnexpectedException;
 import yokwe.security.japan.data.Price;
 import yokwe.util.FileUtil;
 import yokwe.util.http.Download;
+import yokwe.util.http.DownloadAsync;
 import yokwe.util.http.FileTask;
 import yokwe.util.http.RequesterBuilder;
 import yokwe.util.http.Task;
@@ -75,7 +76,8 @@ public class DownloadStockPage {
 					.setMaxTotal(50)
 					.setDefaultMaxPerRoute(50);
 
-			Download download = new Download();
+			Download download = new DownloadAsync();
+//			Download download = new DownloadSync();
 			
 			download.setRequesterBuilder(requesterBuilder);
 			
