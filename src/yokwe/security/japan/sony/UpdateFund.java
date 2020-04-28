@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.sony.Fund.Region;
 import yokwe.security.japan.sony.Fund.Target;
-import yokwe.util.HttpUtil;
+import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSONBase;
 
 public class UpdateFund {

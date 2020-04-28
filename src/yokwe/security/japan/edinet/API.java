@@ -9,7 +9,7 @@ import javax.json.JsonObject;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.util.HttpUtil;
+import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSONBase;
 
 public class API {

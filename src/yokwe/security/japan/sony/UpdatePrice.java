@@ -16,7 +16,7 @@ import yokwe.security.japan.sony.price.Month;
 import yokwe.security.japan.sony.price.MorningstarXML;
 import yokwe.security.japan.sony.price.Year;
 import yokwe.util.FileUtil;
-import yokwe.util.HttpUtil;
+import yokwe.util.http.HttpUtil;
 
 public class UpdatePrice {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdatePrice.class);

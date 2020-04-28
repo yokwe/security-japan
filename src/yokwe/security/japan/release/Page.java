@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
-import yokwe.util.HttpUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.http.HttpUtil;
 
 public class Page {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Release.class);

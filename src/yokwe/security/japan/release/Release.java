@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
-import yokwe.util.HttpUtil;
+import yokwe.util.http.HttpUtil;
 
 public class Release implements Comparable<Release> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Release.class);

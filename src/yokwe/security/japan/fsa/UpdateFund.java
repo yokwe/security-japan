@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
-import yokwe.util.HttpUtil;
+import yokwe.util.http.HttpUtil;
 
 public class UpdateFund {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFund.class);
