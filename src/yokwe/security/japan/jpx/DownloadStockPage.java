@@ -85,7 +85,7 @@ public class DownloadStockPage {
 			download.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit");
 			download.setReferer("https://www.jpx.co.jp/");
 			
-			// Configure TaskProcessor
+			// Configure thread count
 			download.setThreadCount(50);
 
 			List<Stock> stockList = Stock.getList();
