@@ -12,7 +12,7 @@ import yokwe.security.japan.ufocatch.atom.Entry;
 import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.security.japan.ufocatch.atom.Link;
 import yokwe.util.FileUtil;
-import yokwe.util.HttpUtil;
+import yokwe.util.http.HttpUtil;
 
 public class DownloadUFOCatch {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadUFOCatch.class);

@@ -14,7 +14,7 @@ import yokwe.security.japan.tdnet.SummaryFilename;
 import yokwe.security.japan.tdnet.TDNET;
 import yokwe.security.japan.ufocatch.atom.Feed;
 import yokwe.util.FileUtil;
-import yokwe.util.HttpUtil;
+import yokwe.util.http.HttpUtil;
 
 public class Atom {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Atom.class);
