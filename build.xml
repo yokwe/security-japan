@@ -6,13 +6,13 @@
 	<property name="dir.build.bin" location="${dir.build}/bin" />
 	<property name="dir.build.jar" location="${dir.build}/jar" />
 
-	<property name="dir.libreoffice.jar" location="/usr/lib/libreoffice/program/classes" />
+        <property name="dir.libreoffice" location="/usr/lib/libreoffice/program" />
 
 	<path id="ext.jar">
 		<fileset dir="${dir.ext.jar}">
 			<include name="*.jar" />
 		</fileset>
-                <fileset dir="${dir.libreoffice.jar}">
+                <fileset dir="${dir.libreoffice}/classes">
                         <include name="unoloader.jar" />
                         <include name="unoil.jar" />
                         <include name="juh.jar" />
@@ -48,7 +48,7 @@
                 <java classname="yokwe.security.japan.jpx.UpdateStock" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                  </java>
         </target>
@@ -57,7 +57,7 @@
                 <java classname="yokwe.security.japan.data.UpdateStockPrice" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                  </java>
         </target>
@@ -66,7 +66,7 @@
                 <java classname="yokwe.security.japan.ufocatch.DownloadUFOCatch" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="stopAtSkip" value="true"/>
                 </java>
@@ -76,7 +76,7 @@
                 <java classname="yokwe.security.japan.ufocatch.DownloadUFOCatch" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="stopAtSkip" value="false"/>
                  </java>
@@ -86,7 +86,7 @@
                 <java classname="yokwe.security.japan.data.UpdateStockReport" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="stopAtSkip" value="false"/>
                  </java>
@@ -96,7 +96,7 @@
                 <java classname="yokwe.security.japan.data.UpdateREITReport" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="stopAtSkip" value="false"/>
                  </java>
@@ -106,7 +106,7 @@
                 <java classname="yokwe.security.japan.data.UpdateDividendETF" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                  </java>
         </target>
@@ -115,7 +115,7 @@
                 <java classname="yokwe.security.japan.data.UpdateDividendREIT" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                  </java>
         </target>
@@ -124,7 +124,7 @@
                 <java classname="yokwe.security.japan.data.UpdateDividendStock" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                  </java>
         </target>
@@ -133,7 +133,7 @@
                 <java classname="yokwe.security.japan.data.UpdateDividendAnnual" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                  </java>
         </target>
@@ -142,7 +142,7 @@
                 <java classname="yokwe.security.japan.data.UpdateDividend" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                  </java>
         </target>
@@ -151,7 +151,7 @@
                 <java classname="yokwe.security.japan.release.DownloadRelease" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="onlyToday" value="true"/>
                 </java>
@@ -161,7 +161,7 @@
                 <java classname="yokwe.security.japan.release.DownloadRelease" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="onlyToday" value="false"/>
                 </java>
@@ -171,7 +171,7 @@
                 <java classname="yokwe.security.japan.edinet.UpdateDocument" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="updatePeriod" value="3"/>
                 </java>
@@ -181,7 +181,7 @@
                 <java classname="yokwe.security.japan.edinet.DownloadDocument" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="downloadLimitYear" value="1"/> <!-- limit download to last 1 year -->
                 </java>
@@ -191,7 +191,7 @@
                 <java classname="yokwe.security.japan.data.ReportStatsJP" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                 </java>
         </target>
@@ -200,7 +200,7 @@
                 <java classname="yokwe.security.japan.data.ReportStatsJP" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="onlyCSV" value="true"/>
                 </java>
@@ -211,7 +211,7 @@
                 <java classname="yokwe.security.japan.sony.UpdateFund" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="onlyCSV" value="true"/>
                 </java>
@@ -221,7 +221,7 @@
                 <java classname="yokwe.security.japan.sony.UpdateFundInfo" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="onlyCSV" value="true"/>
                 </java>
@@ -231,7 +231,7 @@
                 <java classname="yokwe.security.japan.sony.UpdatePrice" fork="true">
                         <classpath location="${jar.security-japan}" />
                         <classpath refid="ext.jar" />
-                        <sysproperty key="java.library.path" value="/usr/lib/libreoffice/program"/>
+                        <classpath location="${dir.libreoffice}"/>
                         <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
                         <sysproperty key="onlyCSV" value="true"/>
                 </java>
