@@ -2,6 +2,7 @@ package yokwe.security.japan.data;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -167,8 +168,8 @@ public class ReportStatsJP {
 			BigDecimal price          = BigDecimal.valueOf(ret.price);
 			BigDecimal vol            = BigDecimal.valueOf(ret.vol);
 			
-			BigDecimal marketCap = numberOfIssued.multiply(price).divide(mllion, BigDecimal.ROUND_HALF_UP);
-			BigDecimal trade     = vol.multiply(price).divide(mllion, BigDecimal.ROUND_HALF_UP);
+			BigDecimal marketCap = numberOfIssued.multiply(price).divide(mllion, RoundingMode.HALF_UP);
+			BigDecimal trade     = vol.multiply(price).divide(mllion, RoundingMode.HALF_UP);
 
 			ret.numberOfIssuedK = numberOfIssued.divide(kilo).longValue();
 			ret.marketCapM      = marketCap.longValue();
