@@ -137,10 +137,9 @@ public class Page {
 		// Sanity check
 		{
 			if (ret.count != ret.entryList.size()) {
-				logger.error("count mismatch");
-				logger.error("  count {}", ret.count);
-				logger.error("  entry {}", ret.entryList.size());
-				throw new UnexpectedException("count mismatch");
+				logger.warn("count mismatch");
+				logger.warn("  count {}", ret.count);
+				logger.warn("  entry {}", ret.entryList.size());
 			}
 		}
 		return ret;
