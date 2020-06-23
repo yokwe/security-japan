@@ -8,14 +8,13 @@ import javax.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.smbctb.screener.Screener;
-import yokwe.security.japan.smbctb.screener.Security;
+import yokwe.security.japan.smbctb.Screener.Security;
 import yokwe.util.CSVUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateSMBCFund {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateSMBCFund.class);
+public class UpdateSMBCTBFund {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateSMBCTBFund.class);
 	
 	public static final String FILE_PATH = "tmp/data/smbc/fund.csv";
 
