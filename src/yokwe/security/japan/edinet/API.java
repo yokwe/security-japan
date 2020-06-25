@@ -4,13 +4,13 @@ import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import javax.json.JsonObject;
-
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.util.http.HttpUtil;
-import yokwe.util.json.JSONBase;
+import yokwe.util.json.JSON;
+import yokwe.util.json.JSON.DateTimeFormat;
+import yokwe.util.json.JSON.Name;
 
 public class API {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(API.class);
@@ -148,33 +148,27 @@ public class API {
 			return String.format("%s/%s/documents.json?date=%s&type=%s", URL_BASE, version.value, date.toString(), type.value);
 		}
 		
-		public static class Metadata extends JSONBase {
-			public static class Parameter extends JSONBase {
+		public static class Metadata {
+			public static class Parameter {
 				public LocalDate date;
-				public API.ListDocument.Type    type;
+				public Type      type;
 				
 				public Parameter() {
 					this.date = null;
 					this.type = null;
 				}
-				public Parameter(JsonObject jsonObject) {
-					super(jsonObject);
-				}
 			}
-			public static class ResultSet extends JSONBase {
+			public static class ResultSet {
 				public int count;
 				
 				public ResultSet() {
 					this.count = 0;
 				}
-				public ResultSet(JsonObject jsonObject) {
-					super(jsonObject);
-				}
 			}
 			
 			public String        title;
 			public Parameter     parameter;
-			@JSONName("resultset")
+			@Name("resultset")
 			public ResultSet     resultSet;
 			@DateTimeFormat("yyyy-MM-dd HH:mm")
 			public LocalDateTime processDateTime;
@@ -189,16 +183,13 @@ public class API {
 				this.status          = null;
 				this.message         = null;
 			}
-			public Metadata(JsonObject jsonObject) {
-				super(jsonObject);
-			}
 		}
 
-		public static class Result extends JSONBase {
+		public static class Result {
 			public int    seqNumber;
 			public String docID;
 			public String edinetCode;
-			@JSONName("secCode")
+			@Name("secCode")
 			public String stockCode;
 			public String JCN;
 			public String filerName;
@@ -254,13 +245,9 @@ public class API {
 				this.attachDocFlag        = null;
 				this.englishDocFlag       = null;
 			}
-			
-			public Result(JsonObject jsonObject) {
-				super(jsonObject);
-			}
 		}
 
-		public static class Response extends JSONBase {
+		public static class Response {
 			public Metadata metadata;
 			public Result[] results;
 			
@@ -268,14 +255,12 @@ public class API {
 				this.metadata = null;
 				this.results  = null;
 			}
-			public Response(JsonObject jsonObject) {
-				super(jsonObject);
-			}
 		}
 		
 		public static Response getInstance(Version version, LocalDate date, Type type) {
-			String url = getURL(version, date, type);
-			Response response = JSONBase.getObject(url, Response.class);
+			String   url      = getURL(version, date, type);
+			String   string   = HttpUtil.getInstance().download(url).result;
+			Response response = JSON.unmarshal(Response.class, string);
 			return response;
 		}
 		public static Response getInstance(LocalDate date, Type type) {
@@ -342,7 +327,7 @@ public class API {
 		
 		for(int i = 0; i < 5; i++) {
 			ListDocument.Response response = ListDocument.getInstance(date, ListDocument.Type.DATA);
-//			logger.info("response {}", response);
+//			logger.info("response {}", StringUtil.toString(response));
 			for(ListDocument.Result e: response.results) {
 				if (e.docTypeCode == DocType.ANNUAL_REPORT ||
 						e.docTypeCode == DocType.SEMI_ANNUAL_REPORT ||
