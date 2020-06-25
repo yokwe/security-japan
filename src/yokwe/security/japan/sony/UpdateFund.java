@@ -8,62 +8,61 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.json.JsonObject;
-
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.sony.Fund.Region;
 import yokwe.security.japan.sony.Fund.Target;
 import yokwe.util.http.HttpUtil;
-import yokwe.util.json.JSONBase;
+import yokwe.util.json.JSON;
+import yokwe.util.json.JSON.Name;
 
 public class UpdateFund {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFund.class);
 
-	public static class RawFundData extends JSONBase {
-	    @JSONName("BunpaiKinriFM")       public String bunpaiKinriFM;      // 14.97%
-	    @JSONName("BunpaiKinriRank")     public String bunpaiKinriRank;    // 6
-	    @JSONName("CategoryMeisyo")      public String categoryMeisyo;     // 国際REIT型
-	    @JSONName("FlgFromSSeimei")      public String flgFromSSeimei;     // 0
-	    @JSONName("FlgHanbaiteisi")      public String flgHanbaiteisi;     // 0
-	    @JSONName("FlgHRiskFund")        public String flgHRiskFund;       // 0
-	    @JSONName("FlgSWOnly")           public String flgSWOnly;          // 0
-	    @JSONName("FundAisyo")           public String fundAisyo;          // −
-	    @JSONName("FundMei")             public String fundMei;            // ワールド・リート・オープン（毎月決算型）
-	    @JSONName("FundRyaku")           public String fundRyaku;          // ワールド・リート・オープン（毎月決算型）
-	    @JSONName("HanbaigakuFM")        public String hanbaigakuFM;       // 4,359,962円
-	    @JSONName("HanbaigakuRanking")   public String hanbaigakuRanking;  // 127
-	    @JSONName("HanbaiTesuryo")       public String hanbaiTesuryo;      // -
-	    @JSONName("HanbaiTesuryoFM")     public String hanbaiTesuryoFM;    // なし
-	    @JSONName("HyokaKijyunbi")       public String hyokaKijyunbi;      // 2020年03月
-	    @JSONName("JyunsisanEn")         public String jyunsisanEn;        // 142588
-	    @JSONName("JyunsisanEnFM")       public String jyunsisanEnFM;      // 142,588
-	    @JSONName("JyunsisanRank")       public String jyunsisanRank;      // 15
-	    @JSONName("KanaCode")            public String kanaCode;           // 081
-	    @JSONName("KessanHindo")         public String kessanHindo;        // 12
-	    @JSONName("KessanHindoFM")       public String kessanHindoFM;      // 毎月
-	    @JSONName("KijyunKagaku")        public String kijyunKagaku;       // 1403
-	    @JSONName("KijyunKagakuFM")      public String kijyunKagakuFM;     // 1,403円
-	    @JSONName("MSCategoryCodeDai")   public String msCategoryCodeDai;  // 13
-	    @JSONName("NISAHanbaigakuFM")    public String nisaHanbaigakuFM;   // 696,961円
-	    @JSONName("NISAHanbaigakuRank")  public String nisaHanbaigakuRank; // 97
-	    @JSONName("ReturnRank")          public String returnRank;         // 221
-	    @JSONName("SBFundCode")          public String sbFundCode;         // 09111041
-	    @JSONName("SintakHosyu")         public String sintakHosyu;        // 1.705
-	    @JSONName("SintakHosyuFM")       public String sintakHosyuFM;      // 1.705%
-	    @JSONName("SougouRating")        public String sougouRating;       // 2
-	    @JSONName("SougouRatingFM")      public String sougouRatingFM;     // ★★
-	    @JSONName("ToshiArea")           public String toshiArea;          // 01
-	    @JSONName("ToshiTarget")         public String toshiTarget;        // 20
-	    @JSONName("TotalReturn")         public String totalReturn;        // -33.36
-	    @JSONName("TotalReturnFM")       public String totalReturnFM;      // -33.36%
-	    @JSONName("TukaCode")            public String tukaCode;           // JPY
-	    @JSONName("TumitateKensu")       public String tumitateKensu;      // 96
-	    @JSONName("TumitateKensuRank")   public String tumitateKensuRank;  // 77
-	    @JSONName("TumitatePlan")        public String tumitatePlan;       // 1
-	    @JSONName("TumitatePlanFM")      public String tumitatePlanFM;     // ○
-	    @JSONName("ZenjituhiFM")         public String zenjituhiFM;        // -47円
+	public static class RawFundData {
+	    @Name("BunpaiKinriFM")       public String bunpaiKinriFM;      // 14.97%
+	    @Name("BunpaiKinriRank")     public String bunpaiKinriRank;    // 6
+	    @Name("CategoryMeisyo")      public String categoryMeisyo;     // 国際REIT型
+	    @Name("FlgFromSSeimei")      public String flgFromSSeimei;     // 0
+	    @Name("FlgHanbaiteisi")      public String flgHanbaiteisi;     // 0
+	    @Name("FlgHRiskFund")        public String flgHRiskFund;       // 0
+	    @Name("FlgSWOnly")           public String flgSWOnly;          // 0
+	    @Name("FundAisyo")           public String fundAisyo;          // −
+	    @Name("FundMei")             public String fundMei;            // ワールド・リート・オープン（毎月決算型）
+	    @Name("FundRyaku")           public String fundRyaku;          // ワールド・リート・オープン（毎月決算型）
+	    @Name("HanbaigakuFM")        public String hanbaigakuFM;       // 4,359,962円
+	    @Name("HanbaigakuRanking")   public String hanbaigakuRanking;  // 127
+	    @Name("HanbaiTesuryo")       public String hanbaiTesuryo;      // -
+	    @Name("HanbaiTesuryoFM")     public String hanbaiTesuryoFM;    // なし
+	    @Name("HyokaKijyunbi")       public String hyokaKijyunbi;      // 2020年03月
+	    @Name("JyunsisanEn")         public String jyunsisanEn;        // 142588
+	    @Name("JyunsisanEnFM")       public String jyunsisanEnFM;      // 142,588
+	    @Name("JyunsisanRank")       public String jyunsisanRank;      // 15
+	    @Name("KanaCode")            public String kanaCode;           // 081
+	    @Name("KessanHindo")         public String kessanHindo;        // 12
+	    @Name("KessanHindoFM")       public String kessanHindoFM;      // 毎月
+	    @Name("KijyunKagaku")        public String kijyunKagaku;       // 1403
+	    @Name("KijyunKagakuFM")      public String kijyunKagakuFM;     // 1,403円
+	    @Name("MSCategoryCodeDai")   public String msCategoryCodeDai;  // 13
+	    @Name("NISAHanbaigakuFM")    public String nisaHanbaigakuFM;   // 696,961円
+	    @Name("NISAHanbaigakuRank")  public String nisaHanbaigakuRank; // 97
+	    @Name("ReturnRank")          public String returnRank;         // 221
+	    @Name("SBFundCode")          public String sbFundCode;         // 09111041
+	    @Name("SintakHosyu")         public String sintakHosyu;        // 1.705
+	    @Name("SintakHosyuFM")       public String sintakHosyuFM;      // 1.705%
+	    @Name("SougouRating")        public String sougouRating;       // 2
+	    @Name("SougouRatingFM")      public String sougouRatingFM;     // ★★
+	    @Name("ToshiArea")           public String toshiArea;          // 01
+	    @Name("ToshiTarget")         public String toshiTarget;        // 20
+	    @Name("TotalReturn")         public String totalReturn;        // -33.36
+	    @Name("TotalReturnFM")       public String totalReturnFM;      // -33.36%
+	    @Name("TukaCode")            public String tukaCode;           // JPY
+	    @Name("TumitateKensu")       public String tumitateKensu;      // 96
+	    @Name("TumitateKensuRank")   public String tumitateKensuRank;  // 77
+	    @Name("TumitatePlan")        public String tumitatePlan;       // 1
+	    @Name("TumitatePlanFM")      public String tumitatePlanFM;     // ○
+	    @Name("ZenjituhiFM")         public String zenjituhiFM;        // -47円
 
 		public RawFundData() {
 		    this.bunpaiKinriFM      = null;
@@ -109,21 +108,13 @@ public class UpdateFund {
 		    this.tumitatePlanFM     = null;
 		    this.zenjituhiFM        = null;
 		}
-
-		public RawFundData(JsonObject jsonObject) {
-			super(jsonObject);
-		}
 	}
 	
-	public static class RawData extends JSONBase {
+	public static class RawData {
 		public Map<String, RawFundData> map;
 		
 		public RawData() {
 			map = null;
-		}
-		
-		public RawData(JsonObject jsonObject) {
-			super(jsonObject);
 		}
 	}
 	
@@ -222,7 +213,7 @@ public class UpdateFund {
 				throw new UnexpectedException("no match PAT_FUNDDATA");
 			}
 		}
-		RawData rawData = JSONBase.getInstance(RawData.class, jsonString);
+		RawData rawData = JSON.unmarshal(RawData.class, jsonString);
 
 		List<Fund> list = new ArrayList<>();
 		for(Map.Entry<String, RawFundData> entry: rawData.map.entrySet()) {

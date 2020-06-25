@@ -6,15 +6,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.json.JsonObject;
-
 import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.util.CSVUtil;
-import yokwe.util.json.JSONBase;
 
-public class Fund extends JSONBase implements Comparable<Fund> {
+public class Fund implements Comparable<Fund> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Fund.class);
 
 	public static final String PATH_FILE = "tmp/data/sony/fund.csv";
@@ -117,10 +114,6 @@ public class Fund extends JSONBase implements Comparable<Fund> {
 	    this.region   = null;
 	    this.target   = null;
 	    this.currency = null;
-	}
-	
-	public Fund(JsonObject jsonObject) {
-		super(jsonObject);
 	}
 	
 	@Override
