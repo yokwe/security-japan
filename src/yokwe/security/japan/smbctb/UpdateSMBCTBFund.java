@@ -1,17 +1,14 @@
 package yokwe.security.japan.smbctb;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXB;
-
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.smbctb.Screener.Security;
+import yokwe.security.japan.smbctb.Screener.Row;
 import yokwe.util.CSVUtil;
-import yokwe.util.StringUtil;
 import yokwe.util.http.HttpUtil;
+import yokwe.util.json.JSON;
 
 public class UpdateSMBCTBFund {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateSMBCTBFund.class);
@@ -21,25 +18,22 @@ public class UpdateSMBCTBFund {
 	public static void main(String[] args) {
 		logger.info("START");
 
-		{
-			HttpUtil.Result result = HttpUtil.getInstance().withRawData(true).download(Screener.URL);
-			logger.info("result {} {} {} {}", result.code, result.reasonPhrase, result.version, result.rawData.length);
+		logger.info("url {}", Screener.URL);
+		
+		HttpUtil.Result result = HttpUtil.getInstance().download(Screener.URL);
+		logger.info("result {} {} {} {}", result.code, result.reasonPhrase, result.version, result.rawData.length);
 
-			Screener screener = JAXB.unmarshal(new ByteArrayInputStream(result.rawData), Screener.class);
+		Screener screener = JSON.unmarshal(Screener.class, result.result);
 
-			logger.info("screener {}", StringUtil.toString(screener));
-			logger.info("securities {}", screener.securites.securityList.size());
+		logger.info("screener {}", screener);
+		logger.info("rows     {}", screener.rows.length);
 
-			List<Security> list = new ArrayList<>();
-			for (Security e : screener.securites.securityList) {
-				if (e.isin == null) {
-					logger.info("security  {}", e);
-					continue;
-				}
-				list.add(e);
-			}
-			CSVUtil.write(Security.class).file(FILE_PATH, list);
+		List<Row> list = new ArrayList<>();
+		for (var e : screener.rows) {
+			list.add(e);
 		}
+		logger.info("save {} {}", list.size(), FILE_PATH);
+		CSVUtil.write(Row.class).file(FILE_PATH, list);
 
 		logger.info("STOP");
 	}
