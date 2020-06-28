@@ -29,36 +29,40 @@ import yokwe.util.FileUtil;
 public class GenearateJSONStub {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenearateJSONStub.class);
 	
-	enum FieldType {
-		OBJECT,
-		ARRAY,
-		//
-		BOOLEAN,
-		NUMBER,
-		STRING,
-		DATE_TIME,
+	private static final Pattern PAT_DATETIME = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]");
+	private static boolean isDateTime(String string) {
+		if (PAT_DATETIME.matcher(string).matches()) return true;
+		return false;
 	}
 	
 	private static Map<String, Field> map = new TreeMap<>();
 	private static void addField(Field newValue) {
 		if (map.containsKey(newValue.name)) {
-			Field oldField = map.get(newValue.name);
-			if (!newValue.equals(oldField)) {
-				logger.error("old don't mache new");
-				logger.error("  old {}", oldField);
-				logger.error("  new {}", newValue);
-				throw new UnexpectedException("old don't mache new");
-			}
+			logger.error("duplicate field name");
+			logger.error("  name {}", newValue.name);
+			logger.error("  old  {}", map.get(newValue.name));
+			logger.error("  new  {}", newValue);
+			throw new UnexpectedException("duplicate field name");
 		} else {
 			map.put(newValue.name, newValue);
 		}
 	}
 	public static abstract class Field {
-		public final FieldType type;
-		public final String    name;
-		public final String    simpleName;
+		enum Type {
+			OBJECT,
+			ARRAY,
+			//
+			BOOLEAN,
+			NUMBER,
+			STRING,
+			DATE_TIME,
+		}
 		
-		public Field(FieldType type, String name) {
+		public final Type   type;
+		public final String name;
+		public final String simpleName;
+		
+		public Field(Type type, String name) {
 			this.type = type;
 			this.name = name;
 			
@@ -68,7 +72,6 @@ public class GenearateJSONStub {
 		
 		@Override
 		public String toString() {
-//			return String.format("{%s %s}", type, name);
 			return String.format("{%s %s}", type, simpleName);
 		}
 		@Override
@@ -88,54 +91,31 @@ public class GenearateJSONStub {
 	
 	public static class FieldBoolean extends Field {
 		public FieldBoolean(String name) {
-			super(FieldType.BOOLEAN, name);
+			super(Type.BOOLEAN, name);
 		}
 	}
 	public static class FieldNumber extends Field {
 		public FieldNumber(String name) {
-			super(FieldType.NUMBER, name);
+			super(Type.NUMBER, name);
 		}
 	}
 	public static class FieldString extends Field {
 		public FieldString(String name) {
-			super(FieldType.STRING, name);
+			super(Type.STRING, name);
 		}
 	}
 	public static class FieldDateTime extends Field {
 		public FieldDateTime(String name) {
-			super(FieldType.DATE_TIME, name);
+			super(Type.DATE_TIME, name);
 		}
 	}
 	
-	private static final Pattern PAT_DATETIME = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]");
-	private static boolean isDateTime(String string) {
-		if (PAT_DATETIME.matcher(string).matches()) return true;
-		return false;
-	}
-	
-	public static class FieldCount {
-		public final Field field;
-		public       int   count;
-		
-		public FieldCount(Field field) {
-			this.field = field;
-			this.count = 1;
-		}
-		public void increment() {
-			count++;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("%3d %s", count, field);
-		}
-	}
 	public static class FieldArray extends Field {
 		public final int                size;
 		public final Map<String, FieldCount> map = new LinkedHashMap<>();
 		
 		public FieldArray(String name, JsonArray jsonArray) {
-			super(FieldType.ARRAY, name);
+			super(Type.ARRAY, name);
 			
 			this.size = jsonArray.size();
 			
@@ -206,9 +186,11 @@ public class GenearateJSONStub {
 		
 		@Override
 		public String toString() {
-//			return String.format("{%s %s %s %s}", type, name, size, map);
-			List<String> list = map.values().stream().map(o -> String.format("{%3d %s %s}", o.count, o.field.type, o.field.name)).collect(Collectors.toList());
-			return String.format("{%-6s %-47s %2d %s}", type, name, size, list);
+			List<String> list = map.values().stream().map(o -> String.format("{%d %s %s}", o.count, o.field.type, o.field.name)).collect(Collectors.toList());
+			return String.format("{%-6s %s %d %s}", type, name, size, list);
+		}
+		public String toStringSimple() {
+			return String.format("{%-6s %s %d}", type, name, size);
 		}
 		@Override
 		public boolean equals(Object object) {
@@ -230,7 +212,7 @@ public class GenearateJSONStub {
 		public final List<Field> list = new ArrayList<>();
 		
 		public FieldObject(String name, JsonObject jsonObject) {
-			super(FieldType.OBJECT, name);
+			super(Type.OBJECT, name);
 			
 			for(String fieldName: jsonObject.keySet()) {
 				JsonValue jsonValue = jsonObject.get(fieldName);
@@ -240,11 +222,11 @@ public class GenearateJSONStub {
 				
 				switch(valueType) {
 				case OBJECT:
-					field = new FieldObject(fieldName, (JsonObject)jsonValue);
+					field = new FieldObject(name + "#" + fieldName, (JsonObject)jsonValue);
 					addField(field);
 					break;
 				case ARRAY:
-					field = new FieldArray(fieldName, (JsonArray)jsonValue);
+					field = new FieldArray(name + "#" + fieldName, (JsonArray)jsonValue);
 					addField(field);
 					break;
 				case TRUE:
@@ -277,7 +259,16 @@ public class GenearateJSONStub {
 		
 		@Override
 		public String toString() {
-			return String.format("{%-6s %-50s %s}", type, name, list);
+//			return String.format("{%-6s %-50s %s}", type, name, list);
+			List<String> stringList = new ArrayList<>();
+			for(var e: list) {
+				if (e.type == Type.ARRAY) {
+					stringList.add(((FieldArray)e).toStringSimple());
+				} else {
+					stringList.add(e.toString());
+				}
+			}
+			return String.format("{%-6s %s %s}", type, name, stringList);
 		}
 		@Override
 		public boolean equals(Object object) {
@@ -295,6 +286,24 @@ public class GenearateJSONStub {
 		}
 	}
 	
+	public static class FieldCount {
+		public final Field field;
+		public       int   count;
+		
+		public FieldCount(Field field) {
+			this.field = field;
+			this.count = 1;
+		}
+		public void increment() {
+			count++;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("%d %s", count, field);
+		}
+	}
+
 	private static void genSourceFile(String packageName, String className, String jsonPath) {
 		logger.info("packageName {}", packageName);
 		logger.info("className   {}", className);
@@ -322,10 +331,12 @@ public class GenearateJSONStub {
         	switch(jsonStructure.getValueType()) {
         	case OBJECT:
         		field = new FieldObject(className, (JsonObject)jsonStructure);
+				addField(field);
         		break;
         	case ARRAY:
         		field = new FieldArray(className, (JsonArray)jsonStructure);
-        		break;
+				addField(field);
+				break;
         	default:
         		logger.error("Unexpecteed valueType");
         		logger.error("  valueType {}", jsonStructure.getValueType());
@@ -334,8 +345,8 @@ public class GenearateJSONStub {
     	}
     	
     	logger.info("map {}", map.size());
-    	for(var e: map.entrySet()) {
-    		logger.info("field {}", e.getValue());
+    	for(var e: map.values()) {
+    		logger.info("field {}", e);
     	}
     	
 		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(sourcePath))) {
@@ -357,13 +368,12 @@ public class GenearateJSONStub {
 			logger.error("{} {}", exceptionName, e);
 			throw new UnexpectedException(exceptionName, e);
 		}
-    	
-
 	}
 	public static void main(String[] args) {
     	logger.info("START");
 
     	genSourceFile("yokwe.security.japan.smbctb", "Security", "tmp/F000005MIQ.json");
+    	genSourceFile("yokwe.security.japan.smbctb", "Screener2", "tmp/screener.json");
         
     	logger.info("STOP");
     }
