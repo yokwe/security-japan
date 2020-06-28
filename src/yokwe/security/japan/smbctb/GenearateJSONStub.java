@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,20 +30,34 @@ import yokwe.util.FileUtil;
 public class GenearateJSONStub {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenearateJSONStub.class);
 	
-	private static Map<String, Field> fieldMap = new TreeMap<>();
-	private static void addField(Field newValue) {
-		if (fieldMap.containsKey(newValue.name)) {
-			logger.error("duplicate field name");
-			logger.error("  name {}", newValue.name);
-			logger.error("  old  {}", fieldMap.get(newValue.name));
-			logger.error("  new  {}", newValue);
-			throw new UnexpectedException("duplicate field name");
-		} else {
-			fieldMap.put(newValue.name, newValue);
+	public static class FieldMap {
+		public Map<String, Field> map = new TreeMap<>();
+		
+		public void add(Field newValue) {
+			if (map.containsKey(newValue.name)) {
+				logger.error("duplicate field name");
+				logger.error("  name {}", newValue.name);
+				logger.error("  old  {}", map.get(newValue.name));
+				logger.error("  new  {}", newValue);
+				throw new UnexpectedException("duplicate field name");
+			} else {
+				map.put(newValue.name, newValue);
+			}
 		}
-	}
-	private static void clearFieldMap() {
-		fieldMap.clear();
+		public int size() {
+			return map.size();
+		}
+		public Collection<Field> values() {
+			return map.values();
+		}
+		public Field get(String name) {
+			if (map.containsKey(name)) {
+				return map.get(name);
+			}
+			logger.error("Unexpected name");
+			logger.error("  name {}", name);
+			throw new UnexpectedException("Unexpected name");
+		}
 	}
 	
 	public static abstract class Field {
@@ -150,7 +165,7 @@ public class GenearateJSONStub {
 		public final int                size;
 		public final Map<String, FieldCount> map = new LinkedHashMap<>();
 		
-		public FieldArray(String name, JsonArray jsonArray) {
+		public FieldArray(FieldMap fieldMap, String name, JsonArray jsonArray) {
 			super(Type.ARRAY, name);
 			
 			this.size = jsonArray.size();
@@ -174,12 +189,12 @@ public class GenearateJSONStub {
 							
 							switch(fieldType) {
 							case OBJECT:
-								field = new FieldObject(name + "#" + fieldName, (JsonObject)fieldValue);
-								addField(field);
+								field = new FieldObject(fieldMap, name + "#" + fieldName, (JsonObject)fieldValue);
+								fieldMap.add(field);
 								break;
 							case ARRAY:
-								field = new FieldArray(name + "#" + fieldName, (JsonArray)fieldValue);
-								addField(field);
+								field = new FieldArray(fieldMap, name + "#" + fieldName, (JsonArray)fieldValue);
+								fieldMap.add(field);
 								break;
 							case TRUE:
 							case FALSE:
@@ -260,7 +275,7 @@ public class GenearateJSONStub {
 	public static class FieldObject extends Field {
 		public final List<Field> list = new ArrayList<>();
 		
-		public FieldObject(String name, JsonObject jsonObject) {
+		public FieldObject(FieldMap fieldMap, String name, JsonObject jsonObject) {
 			super(Type.OBJECT, name);
 			
 			for(String fieldName: jsonObject.keySet()) {
@@ -271,12 +286,12 @@ public class GenearateJSONStub {
 				
 				switch(valueType) {
 				case OBJECT:
-					field = new FieldObject(name + "#" + fieldName, (JsonObject)jsonValue);
-					addField(field);
+					field = new FieldObject(fieldMap, name + "#" + fieldName, (JsonObject)jsonValue);
+					fieldMap.add(field);
 					break;
 				case ARRAY:
-					field = new FieldArray(name + "#" + fieldName, (JsonArray)jsonValue);
-					addField(field);
+					field = new FieldArray(fieldMap, name + "#" + fieldName, (JsonArray)jsonValue);
+					fieldMap.add(field);
 					break;
 				case TRUE:
 				case FALSE:
@@ -346,6 +361,7 @@ public class GenearateJSONStub {
 	}
 
 	private static void genSourceFile(String packageName, String className, String jsonPath) {
+		logger.info("====");
 		logger.info("packageName {}", packageName);
 		logger.info("className   {}", className);
 		logger.info("jsonPath    {}", jsonPath);
@@ -364,21 +380,21 @@ public class GenearateJSONStub {
         	jsonReader = Json.createReader(new StringReader(string));
     	}
     	
-    	clearFieldMap();
-
-    	final Field field;
+    	FieldMap fieldMap = new FieldMap();
+    	
+    	final Field rootField;
     	{
         	JsonStructure jsonStructure = jsonReader.read();
         	logger.info("jsonStructure {}", jsonStructure.getValueType());
         	
         	switch(jsonStructure.getValueType()) {
         	case OBJECT:
-        		field = new FieldObject(className, (JsonObject)jsonStructure);
-				addField(field);
+        		rootField = new FieldObject(fieldMap, className, (JsonObject)jsonStructure);
+        		fieldMap.add(rootField);
         		break;
         	case ARRAY:
-        		field = new FieldArray(className, (JsonArray)jsonStructure);
-				addField(field);
+        		rootField = new FieldArray(fieldMap, className, (JsonArray)jsonStructure);
+        		fieldMap.add(rootField);
 				break;
         	default:
         		logger.error("Unexpecteed valueType");
@@ -387,10 +403,11 @@ public class GenearateJSONStub {
         	}
     	}
     	
-    	logger.info("map {}", fieldMap.size());
+    	logger.info("fieldMap {}", fieldMap.size());
     	for(var e: fieldMap.values()) {
     		logger.info("field {}", e);
     	}
+    	logger.info("rootFIeld {} {}", rootField.type, rootField.name);
     	
 		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(sourcePath))) {
 			out.println("package %s;", packageName);
@@ -402,49 +419,12 @@ public class GenearateJSONStub {
 
 			out.println("public final class %s {", className);
 			
-			Field rootField = fieldMap.get(className);
 			switch(rootField.type) {
 			case OBJECT:
-			{
-				FieldObject fieldObject = (FieldObject)rootField;
-				for(Field childField: fieldObject.list) {
-					switch(childField.type) {
-					case BOOLEAN:
-						out.println("public boolean %s;", childField.simpleName);
-						break;
-					case NUMBER:
-						out.println("public BigDecimal %s;", childField.simpleName);
-						break;
-					case STRING:
-						out.println("public String %s;", childField.simpleName);
-						break;
-					case OBJECT:
-					{
-						FieldObject childObjectField = (FieldObject)childField;
-						
-						out.println("public %s %s;", childObjectField.simpleName, childObjectField.simpleName);
-					}
-						break;
-					case ARRAY:
-					{
-						FieldArray childArrayField = (FieldArray)childField;
-						
-						out.println("public %s %s;", childArrayField.simpleName, childArrayField.simpleName);
-					}
-						break;
-					default:
-		        		logger.error("Unexpecteed field type");
-		        		logger.error("  childField {}", childField);
-		        		throw new UnexpectedException("Unexpecteed field type");	
-					}
-				}
-			}
+				genBody(out, fieldMap, (FieldObject)rootField);
 				break;
 			case ARRAY:
-			{
-				FieldArray fieldArray = (FieldArray)rootField;
-				// FIXME
-			}
+				genBody(out, fieldMap, (FieldArray)rootField);
 				break;
 			default:
         		logger.error("Unexpecteed field type");
@@ -452,18 +432,168 @@ public class GenearateJSONStub {
         		throw new UnexpectedException("Unexpecteed field type");	
 			}
 			
-			out.println();
-			out.println("@Override");
-			out.println("public String toString() {");
-			out.println("return StringUtil.toString(this);");
-			out.println("}");
-
 			out.println("}");
 		} catch (FileNotFoundException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
 			throw new UnexpectedException(exceptionName, e);
 		}
+	}
+	
+	private static void genBody(AutoIndentPrintWriter out, FieldMap fieldMap, FieldArray fieldArray) {
+		// FIXME
+		for(FieldCount fieldCount: fieldArray.map.values()) {
+			Field childField = fieldCount.field;
+			
+			switch(childField.type) {
+			case OBJECT:
+			{
+				FieldObject childObjectField = (FieldObject)childField;
+				String className = childObjectField.simpleName;
+				
+				out.println("public static final class %s {", className);
+				genBody(out, fieldMap, childObjectField);
+				out.println("}");
+				out.println();
+			}
+				break;
+			case ARRAY:
+			{
+				FieldArray childArrayField = (FieldArray)childField;
+				
+				String className = childArrayField.simpleName;
+				
+				out.println("public static final class %s {", className);
+				genBody(out, fieldMap, childArrayField);
+				out.println("}");
+				out.println();
+			}
+				break;
+			case BOOLEAN:
+			case NUMBER:
+			case STRING:
+				break;
+			default:
+        		logger.error("Unexpecteed field type");
+        		logger.error("  childField {}", childField);
+        		throw new UnexpectedException("Unexpecteed field type");	
+			}
+		}
+
+		for(FieldCount fieldCount: fieldArray.map.values()) {
+			Field childField = fieldCount.field;
+			switch(childField.type) {
+			case BOOLEAN:
+				out.println("public boolean %s;", childField.simpleName);
+				break;
+			case NUMBER:
+				out.println("public BigDecimal %s;", childField.simpleName);
+				break;
+			case STRING:
+				out.println("public String %s;", childField.simpleName);
+				break;
+			case OBJECT:
+			{
+				FieldObject childObjectField = (FieldObject)childField;
+				
+				out.println("public %s %s;", childObjectField.simpleName, childObjectField.simpleName);
+			}
+				break;
+			case ARRAY:
+			{
+				FieldArray childArrayField = (FieldArray)childField;
+				
+				out.println("public %s %s;", childArrayField.simpleName, childArrayField.simpleName);
+			}
+				break;
+			default:
+        		logger.error("Unexpecteed field type");
+        		logger.error("  childField {}", childField);
+        		throw new UnexpectedException("Unexpecteed field type");	
+			}
+		}
+		
+		out.println();
+		out.println("@Override");
+		out.println("public String toString() {");
+		out.println("return StringUtil.toString(this);");
+		out.println("}");
+
+	}
+	private static void genBody(AutoIndentPrintWriter out, FieldMap fieldMap, FieldObject fieldObject) {
+		for(Field childField: fieldObject.list) {
+			switch(childField.type) {
+			case OBJECT:
+			{
+				FieldObject childObjectField = (FieldObject)childField;
+				String className = childObjectField.simpleName;
+				
+				out.println("public static final class %s {", className);
+				genBody(out, fieldMap, childObjectField);
+				out.println("}");
+				out.println();
+			}
+				break;
+			case ARRAY:
+			{
+				FieldArray childArrayField = (FieldArray)childField;
+				
+				String className = childArrayField.simpleName;
+				
+				out.println("public static final class %s {", className);
+				genBody(out, fieldMap, childArrayField);
+				out.println("}");
+				out.println();
+			}
+				break;
+			case BOOLEAN:
+			case NUMBER:
+			case STRING:
+				break;
+			default:
+        		logger.error("Unexpecteed field type");
+        		logger.error("  childField {}", childField);
+        		throw new UnexpectedException("Unexpecteed field type");	
+			}
+		}
+
+		for(Field childField: fieldObject.list) {
+			switch(childField.type) {
+			case BOOLEAN:
+				out.println("public boolean %s;", childField.simpleName);
+				break;
+			case NUMBER:
+				out.println("public BigDecimal %s;", childField.simpleName);
+				break;
+			case STRING:
+				out.println("public String %s;", childField.simpleName);
+				break;
+			case OBJECT:
+			{
+				FieldObject childObjectField = (FieldObject)childField;
+				
+				out.println("public %s %s;", childObjectField.simpleName, childObjectField.simpleName);
+			}
+				break;
+			case ARRAY:
+			{
+				FieldArray childArrayField = (FieldArray)childField;
+				
+				out.println("public %s %s;", childArrayField.simpleName, childArrayField.simpleName);
+			}
+				break;
+			default:
+        		logger.error("Unexpecteed field type");
+        		logger.error("  childField {}", childField);
+        		throw new UnexpectedException("Unexpecteed field type");	
+			}
+		}
+		
+		out.println();
+		out.println("@Override");
+		out.println("public String toString() {");
+		out.println("return StringUtil.toString(this);");
+		out.println("}");
 	}
 	public static void main(String[] args) {
     	logger.info("START");
