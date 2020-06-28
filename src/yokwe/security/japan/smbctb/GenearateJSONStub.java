@@ -8,7 +8,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import javax.json.Json;
@@ -30,17 +32,44 @@ import yokwe.util.FileUtil;
 public class GenearateJSONStub {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenearateJSONStub.class);
 	
+	public static String toJavaClassName(String name) {
+		return name.substring(0, 1).toUpperCase() + name.substring(1);
+	}
+	
+	private static Set<String> javaKeywordSet = new TreeSet<>();
+	static {
+		javaKeywordSet.add("return");
+	}
+	public static String toJavaVariableName(String name) {
+		String ret = name.substring(0, 1).toLowerCase() + name.substring(1);
+		if (javaKeywordSet.contains(ret)) {
+			return ret + "_";
+		}
+		ret = ret.replace("-", "_");
+		
+		return ret;
+	}
 	public static class FieldMap {
 		public Map<String, Field> map = new TreeMap<>();
 		
 		public void add(Field newValue) {
 			if (map.containsKey(newValue.name)) {
+				Field oldValue = map.get(newValue.name);
+				if (newValue.type == Field.Type.OBJECT && oldValue.type == Field.Type.OBJECT) {
+					FieldObject fieldObject= (FieldObject)newValue;
+					if (fieldObject.list.isEmpty()) return;
+				}
+				
 				logger.error("duplicate field name");
 				logger.error("  name {}", newValue.name);
-				logger.error("  old  {}", map.get(newValue.name));
+				logger.error("  old  {}", oldValue);
 				logger.error("  new  {}", newValue);
 				throw new UnexpectedException("duplicate field name");
 			} else {
+				if (newValue.type == Field.Type.OBJECT) {
+					FieldObject fieldObject= (FieldObject)newValue;
+					if (fieldObject.list.isEmpty()) return;
+				}
 				map.put(newValue.name, newValue);
 			}
 		}
@@ -76,8 +105,9 @@ public class GenearateJSONStub {
 		}
 		
 		public enum StringFormat {
-			STRING,
+			DATE,
 			DATE_TIME,
+			STRING,
 		}
 
 		
@@ -145,6 +175,7 @@ public class GenearateJSONStub {
 		}
 	}
 	public static class FieldString extends Field {
+		private static final Pattern PAT_DATE      = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T00:00:00");
 		private static final Pattern PAT_DATE_TIME = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]");
 
 		public final StringFormat format;
@@ -153,7 +184,9 @@ public class GenearateJSONStub {
 			super(Type.STRING, name);
 			
 			String string = jsonString.getString();
-			if (PAT_DATE_TIME.matcher(string).matches()) {
+			if (PAT_DATE.matcher(string).matches()) {
+				format = StringFormat.DATE;
+			} else if (PAT_DATE_TIME.matcher(string).matches()) {
 				format = StringFormat.DATE_TIME;
 			} else {
 				format = StringFormat.STRING;
@@ -162,7 +195,8 @@ public class GenearateJSONStub {
 	}
 	
 	public static class FieldArray extends Field {
-		public final int                size;
+		public final int         size;
+		
 		public final Map<String, FieldCount> map = new LinkedHashMap<>();
 		
 		public FieldArray(FieldMap fieldMap, String name, JsonArray jsonArray) {
@@ -171,14 +205,16 @@ public class GenearateJSONStub {
 			this.size = jsonArray.size();
 			
 			if (size == 0) {
-				logger.error("array size is zero");
-				logger.error("  name {}", name);
-        		throw new UnexpectedException("array size is zero");
+				logger.warn("array size is zero");
+				logger.warn("  name {}", name);
+//        		throw new UnexpectedException("array size is zero");
 			} else {
 				for(JsonValue jsonValue: jsonArray) {
 					ValueType valueType = jsonValue.getValueType();
 					
-					if (valueType == ValueType.OBJECT) {
+					switch(valueType) {
+					case OBJECT:
+					{
 						JsonObject jsonObject = (JsonObject)jsonValue;
 						
 						for(String fieldName: jsonObject.keySet()) {
@@ -219,9 +255,32 @@ public class GenearateJSONStub {
 								map.put(fieldName, new FieldCount(field));
 							}
 						}
-					} else {
+					}
+						break;
+					case STRING:
+					{
+						JsonString jsonString = (JsonString)jsonValue;
+						if (map.containsKey("STRING")) {
+							map.get("STRING").increment();
+						} else {
+							map.put("STRING", new FieldCount(new FieldString("STRING", jsonString)));
+						}
+					}
+						break;
+					case NUMBER:
+					{
+						JsonNumber jsonNumber = (JsonNumber)jsonValue;
+						if (map.containsKey("NUMBER")) {
+							map.get("NUMBER").increment();
+						} else {
+							map.put("NUMBER", new FieldCount(new FieldNumber("NUMBER", jsonNumber)));
+						}
+					}
+						break;
+					default:
 			    		logger.error("Unexpected valueType");
-			    		logger.error("  valueType {}", valueType);    		
+			    		logger.error("  name      {}", name);    		
+			    		logger.error("  jsonValue {}", jsonValue);    		
 			    		throw new UnexpectedException("Unexpected valueType");
 					}
 				}
@@ -304,6 +363,7 @@ public class GenearateJSONStub {
 					field = new FieldString(fieldName, (JsonString)jsonValue);
 					break;
 				case NULL:
+					continue;
 				default:
 		    		logger.error("Unexpected valueType");
 		    		logger.error("  valueType {}", valueType);    		
@@ -412,7 +472,8 @@ public class GenearateJSONStub {
 		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(sourcePath))) {
 			out.println("package %s;", packageName);
 			out.println();
-			out.println("import java.math.BigDecimal;");
+			out.println("import java.time.LocalDate;");
+			out.println("import java.time.LocalDateTime;");
 			out.println();
 			out.println("import yokwe.util.StringUtil;");
 			out.println();
@@ -443,31 +504,21 @@ public class GenearateJSONStub {
 	private static void genBody(AutoIndentPrintWriter out, FieldMap fieldMap, FieldArray fieldArray) {
 		// FIXME
 		for(FieldCount fieldCount: fieldArray.map.values()) {
-			Field childField = fieldCount.field;
+			Field  childField = fieldCount.field;
+			String className  = toJavaClassName(childField.simpleName);
 			
 			switch(childField.type) {
 			case OBJECT:
-			{
-				FieldObject childObjectField = (FieldObject)childField;
-				String className = childObjectField.simpleName;
-				
 				out.println("public static final class %s {", className);
-				genBody(out, fieldMap, childObjectField);
+				genBody(out, fieldMap, (FieldObject)childField);
 				out.println("}");
 				out.println();
-			}
 				break;
 			case ARRAY:
-			{
-				FieldArray childArrayField = (FieldArray)childField;
-				
-				String className = childArrayField.simpleName;
-				
 				out.println("public static final class %s {", className);
-				genBody(out, fieldMap, childArrayField);
+				genBody(out, fieldMap, (FieldArray)childField);
 				out.println("}");
 				out.println();
-			}
 				break;
 			case BOOLEAN:
 			case NUMBER:
@@ -481,30 +532,50 @@ public class GenearateJSONStub {
 		}
 
 		for(FieldCount fieldCount: fieldArray.map.values()) {
-			Field childField = fieldCount.field;
+			Field  childField = fieldCount.field;
+			String className  = toJavaClassName(childField.simpleName);
+			String fieldName  = toJavaVariableName(childField.simpleName);
+
 			switch(childField.type) {
 			case BOOLEAN:
-				out.println("public boolean %s;", childField.simpleName);
+				out.println("public boolean %s;", fieldName);
 				break;
 			case NUMBER:
-				out.println("public BigDecimal %s;", childField.simpleName);
+				switch(((FieldNumber)childField).format) {
+				case INT:
+					out.println("public int %s;", fieldName);
+					break;
+				case REAL:
+					out.println("public double %s;", fieldName);
+					break;
+				default:
+	        		logger.error("Unexpecteed format");
+	        		logger.error("  childField {}", childField);
+	        		throw new UnexpectedException("Unexpecteed format");	
+				}
 				break;
 			case STRING:
-				out.println("public String %s;", childField.simpleName);
+				switch(((FieldString)childField).format) {
+				case DATE:
+					out.println("public LocalDate %s;", fieldName);
+					break;
+				case DATE_TIME:
+					out.println("public LocalDateTime %s;", fieldName);
+					break;
+				case STRING:
+					out.println("public String %s;", fieldName);
+					break;
+				default:
+	        		logger.error("Unexpecteed format");
+	        		logger.error("  childField {}", childField);
+	        		throw new UnexpectedException("Unexpecteed format");	
+				}
 				break;
 			case OBJECT:
-			{
-				FieldObject childObjectField = (FieldObject)childField;
-				
-				out.println("public %s %s;", childObjectField.simpleName, childObjectField.simpleName);
-			}
+				out.println("public %s %s;", className, fieldName);
 				break;
 			case ARRAY:
-			{
-				FieldArray childArrayField = (FieldArray)childField;
-				
-				out.println("public %s %s;", childArrayField.simpleName, childArrayField.simpleName);
-			}
+				out.println("public %s[] %s;", className, fieldName);
 				break;
 			default:
         		logger.error("Unexpecteed field type");
@@ -522,29 +593,20 @@ public class GenearateJSONStub {
 	}
 	private static void genBody(AutoIndentPrintWriter out, FieldMap fieldMap, FieldObject fieldObject) {
 		for(Field childField: fieldObject.list) {
+			String className = toJavaClassName(childField.simpleName);
+
 			switch(childField.type) {
 			case OBJECT:
-			{
-				FieldObject childObjectField = (FieldObject)childField;
-				String className = childObjectField.simpleName;
-				
 				out.println("public static final class %s {", className);
-				genBody(out, fieldMap, childObjectField);
+				genBody(out, fieldMap, (FieldObject)childField);
 				out.println("}");
 				out.println();
-			}
 				break;
 			case ARRAY:
-			{
-				FieldArray childArrayField = (FieldArray)childField;
-				
-				String className = childArrayField.simpleName;
-				
 				out.println("public static final class %s {", className);
-				genBody(out, fieldMap, childArrayField);
+				genBody(out, fieldMap, (FieldArray)childField);
 				out.println("}");
 				out.println();
-			}
 				break;
 			case BOOLEAN:
 			case NUMBER:
@@ -558,29 +620,49 @@ public class GenearateJSONStub {
 		}
 
 		for(Field childField: fieldObject.list) {
+			String className = toJavaClassName(childField.simpleName);
+			String fieldName = toJavaVariableName(childField.simpleName);
+			
 			switch(childField.type) {
 			case BOOLEAN:
-				out.println("public boolean %s;", childField.simpleName);
+				out.println("public boolean %s;", fieldName);
 				break;
 			case NUMBER:
-				out.println("public BigDecimal %s;", childField.simpleName);
+				switch(((FieldNumber)childField).format) {
+				case INT:
+					out.println("public int %s;", fieldName);
+					break;
+				case REAL:
+					out.println("public double %s;", fieldName);
+					break;
+				default:
+	        		logger.error("Unexpecteed format");
+	        		logger.error("  childField {}", childField);
+	        		throw new UnexpectedException("Unexpecteed format");	
+				}
 				break;
 			case STRING:
-				out.println("public String %s;", childField.simpleName);
+				switch(((FieldString)childField).format) {
+				case DATE:
+					out.println("public LocalDate %s;", fieldName);
+					break;
+				case DATE_TIME:
+					out.println("public LocalDateTime %s;", fieldName);
+					break;
+				case STRING:
+					out.println("public String %s;", fieldName);
+					break;
+				default:
+	        		logger.error("Unexpecteed format");
+	        		logger.error("  childField {}", childField);
+	        		throw new UnexpectedException("Unexpecteed format");	
+				}
 				break;
 			case OBJECT:
-			{
-				FieldObject childObjectField = (FieldObject)childField;
-				
-				out.println("public %s %s;", childObjectField.simpleName, childObjectField.simpleName);
-			}
+				out.println("public %s %s;", className, fieldName);
 				break;
 			case ARRAY:
-			{
-				FieldArray childArrayField = (FieldArray)childField;
-				
-				out.println("public %s %s;", childArrayField.simpleName, childArrayField.simpleName);
-			}
+				out.println("public %s[] %s;", className, fieldName);
 				break;
 			default:
         		logger.error("Unexpecteed field type");
@@ -598,7 +680,7 @@ public class GenearateJSONStub {
 	public static void main(String[] args) {
     	logger.info("START");
 
-    	genSourceFile("yokwe.security.japan.smbctb", "Security", "tmp/F000005MIQ.json");
+    	genSourceFile("yokwe.security.japan.smbctb", "Security",  "tmp/F000005MIQ.json");
     	genSourceFile("yokwe.security.japan.smbctb", "Screener2", "tmp/screener.json");
         
     	logger.info("STOP");
