@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
@@ -29,24 +29,22 @@ import yokwe.util.FileUtil;
 public class GenearateJSONStub {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenearateJSONStub.class);
 	
-	private static final Pattern PAT_DATETIME = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]");
-	private static boolean isDateTime(String string) {
-		if (PAT_DATETIME.matcher(string).matches()) return true;
-		return false;
-	}
-	
-	private static Map<String, Field> map = new TreeMap<>();
+	private static Map<String, Field> fieldMap = new TreeMap<>();
 	private static void addField(Field newValue) {
-		if (map.containsKey(newValue.name)) {
+		if (fieldMap.containsKey(newValue.name)) {
 			logger.error("duplicate field name");
 			logger.error("  name {}", newValue.name);
-			logger.error("  old  {}", map.get(newValue.name));
+			logger.error("  old  {}", fieldMap.get(newValue.name));
 			logger.error("  new  {}", newValue);
 			throw new UnexpectedException("duplicate field name");
 		} else {
-			map.put(newValue.name, newValue);
+			fieldMap.put(newValue.name, newValue);
 		}
 	}
+	private static void clearFieldMap() {
+		fieldMap.clear();
+	}
+	
 	public static abstract class Field {
 		enum Type {
 			OBJECT,
@@ -55,8 +53,18 @@ public class GenearateJSONStub {
 			BOOLEAN,
 			NUMBER,
 			STRING,
+		}
+		
+		public enum NumberFormat {
+			INT,
+			REAL
+		}
+		
+		public enum StringFormat {
+			STRING,
 			DATE_TIME,
 		}
+
 		
 		public final Type   type;
 		public final String name;
@@ -72,7 +80,13 @@ public class GenearateJSONStub {
 		
 		@Override
 		public String toString() {
-			return String.format("{%s %s}", type, simpleName);
+			if (this instanceof FieldString) {
+				return String.format("{%s %s %s}", type, simpleName, ((FieldString)this).format);
+			} else if (this instanceof FieldNumber) {
+				return String.format("{%s %s %s}", type, simpleName, ((FieldNumber)this).format);
+			} else {
+				return String.format("{%s %s}", type, simpleName);
+			}
 		}
 		@Override
 		public boolean equals(Object object) {
@@ -95,18 +109,40 @@ public class GenearateJSONStub {
 		}
 	}
 	public static class FieldNumber extends Field {
-		public FieldNumber(String name) {
+		private static final Pattern PAT_INT  = Pattern.compile("(\\+|-)?[0-9]+");
+		private static final Pattern PAT_REAL = Pattern.compile("(\\+|-)?[0-9]+\\.[0-9]+");
+
+		public final NumberFormat format;
+		
+		public FieldNumber(String name, JsonNumber jsonNumber) {
 			super(Type.NUMBER, name);
+			
+			String string = jsonNumber.toString();
+			if (PAT_INT.matcher(string).matches()) {
+				format = NumberFormat.INT;
+			} else if (PAT_REAL.matcher(string).matches()) {
+				format = NumberFormat.REAL;
+			} else {
+        		logger.error("Unexpecteed format");
+        		logger.error("  string {}", string);
+        		throw new UnexpectedException("Unexpecteed format");
+			}
 		}
 	}
 	public static class FieldString extends Field {
-		public FieldString(String name) {
+		private static final Pattern PAT_DATE_TIME = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]");
+
+		public final StringFormat format;
+		
+		public FieldString(String name, JsonString jsonString) {
 			super(Type.STRING, name);
-		}
-	}
-	public static class FieldDateTime extends Field {
-		public FieldDateTime(String name) {
-			super(Type.DATE_TIME, name);
+			
+			String string = jsonString.getString();
+			if (PAT_DATE_TIME.matcher(string).matches()) {
+				format = StringFormat.DATE_TIME;
+			} else {
+				format = StringFormat.STRING;
+			}
 		}
 	}
 	
@@ -150,17 +186,10 @@ public class GenearateJSONStub {
 								field = new FieldBoolean(fieldName);
 								break;
 							case NUMBER:
-								field = new FieldNumber(fieldName);
+								field = new FieldNumber(fieldName, (JsonNumber)fieldValue);
 								break;
 							case STRING:
-							{
-								String string = ((JsonString)fieldValue).getString();
-								if (isDateTime(string)) {
-									field = new FieldDateTime(fieldName);
-								} else {
-									field = new FieldString(fieldName);
-								}
-							}
+								field = new FieldString(fieldName, (JsonString)fieldValue);
 								break;
 							case NULL:
 							default:
@@ -186,7 +215,27 @@ public class GenearateJSONStub {
 		
 		@Override
 		public String toString() {
-			List<String> list = map.values().stream().map(o -> String.format("{%d %s %s}", o.count, o.field.type, o.field.name)).collect(Collectors.toList());
+			List<String> list = new ArrayList<>();
+			
+			for(FieldCount fieldCount: map.values()) {
+				switch(fieldCount.field.type) {
+				case NUMBER:
+					list.add(String.format("{%d %s %s %s}", fieldCount.count, fieldCount.field.type, fieldCount.field.name, ((FieldNumber)fieldCount.field).format));
+					break;
+				case STRING:
+					list.add(String.format("{%d %s %s %s}", fieldCount.count, fieldCount.field.type, fieldCount.field.name, ((FieldString)fieldCount.field).format));
+					break;
+				case OBJECT:
+				case ARRAY:
+				case BOOLEAN:
+					list.add(String.format("{%d %s %s}", fieldCount.count, fieldCount.field.type, fieldCount.field.name));
+					break;
+				default:
+		    		logger.error("Unexpected type");
+		    		logger.error("  fieldCount.field {}", fieldCount.field);    		
+		    		throw new UnexpectedException("Unexpected type");
+				}
+			}
 			return String.format("{%-6s %s %d %s}", type, name, size, list);
 		}
 		public String toStringSimple() {
@@ -234,17 +283,10 @@ public class GenearateJSONStub {
 					field = new FieldBoolean(fieldName);
 					break;
 				case NUMBER:
-					field = new FieldNumber(fieldName);
+					field = new FieldNumber(fieldName, (JsonNumber)jsonValue);
 					break;
 				case STRING:
-				{
-					String string = ((JsonString)jsonValue).getString();
-					if (isDateTime(string)) {
-						field = new FieldDateTime(fieldName);
-					} else {
-						field = new FieldString(fieldName);
-					}
-				}
+					field = new FieldString(fieldName, (JsonString)jsonValue);
 					break;
 				case NULL:
 				default:
@@ -259,7 +301,6 @@ public class GenearateJSONStub {
 		
 		@Override
 		public String toString() {
-//			return String.format("{%-6s %-50s %s}", type, name, list);
 			List<String> stringList = new ArrayList<>();
 			for(var e: list) {
 				if (e.type == Type.ARRAY) {
@@ -323,6 +364,8 @@ public class GenearateJSONStub {
         	jsonReader = Json.createReader(new StringReader(string));
     	}
     	
+    	clearFieldMap();
+
     	final Field field;
     	{
         	JsonStructure jsonStructure = jsonReader.read();
@@ -344,19 +387,72 @@ public class GenearateJSONStub {
         	}
     	}
     	
-    	logger.info("map {}", map.size());
-    	for(var e: map.values()) {
+    	logger.info("map {}", fieldMap.size());
+    	for(var e: fieldMap.values()) {
     		logger.info("field {}", e);
     	}
     	
 		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(sourcePath))) {
 			out.println("package %s;", packageName);
 			out.println();
+			out.println("import java.math.BigDecimal;");
+			out.println();
 			out.println("import yokwe.util.StringUtil;");
 			out.println();
 
 			out.println("public final class %s {", className);
 			
+			Field rootField = fieldMap.get(className);
+			switch(rootField.type) {
+			case OBJECT:
+			{
+				FieldObject fieldObject = (FieldObject)rootField;
+				for(Field childField: fieldObject.list) {
+					switch(childField.type) {
+					case BOOLEAN:
+						out.println("public boolean %s;", childField.simpleName);
+						break;
+					case NUMBER:
+						out.println("public BigDecimal %s;", childField.simpleName);
+						break;
+					case STRING:
+						out.println("public String %s;", childField.simpleName);
+						break;
+					case OBJECT:
+					{
+						FieldObject childObjectField = (FieldObject)childField;
+						
+						out.println("public %s %s;", childObjectField.simpleName, childObjectField.simpleName);
+					}
+						break;
+					case ARRAY:
+					{
+						FieldArray childArrayField = (FieldArray)childField;
+						
+						out.println("public %s %s;", childArrayField.simpleName, childArrayField.simpleName);
+					}
+						break;
+					default:
+		        		logger.error("Unexpecteed field type");
+		        		logger.error("  childField {}", childField);
+		        		throw new UnexpectedException("Unexpecteed field type");	
+					}
+				}
+			}
+				break;
+			case ARRAY:
+			{
+				FieldArray fieldArray = (FieldArray)rootField;
+				// FIXME
+			}
+				break;
+			default:
+        		logger.error("Unexpecteed field type");
+        		logger.error("  rootField {}", rootField);
+        		throw new UnexpectedException("Unexpecteed field type");	
+			}
+			
+			out.println();
 			out.println("@Override");
 			out.println("public String toString() {");
 			out.println("return StringUtil.toString(this);");
