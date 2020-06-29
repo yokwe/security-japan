@@ -553,20 +553,21 @@ public class GenearateJSONStub {
 		out.prepareLayout();
 		for(FieldCount fieldCount: fieldArray.map.values()) {
 			Field  childField     = fieldCount.field;
-			String childClassName = toJavaClassName(childField.simpleName);
-			String childFieldName = toJavaVariableName(childField.simpleName);
+			String simpleName     = childField.simpleName;
+			String childClassName = toJavaClassName(simpleName);
+			String childFieldName = toJavaVariableName(simpleName);
 
 			switch(childField.type) {
 			case BOOLEAN:
-				out.println("public @Name(\"%1$s\")  boolean %1$s;", childFieldName);
+				out.println("public @Name(\"%s\")  boolean %s;", simpleName, childFieldName);
 				break;
 			case NUMBER:
 				switch(((FieldNumber)childField).format) {
 				case INT:
-					out.println("public @Name(\"%1$s\") int %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
 					break;
 				case REAL:
-					out.println("public @Name(\"%1$s\") double %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
 					break;
 				default:
 	        		logger.error("Unexpecteed format");
@@ -577,19 +578,19 @@ public class GenearateJSONStub {
 			case STRING:
 				switch(((FieldString)childField).format) {
 				case INT:
-					out.println("public @Name(\"%1$s\") int %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
 					break;
 				case REAL:
-					out.println("public @Name(\"%1$s\") double %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
 					break;
 				case DATE:
-					out.println("public @Name(\"%1$s\") LocalDate %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") LocalDate %s;", simpleName, childFieldName);
 					break;
 				case DATE_TIME:
-					out.println("public @Name(\"%1$s\") LocalDateTime %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") LocalDateTime %s;", simpleName, childFieldName);
 					break;
 				case STRING:
-					out.println("public @Name(\"%1$s\") String %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") String %s;", simpleName, childFieldName);
 					break;
 				default:
 	        		logger.error("Unexpecteed format");
@@ -598,10 +599,17 @@ public class GenearateJSONStub {
 				}
 				break;
 			case OBJECT:
-				out.println("public @Name(\"%1$s\") %1$s %1$s;", childClassName);
+				out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
 				break;
 			case ARRAY:
-				out.println("public @Name(\"%1$s\") %1$s[] %1$s;", childClassName);
+				{
+					FieldArray childFieldArray = (FieldArray)childField;
+					if (childFieldArray.size == 1) {
+						out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
+					} else {
+						out.println("public @Name(\"%s\") %s[] %s;", simpleName, childClassName, childFieldName);
+					}
+				}
 				break;
 			default:
         		logger.error("Unexpecteed field type");
@@ -646,20 +654,21 @@ public class GenearateJSONStub {
 
 		out.prepareLayout();
 		for(Field childField: fieldObject.list) {
-			String childClassName = toJavaClassName(childField.simpleName);
-			String childFieldName = toJavaVariableName(childField.simpleName);
+			String simpleName     = childField.simpleName;
+			String childClassName = toJavaClassName(simpleName);
+			String childFieldName = toJavaVariableName(simpleName);
 			
 			switch(childField.type) {
 			case BOOLEAN:
-				out.println("public @Name(\"%1$s\") boolean %1$s;", childFieldName);
+				out.println("public @Name(\"%s\") boolean %s;", simpleName, childFieldName);
 				break;
 			case NUMBER:
 				switch(((FieldNumber)childField).format) {
 				case INT:
-					out.println("public @Name(\"%1$s\") int %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
 					break;
 				case REAL:
-					out.println("public @Name(\"%1$s\") double %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
 					break;
 				default:
 	        		logger.error("Unexpecteed format");
@@ -670,19 +679,19 @@ public class GenearateJSONStub {
 			case STRING:
 				switch(((FieldString)childField).format) {
 				case INT:
-					out.println("public @Name(\"%1$s\") int %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
 					break;
 				case REAL:
-					out.println("public @Name(\"%1$s\") double %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
 					break;
 				case DATE:
-					out.println("public @Name(\"%1$s\") LocalDate %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") LocalDate %s;", simpleName, childFieldName);
 					break;
 				case DATE_TIME:
-					out.println("public @Name(\"%1$s\") LocalDateTime %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") LocalDateTime %s;", simpleName, childFieldName);
 					break;
 				case STRING:
-					out.println("public @Name(\"%1$s\") String %1$s;", childFieldName);
+					out.println("public @Name(\"%s\") String %s;", simpleName, childFieldName);
 					break;
 				default:
 	        		logger.error("Unexpecteed format");
@@ -691,10 +700,17 @@ public class GenearateJSONStub {
 				}
 				break;
 			case OBJECT:
-				out.println("public @Name(\"%1$s\") %1$s %1$s;", childClassName, childFieldName);
+				out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
 				break;
 			case ARRAY:
-				out.println("public @Name(\"%1$s\") %1$s[] %1$s;", childClassName, childFieldName);
+			{
+				FieldArray childFieldArray = (FieldArray)childField;
+				if (childFieldArray.size == 1) {
+					out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
+				} else {
+					out.println("public @Name(\"%s\") %s[] %s;", simpleName, childClassName, childFieldName);
+				}
+			}
 				break;
 			default:
         		logger.error("Unexpecteed field type");
@@ -716,8 +732,8 @@ public class GenearateJSONStub {
 	public static void main(String[] args) {
     	logger.info("START");
 
-    	genSourceFile("yokwe.security.japan.smbctb", "Security",  "tmp/F000005MIQ.json");
-    	genSourceFile("yokwe.security.japan.smbctb", "Screener2", "tmp/screener.json");
+    	genSourceFile("yokwe.security.japan.smbctb", "Security", "tmp/F000005MIQ.json");
+//    	genSourceFile("yokwe.security.japan.smbctb", "Screener", "tmp/screener.json");
     	
     	genSourceFile("yokwe.security.japan.smbctb", "Price", "tmp/F000000MU9-price.json");
     	genSourceFile("yokwe.security.japan.smbctb", "Dividend", "tmp/F000000MU9-div.json");
