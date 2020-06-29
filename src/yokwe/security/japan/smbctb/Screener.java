@@ -1,57 +1,48 @@
 package yokwe.security.japan.smbctb;
 
-import java.net.URISyntaxException;
-
-import org.apache.hc.core5.net.URIBuilder;
-import org.slf4j.LoggerFactory;
-
-import yokwe.UnexpectedException;
 import yokwe.util.StringUtil;
+import yokwe.util.json.JSON.Name;
 
-//See below for parameters of query
-//  https://asialt.morningstar.com/quikr/smbctb/configurations/fund-screener/config.json
-
-public class Screener {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Screener.class);
-
-	public static final String URL_SCREENER = "https://lt.morningstar.com/api/rest.svc/smbctbfund/security/screener";
-	public static final String URL;
-	static {
-		try {
-			URL = new URIBuilder(URL_SCREENER).
-					addParameter("page",               "1").
-					addParameter("pageSize",           "1000").
-					addParameter("outputType",         "json").
-					addParameter("languageId",         "ja-JP").
-					addParameter("securityDataPoints", "secId|isin|customInstitutionSecurityId|customFundName").
-					build().toASCIIString();
-		} catch (URISyntaxException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
+public final class Screener {
+	public enum CurrencyId {
+		AUD("CU$$$$$AUD"),
+		EUR("CU$$$$$EUR"),
+		JPY("CU$$$$$JPY"),
+		USD("CU$$$$$USD");
+		
+		public final String value;
+		
+		CurrencyId(String value) {
+			this.value = value;
 		}
-	}
-	
-	public static class Row {
-		public String secId;
-		public String isin;
-		public String customInstitutionSecurityId;
-		public String customFundName;
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return value;
 		}
 	}
 	
-	public int total;
-	public int page;
-	public int pageSize;
-	
-	public Row[] rows;
-	
-	@Override
-	public String toString() {
-		return StringUtil.toString(this);
-	}
+    public static final class Rows {
+        public @Name("secId")                       String     secId;
+        public @Name("isin")                        String     isin;
+        public @Name("currencyId")                  CurrencyId currencyId;
+        public @Name("customInstitutionSecurityId") String     customSecurityId;
+        public @Name("customFundName")              String     customFundName;
+
+        @Override
+        public String toString() {
+            return StringUtil.toString(this);
+        }
+    }
+
+    public @Name("total")    int    total;
+    public @Name("page")     int    page;
+    public @Name("pageSize") int    pageSize;
+    public @Name("rows")     Rows[] rows;
+
+    @Override
+    public String toString() {
+        return StringUtil.toString(this);
+    }
 }
+
