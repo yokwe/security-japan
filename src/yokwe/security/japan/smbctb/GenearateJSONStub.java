@@ -60,6 +60,7 @@ public class GenearateJSONStub {
 					FieldObject fieldObject= (FieldObject)newValue;
 					if (fieldObject.list.isEmpty()) return;
 				}
+				if (oldValue.equals(newValue)) return;
 				
 				logger.error("duplicate field name");
 				logger.error("  name {}", newValue.name);
@@ -106,6 +107,8 @@ public class GenearateJSONStub {
 		}
 		
 		public enum StringFormat {
+			INT,
+			REAL,
 			DATE,
 			DATE_TIME,
 			STRING,
@@ -138,11 +141,7 @@ public class GenearateJSONStub {
 		public boolean equals(Object object) {
 			if (object instanceof Field) {
 				Field that = (Field)object;
-				if (this.type == that.type && this.name.equals(that.name)) {
-					return true;
-				} else {
-					return false;
-				}
+				return this.type == that.type && this.name.equals(that.name);
 			} else {
 				return false;
 			}
@@ -154,10 +153,10 @@ public class GenearateJSONStub {
 			super(Type.BOOLEAN, name);
 		}
 	}
+	
+	private static final Pattern PAT_INT  = Pattern.compile("(\\+|-)?[0-9]+");
+	private static final Pattern PAT_REAL = Pattern.compile("(\\+|-)?[0-9]+\\.[0-9]+");
 	public static class FieldNumber extends Field {
-		private static final Pattern PAT_INT  = Pattern.compile("(\\+|-)?[0-9]+");
-		private static final Pattern PAT_REAL = Pattern.compile("(\\+|-)?[0-9]+\\.[0-9]+");
-
 		public final NumberFormat format;
 		
 		public FieldNumber(String name, JsonNumber jsonNumber) {
@@ -174,23 +173,50 @@ public class GenearateJSONStub {
         		throw new UnexpectedException("Unexpecteed format");
 			}
 		}
+		
+		@Override
+		public boolean equals(Object object) {
+			if (object instanceof FieldNumber) {
+				FieldNumber that = (FieldNumber)object;
+				return this.type == that.type && this.name.equals(that.name) && this.format == that.format;
+			} else {
+				return false;
+			}
+		}
 	}
+	
+	private static final Pattern PAT_DATE        = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]");
+	private static final Pattern PAT_DATE_000000 = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T00:00:00");
+	private static final Pattern PAT_DATE_TIME   = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]");
 	public static class FieldString extends Field {
-		private static final Pattern PAT_DATE      = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T00:00:00");
-		private static final Pattern PAT_DATE_TIME = Pattern.compile("(19|20)[0-9][0-9]-[01][0-9]-[012][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]");
-
 		public final StringFormat format;
 		
 		public FieldString(String name, JsonString jsonString) {
 			super(Type.STRING, name);
 			
 			String string = jsonString.getString();
-			if (PAT_DATE.matcher(string).matches()) {
+			if (PAT_INT.matcher(string).matches()) {
+				format = StringFormat.INT;
+			} else if (PAT_REAL.matcher(string).matches()) {
+				format = StringFormat.REAL;
+			} else if (PAT_DATE.matcher(string).matches()) {
+				format = StringFormat.DATE;
+			} else if (PAT_DATE_000000.matcher(string).matches()) {
 				format = StringFormat.DATE;
 			} else if (PAT_DATE_TIME.matcher(string).matches()) {
 				format = StringFormat.DATE_TIME;
 			} else {
 				format = StringFormat.STRING;
+			}
+		}
+		
+		@Override
+		public boolean equals(Object object) {
+			if (object instanceof FieldNumber) {
+				FieldString that = (FieldString)object;
+				return this.type == that.type && this.name.equals(that.name) && this.format == that.format;
+			} else {
+				return false;
 			}
 		}
 	}
@@ -550,6 +576,12 @@ public class GenearateJSONStub {
 				break;
 			case STRING:
 				switch(((FieldString)childField).format) {
+				case INT:
+					out.println("public @Name(\"%1$s\") int %1$s;", childFieldName);
+					break;
+				case REAL:
+					out.println("public @Name(\"%1$s\") double %1$s;", childFieldName);
+					break;
 				case DATE:
 					out.println("public @Name(\"%1$s\") LocalDate %1$s;", childFieldName);
 					break;
@@ -637,6 +669,12 @@ public class GenearateJSONStub {
 				break;
 			case STRING:
 				switch(((FieldString)childField).format) {
+				case INT:
+					out.println("public @Name(\"%1$s\") int %1$s;", childFieldName);
+					break;
+				case REAL:
+					out.println("public @Name(\"%1$s\") double %1$s;", childFieldName);
+					break;
 				case DATE:
 					out.println("public @Name(\"%1$s\") LocalDate %1$s;", childFieldName);
 					break;
@@ -680,6 +718,9 @@ public class GenearateJSONStub {
 
     	genSourceFile("yokwe.security.japan.smbctb", "Security",  "tmp/F000005MIQ.json");
     	genSourceFile("yokwe.security.japan.smbctb", "Screener2", "tmp/screener.json");
+    	
+    	genSourceFile("yokwe.security.japan.smbctb", "Price", "tmp/F000000MU9-price.json");
+    	genSourceFile("yokwe.security.japan.smbctb", "Dividend", "tmp/F000000MU9-div.json");
         
     	logger.info("STOP");
     }
