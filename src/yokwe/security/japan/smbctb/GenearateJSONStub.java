@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.util.AutoIndentPrintWriter;
+import yokwe.util.AutoIndentPrintWriter.Layout;
 import yokwe.util.FileUtil;
 
 public class GenearateJSONStub {
@@ -476,24 +477,21 @@ public class GenearateJSONStub {
 			out.println("import java.time.LocalDateTime;");
 			out.println();
 			out.println("import yokwe.util.StringUtil;");
+			out.println("import yokwe.util.json.JSON.Name;");
 			out.println();
 
-			out.println("public final class %s {", className);
-			
 			switch(rootField.type) {
 			case OBJECT:
-				genBody(out, fieldMap, (FieldObject)rootField);
+				genClass(out, fieldMap, (FieldObject)rootField, className, false);
 				break;
 			case ARRAY:
-				genBody(out, fieldMap, (FieldArray)rootField);
+				genClass(out, fieldMap, (FieldArray)rootField, className, false);
 				break;
 			default:
         		logger.error("Unexpecteed field type");
         		logger.error("  rootField {}", rootField);
         		throw new UnexpectedException("Unexpecteed field type");	
 			}
-			
-			out.println("}");
 		} catch (FileNotFoundException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
@@ -501,24 +499,19 @@ public class GenearateJSONStub {
 		}
 	}
 	
-	private static void genBody(AutoIndentPrintWriter out, FieldMap fieldMap, FieldArray fieldArray) {
-		// FIXME
+	private static void genClass(AutoIndentPrintWriter out, FieldMap fieldMap, FieldArray fieldArray, String className, boolean classIsStataic) {
+		out.println("public %sfinal class %s {", classIsStataic ? "static ": "", className);
+		
 		for(FieldCount fieldCount: fieldArray.map.values()) {
-			Field  childField = fieldCount.field;
-			String className  = toJavaClassName(childField.simpleName);
+			Field  childField     = fieldCount.field;
+			String childClassName = toJavaClassName(childField.simpleName);
 			
 			switch(childField.type) {
 			case OBJECT:
-				out.println("public static final class %s {", className);
-				genBody(out, fieldMap, (FieldObject)childField);
-				out.println("}");
-				out.println();
+				genClass(out, fieldMap, (FieldObject)childField, childClassName, true);
 				break;
 			case ARRAY:
-				out.println("public static final class %s {", className);
-				genBody(out, fieldMap, (FieldArray)childField);
-				out.println("}");
-				out.println();
+				genClass(out, fieldMap, (FieldArray)childField, childClassName, true);
 				break;
 			case BOOLEAN:
 			case NUMBER:
@@ -531,22 +524,23 @@ public class GenearateJSONStub {
 			}
 		}
 
+		out.prepareLayout();
 		for(FieldCount fieldCount: fieldArray.map.values()) {
-			Field  childField = fieldCount.field;
-			String className  = toJavaClassName(childField.simpleName);
-			String fieldName  = toJavaVariableName(childField.simpleName);
+			Field  childField     = fieldCount.field;
+			String childClassName = toJavaClassName(childField.simpleName);
+			String childFieldName = toJavaVariableName(childField.simpleName);
 
 			switch(childField.type) {
 			case BOOLEAN:
-				out.println("public boolean %s;", fieldName);
+				out.println("public @Name(\"%1$s\")  boolean %1$s;", childFieldName);
 				break;
 			case NUMBER:
 				switch(((FieldNumber)childField).format) {
 				case INT:
-					out.println("public int %s;", fieldName);
+					out.println("public @Name(\"%1$s\") int %1$s;", childFieldName);
 					break;
 				case REAL:
-					out.println("public double %s;", fieldName);
+					out.println("public @Name(\"%1$s\") double %1$s;", childFieldName);
 					break;
 				default:
 	        		logger.error("Unexpecteed format");
@@ -557,13 +551,13 @@ public class GenearateJSONStub {
 			case STRING:
 				switch(((FieldString)childField).format) {
 				case DATE:
-					out.println("public LocalDate %s;", fieldName);
+					out.println("public @Name(\"%1$s\") LocalDate %1$s;", childFieldName);
 					break;
 				case DATE_TIME:
-					out.println("public LocalDateTime %s;", fieldName);
+					out.println("public @Name(\"%1$s\") LocalDateTime %1$s;", childFieldName);
 					break;
 				case STRING:
-					out.println("public String %s;", fieldName);
+					out.println("public @Name(\"%1$s\") String %1$s;", childFieldName);
 					break;
 				default:
 	        		logger.error("Unexpecteed format");
@@ -572,10 +566,10 @@ public class GenearateJSONStub {
 				}
 				break;
 			case OBJECT:
-				out.println("public %s %s;", className, fieldName);
+				out.println("public @Name(\"%1$s\") %1$s %1$s;", childClassName);
 				break;
 			case ARRAY:
-				out.println("public %s[] %s;", className, fieldName);
+				out.println("public @Name(\"%1$s\") %1$s[] %1$s;", childClassName);
 				break;
 			default:
         		logger.error("Unexpecteed field type");
@@ -583,6 +577,7 @@ public class GenearateJSONStub {
         		throw new UnexpectedException("Unexpecteed field type");	
 			}
 		}
+		out.layout(Layout.LEFT, Layout.LEFT, Layout.LEFT, Layout.LEFT);
 		
 		out.println();
 		out.println("@Override");
@@ -590,23 +585,21 @@ public class GenearateJSONStub {
 		out.println("return StringUtil.toString(this);");
 		out.println("}");
 
+		out.println("}");
+		out.println();
 	}
-	private static void genBody(AutoIndentPrintWriter out, FieldMap fieldMap, FieldObject fieldObject) {
+	private static void genClass(AutoIndentPrintWriter out, FieldMap fieldMap, FieldObject fieldObject, String className, boolean classIsStataic) {
+		out.println("public %sfinal class %s {", classIsStataic ? "static ": "", className);
+
 		for(Field childField: fieldObject.list) {
-			String className = toJavaClassName(childField.simpleName);
+			String childClassName = toJavaClassName(childField.simpleName);
 
 			switch(childField.type) {
 			case OBJECT:
-				out.println("public static final class %s {", className);
-				genBody(out, fieldMap, (FieldObject)childField);
-				out.println("}");
-				out.println();
+				genClass(out, fieldMap, (FieldObject)childField, childClassName, true);
 				break;
 			case ARRAY:
-				out.println("public static final class %s {", className);
-				genBody(out, fieldMap, (FieldArray)childField);
-				out.println("}");
-				out.println();
+				genClass(out, fieldMap, (FieldArray)childField, childClassName, true);
 				break;
 			case BOOLEAN:
 			case NUMBER:
@@ -619,21 +612,22 @@ public class GenearateJSONStub {
 			}
 		}
 
+		out.prepareLayout();
 		for(Field childField: fieldObject.list) {
-			String className = toJavaClassName(childField.simpleName);
-			String fieldName = toJavaVariableName(childField.simpleName);
+			String childClassName = toJavaClassName(childField.simpleName);
+			String childFieldName = toJavaVariableName(childField.simpleName);
 			
 			switch(childField.type) {
 			case BOOLEAN:
-				out.println("public boolean %s;", fieldName);
+				out.println("public @Name(\"%1$s\") boolean %1$s;", childFieldName);
 				break;
 			case NUMBER:
 				switch(((FieldNumber)childField).format) {
 				case INT:
-					out.println("public int %s;", fieldName);
+					out.println("public @Name(\"%1$s\") int %1$s;", childFieldName);
 					break;
 				case REAL:
-					out.println("public double %s;", fieldName);
+					out.println("public @Name(\"%1$s\") double %1$s;", childFieldName);
 					break;
 				default:
 	        		logger.error("Unexpecteed format");
@@ -644,13 +638,13 @@ public class GenearateJSONStub {
 			case STRING:
 				switch(((FieldString)childField).format) {
 				case DATE:
-					out.println("public LocalDate %s;", fieldName);
+					out.println("public @Name(\"%1$s\") LocalDate %1$s;", childFieldName);
 					break;
 				case DATE_TIME:
-					out.println("public LocalDateTime %s;", fieldName);
+					out.println("public @Name(\"%1$s\") LocalDateTime %1$s;", childFieldName);
 					break;
 				case STRING:
-					out.println("public String %s;", fieldName);
+					out.println("public @Name(\"%1$s\") String %1$s;", childFieldName);
 					break;
 				default:
 	        		logger.error("Unexpecteed format");
@@ -659,10 +653,10 @@ public class GenearateJSONStub {
 				}
 				break;
 			case OBJECT:
-				out.println("public %s %s;", className, fieldName);
+				out.println("public @Name(\"%1$s\") %1$s %1$s;", childClassName, childFieldName);
 				break;
 			case ARRAY:
-				out.println("public %s[] %s;", className, fieldName);
+				out.println("public @Name(\"%1$s\") %1$s[] %1$s;", childClassName, childFieldName);
 				break;
 			default:
         		logger.error("Unexpecteed field type");
@@ -670,12 +664,16 @@ public class GenearateJSONStub {
         		throw new UnexpectedException("Unexpecteed field type");	
 			}
 		}
+		out.layout(Layout.LEFT, Layout.LEFT, Layout.LEFT, Layout.LEFT);
 		
 		out.println();
 		out.println("@Override");
 		out.println("public String toString() {");
 		out.println("return StringUtil.toString(this);");
 		out.println("}");
+		
+		out.println("}");
+		out.println();
 	}
 	public static void main(String[] args) {
     	logger.info("START");
