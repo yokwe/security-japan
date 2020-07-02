@@ -206,7 +206,7 @@
                 </java>
         </target>
 
-	<!-- -->
+	<!-- SONY -->
         <target name="update-sony-fund">
                 <java classname="yokwe.security.japan.sony.UpdateFund" fork="true">
                         <classpath location="${jar.security-japan}" />
@@ -236,5 +236,34 @@
                         <sysproperty key="onlyCSV" value="true"/>
                 </java>
         </target>
-	
+        
+	<!-- SMBCTB -->
+        <target name="update-smbctb-fund">
+                <java classname="yokwe.security.japan.smbctb.UpdateFund" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <classpath location="${dir.libreoffice}"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyCSV" value="true"/>
+                </java>
+        </target>
+        <target name="update-smbctb-price">
+                <java classname="yokwe.security.japan.smbctb.UpdatePrice" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <classpath location="${dir.libreoffice}"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyCSV" value="true"/>
+                </java>
+        </target>
+        <target name="update-smbctb-dividend">
+                <java classname="yokwe.security.japan.smbctb.UpdateDividend" fork="true">
+                        <classpath location="${jar.security-japan}" />
+                        <classpath refid="ext.jar" />
+                        <classpath location="${dir.libreoffice}"/>
+                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
+                        <sysproperty key="onlyCSV" value="true"/>
+                </java>
+        </target>
+        
 </project>
