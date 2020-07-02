@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -472,6 +473,119 @@ public class GenearateJSONStub {
 		}
 	}
 
+	private static void genClass(AutoIndentPrintWriter out, FieldMap fieldMap, List<Field> fieldList, String className, boolean classIsStataic) {
+		out.println("public %sfinal class %s {", classIsStataic ? "static ": "", className);
+
+		for(Field childField: fieldList) {
+			String childClassName = toJavaClassName(childField.simpleName);
+
+			switch(childField.type) {
+			case OBJECT:
+				genClass(out, fieldMap, (FieldObject)childField, childClassName, true);
+				break;
+			case ARRAY:
+				genClass(out, fieldMap, (FieldArray)childField, childClassName, true);
+				break;
+			case BOOLEAN:
+			case NUMBER:
+			case STRING:
+				break;
+			default:
+        		logger.error("Unexpecteed field type");
+        		logger.error("  childField {}", childField);
+        		throw new UnexpectedException("Unexpecteed field type");	
+			}
+		}
+
+		out.prepareLayout();
+		for(Field childField: fieldList) {
+			String simpleName     = childField.simpleName;
+			String childClassName = toJavaClassName(simpleName);
+			String childFieldName = toJavaVariableName(simpleName);
+			
+			switch(childField.type) {
+			case BOOLEAN:
+				out.println("public @Name(\"%s\") boolean %s; // BOOLEAN", simpleName, childFieldName);
+				break;
+			case NUMBER:
+				out.println("public @Name(\"%s\") BigDecimal %s; // NUMBER %s", simpleName, childFieldName, ((FieldNumber)childField).format);
+//				switch(((FieldNumber)childField).format) {
+//				case INT:
+//					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
+//					break;
+//				case REAL:
+//					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
+//					break;
+//				default:
+//	        		logger.error("Unexpecteed format");
+//	        		logger.error("  childField {}", childField);
+//	        		throw new UnexpectedException("Unexpecteed format");	
+//				}
+				break;
+			case STRING:
+				out.println("public @Name(\"%s\") String %s; // STRING %s", simpleName, childFieldName, ((FieldString)childField).format);
+//				switch(((FieldString)childField).format) {
+//				case INT:
+//					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
+//					break;
+//				case REAL:
+//					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
+//					break;
+//				case DATE:
+//					out.println("public @Name(\"%s\") LocalDate %s;", simpleName, childFieldName);
+//					break;
+//				case DATE_TIME:
+//					out.println("public @Name(\"%s\") LocalDateTime %s;", simpleName, childFieldName);
+//					break;
+//				case STRING:
+//					out.println("public @Name(\"%s\") String %s;", simpleName, childFieldName);
+//					break;
+//				default:
+//	        		logger.error("Unexpecteed format");
+//	        		logger.error("  childField {}", childField);
+//	        		throw new UnexpectedException("Unexpecteed format");	
+//				}
+				break;
+			case OBJECT:
+				out.println("public @Name(\"%s\") %s %s; // OBJECT", simpleName, childClassName, childFieldName);
+				break;
+			case ARRAY:
+				out.println("public @Name(\"%s\") %s[] %s; // ARRAY %d", simpleName, childClassName, childFieldName, ((FieldArray)childField).size);
+//
+//			{
+//				FieldArray childFieldArray = (FieldArray)childField;
+//				if (childFieldArray.size == 1) {
+//					out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
+//				} else {
+//					out.println("public @Name(\"%s\") %s[] %s;", simpleName, childClassName, childFieldName);
+//				}
+//			}
+				break;
+			default:
+        		logger.error("Unexpecteed field type");
+        		logger.error("  childField {}", childField);
+        		throw new UnexpectedException("Unexpecteed field type");	
+			}
+		}
+		out.layout(Layout.LEFT, Layout.LEFT, Layout.LEFT, Layout.LEFT, Layout.LEFT);
+		
+		out.println();
+		out.println("@Override");
+		out.println("public String toString() {");
+		out.println("return StringUtil.toString(this);");
+		out.println("}");
+		
+		out.println("}");
+		out.println();
+	}
+	private static void genClass(AutoIndentPrintWriter out, FieldMap fieldMap, FieldArray fieldArray, String className, boolean classIsStatic) {
+		List<Field> fieldList = fieldArray.map.values().stream().map(o -> o.field).collect(Collectors.toList());
+		genClass(out, fieldMap, fieldList, className, classIsStatic);
+	}
+	private static void genClass(AutoIndentPrintWriter out, FieldMap fieldMap, FieldObject fieldObject, String className, boolean classIsStatic) {
+		List<Field> fieldList = fieldObject.list;
+		genClass(out, fieldMap, fieldList, className, classIsStatic);
+	}
 	private static void genSourceFile(String packageName, String className, String jsonPath) {
 		logger.info("====");
 		logger.info("packageName {}", packageName);
@@ -519,13 +633,14 @@ public class GenearateJSONStub {
     	for(var e: fieldMap.values()) {
     		logger.info("field {}", e);
     	}
-    	logger.info("rootFIeld {} {}", rootField.type, rootField.name);
+    	logger.info("rootField {} {}", rootField.type, rootField.name);
     	
 		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(sourcePath))) {
 			out.println("package %s;", packageName);
 			out.println();
-			out.println("import java.time.LocalDate;");
-			out.println("import java.time.LocalDateTime;");
+			out.println("import java.math.BigDecimal;");
+//			out.println("import java.time.LocalDate;");
+//			out.println("import java.time.LocalDateTime;");
 			out.println();
 			out.println("import yokwe.util.StringUtil;");
 			out.println("import yokwe.util.json.JSON.Name;");
@@ -549,219 +664,14 @@ public class GenearateJSONStub {
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
-	
-	private static void genClass(AutoIndentPrintWriter out, FieldMap fieldMap, FieldArray fieldArray, String className, boolean classIsStataic) {
-		out.println("public %sfinal class %s {", classIsStataic ? "static ": "", className);
-		
-		for(FieldCount fieldCount: fieldArray.map.values()) {
-			Field  childField     = fieldCount.field;
-			String childClassName = toJavaClassName(childField.simpleName);
-			
-			switch(childField.type) {
-			case OBJECT:
-				genClass(out, fieldMap, (FieldObject)childField, childClassName, true);
-				break;
-			case ARRAY:
-				genClass(out, fieldMap, (FieldArray)childField, childClassName, true);
-				break;
-			case BOOLEAN:
-			case NUMBER:
-			case STRING:
-				break;
-			default:
-        		logger.error("Unexpecteed field type");
-        		logger.error("  childField {}", childField);
-        		throw new UnexpectedException("Unexpecteed field type");	
-			}
-		}
-
-		out.prepareLayout();
-		for(FieldCount fieldCount: fieldArray.map.values()) {
-			Field  childField     = fieldCount.field;
-			String simpleName     = childField.simpleName;
-			String childClassName = toJavaClassName(simpleName);
-			String childFieldName = toJavaVariableName(simpleName);
-
-			switch(childField.type) {
-			case BOOLEAN:
-				out.println("public @Name(\"%s\")  boolean %s;", simpleName, childFieldName);
-				break;
-			case NUMBER:
-				switch(((FieldNumber)childField).format) {
-				case INT:
-					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
-					break;
-				case REAL:
-					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
-					break;
-				default:
-	        		logger.error("Unexpecteed format");
-	        		logger.error("  childField {}", childField);
-	        		throw new UnexpectedException("Unexpecteed format");	
-				}
-				break;
-			case STRING:
-				switch(((FieldString)childField).format) {
-				case INT:
-					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
-					break;
-				case REAL:
-					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
-					break;
-				case DATE:
-					out.println("public @Name(\"%s\") LocalDate %s;", simpleName, childFieldName);
-					break;
-				case DATE_TIME:
-					out.println("public @Name(\"%s\") LocalDateTime %s;", simpleName, childFieldName);
-					break;
-				case STRING:
-					out.println("public @Name(\"%s\") String %s;", simpleName, childFieldName);
-					break;
-				default:
-	        		logger.error("Unexpecteed format");
-	        		logger.error("  childField {}", childField);
-	        		throw new UnexpectedException("Unexpecteed format");	
-				}
-				break;
-			case OBJECT:
-				out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
-				break;
-			case ARRAY:
-				{
-					FieldArray childFieldArray = (FieldArray)childField;
-					if (childFieldArray.size == 1) {
-						out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
-					} else {
-						out.println("public @Name(\"%s\") %s[] %s;", simpleName, childClassName, childFieldName);
-					}
-				}
-				break;
-			default:
-        		logger.error("Unexpecteed field type");
-        		logger.error("  childField {}", childField);
-        		throw new UnexpectedException("Unexpecteed field type");	
-			}
-		}
-		out.layout(Layout.LEFT, Layout.LEFT, Layout.LEFT, Layout.LEFT);
-		
-		out.println();
-		out.println("@Override");
-		out.println("public String toString() {");
-		out.println("return StringUtil.toString(this);");
-		out.println("}");
-
-		out.println("}");
-		out.println();
-	}
-	private static void genClass(AutoIndentPrintWriter out, FieldMap fieldMap, FieldObject fieldObject, String className, boolean classIsStataic) {
-		out.println("public %sfinal class %s {", classIsStataic ? "static ": "", className);
-
-		for(Field childField: fieldObject.list) {
-			String childClassName = toJavaClassName(childField.simpleName);
-
-			switch(childField.type) {
-			case OBJECT:
-				genClass(out, fieldMap, (FieldObject)childField, childClassName, true);
-				break;
-			case ARRAY:
-				genClass(out, fieldMap, (FieldArray)childField, childClassName, true);
-				break;
-			case BOOLEAN:
-			case NUMBER:
-			case STRING:
-				break;
-			default:
-        		logger.error("Unexpecteed field type");
-        		logger.error("  childField {}", childField);
-        		throw new UnexpectedException("Unexpecteed field type");	
-			}
-		}
-
-		out.prepareLayout();
-		for(Field childField: fieldObject.list) {
-			String simpleName     = childField.simpleName;
-			String childClassName = toJavaClassName(simpleName);
-			String childFieldName = toJavaVariableName(simpleName);
-			
-			switch(childField.type) {
-			case BOOLEAN:
-				out.println("public @Name(\"%s\") boolean %s;", simpleName, childFieldName);
-				break;
-			case NUMBER:
-				switch(((FieldNumber)childField).format) {
-				case INT:
-					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
-					break;
-				case REAL:
-					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
-					break;
-				default:
-	        		logger.error("Unexpecteed format");
-	        		logger.error("  childField {}", childField);
-	        		throw new UnexpectedException("Unexpecteed format");	
-				}
-				break;
-			case STRING:
-				switch(((FieldString)childField).format) {
-				case INT:
-					out.println("public @Name(\"%s\") int %s;", simpleName, childFieldName);
-					break;
-				case REAL:
-					out.println("public @Name(\"%s\") double %s;", simpleName, childFieldName);
-					break;
-				case DATE:
-					out.println("public @Name(\"%s\") LocalDate %s;", simpleName, childFieldName);
-					break;
-				case DATE_TIME:
-					out.println("public @Name(\"%s\") LocalDateTime %s;", simpleName, childFieldName);
-					break;
-				case STRING:
-					out.println("public @Name(\"%s\") String %s;", simpleName, childFieldName);
-					break;
-				default:
-	        		logger.error("Unexpecteed format");
-	        		logger.error("  childField {}", childField);
-	        		throw new UnexpectedException("Unexpecteed format");	
-				}
-				break;
-			case OBJECT:
-				out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
-				break;
-			case ARRAY:
-			{
-				FieldArray childFieldArray = (FieldArray)childField;
-				if (childFieldArray.size == 1) {
-					out.println("public @Name(\"%s\") %s %s;", simpleName, childClassName, childFieldName);
-				} else {
-					out.println("public @Name(\"%s\") %s[] %s;", simpleName, childClassName, childFieldName);
-				}
-			}
-				break;
-			default:
-        		logger.error("Unexpecteed field type");
-        		logger.error("  childField {}", childField);
-        		throw new UnexpectedException("Unexpecteed field type");	
-			}
-		}
-		out.layout(Layout.LEFT, Layout.LEFT, Layout.LEFT, Layout.LEFT);
-		
-		out.println();
-		out.println("@Override");
-		out.println("public String toString() {");
-		out.println("return StringUtil.toString(this);");
-		out.println("}");
-		
-		out.println("}");
-		out.println();
-	}
 	public static void main(String[] args) {
     	logger.info("START");
 
-    	genSourceFile("yokwe.security.japan.smbctb", "Security", "tmp/F000005MIQ.json");
-//    	genSourceFile("yokwe.security.japan.smbctb", "Screener", "tmp/screener.json");
+    	genSourceFile("yokwe.security.japan.smbctb.json", "Security", "tmp/F000005MIQ.json");
+    	genSourceFile("yokwe.security.japan.smbctb.json", "Screener", "tmp/screener.json");
     	
-    	genSourceFile("yokwe.security.japan.smbctb", "Price", "tmp/F000000MU9-price.json");
-    	genSourceFile("yokwe.security.japan.smbctb", "Dividend", "tmp/F000000MU9-div.json");
+    	genSourceFile("yokwe.security.japan.smbctb.json", "Price", "tmp/F000000MU9-price.json");
+    	genSourceFile("yokwe.security.japan.smbctb.json", "Dividend", "tmp/F000000MU9-div.json");
         
     	logger.info("STOP");
     }
