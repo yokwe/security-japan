@@ -25,64 +25,83 @@
  *******************************************************************************/
 package yokwe.security.japan.smbctb;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import yokwe.security.japan.smbctb.Fund.Currency;
 import yokwe.util.CSVUtil;
 
-public final class Fund implements Comparable<Fund> {
-	public static final String FILE_PATH = "tmp/data/smbc/fund.csv";
-	
-	public static List<Fund> getList() {
-		List<Fund> list = CSVUtil.read(Fund.class).file(FILE_PATH);
-		return (list == null) ? new ArrayList<>() : list;
+public final class Dividend implements Comparable<Dividend> {
+	public static final String DIR_PATH = "tmp/data/smbc/dividend";
+
+	public static String getPath(String secId) {
+		return String.format("%s/%s.csv", DIR_PATH, secId);
 	}
-	public static Map<String, Fund> getMap() {
-		return getList().stream().collect(Collectors.toMap(Fund::getSecId, Function.identity()));
+	public static List<Dividend> load(String secId) {
+		return CSVUtil.read(Dividend.class).file(getPath(secId));
 	}
-	
-	public static void save(List<Fund> list) {
+	public static void save(List<Dividend> list) {
 		if (list.isEmpty()) return;
 		
 		// Sort before save
 		Collections.sort(list);
-		CSVUtil.write(Fund.class).file(FILE_PATH, list);
+		Dividend price = list.get(0);
+		CSVUtil.write(Dividend.class).file(getPath(price.secId), list);
+	}
+	public static List<Dividend> getList(String secId) {
+		List<Dividend> list = load(getPath(secId));
+		return (list == null) ? new ArrayList<>() : list;
+	}
+	public static Map<String, Dividend> getMap(String secId) {
+		return getList(secId).stream().collect(Collectors.toMap(Dividend::getDate, Function.identity()));
+	}
+	private static Map<String, Map<String, Dividend>> map = new TreeMap<>();
+	//                 secId       date
+	public static Dividend getPrice(String secId, String date) {
+		Map<String, Dividend> priceMap;
+		if (map.containsKey(secId)) {
+			priceMap = map.get(secId);
+		} else {
+			priceMap = getMap(secId);
+			map.put(secId, priceMap);
+		}
+		if (priceMap.containsKey(date)) {
+			return priceMap.get(date);
+		} else {
+			return null;
+		}
 	}
 
-	public enum Currency {
-		AUD, EUR, JPY, USD
-	}
-	
-    public String   secId;
-    public String   isin;
-    public Currency currency;
-    public String   fundName;
+	public String     date;  // YYYY-MM-DD
+    public String     secId;
+    public Currency   currency;
+    public BigDecimal value;
     
-    public Fund() {
-    	this(null, null, null, null);
-    }
-    public Fund(String secId, String isin, Currency currency, String fundName) {
+    public Dividend(String date, String secId, Currency currency, BigDecimal value) {
+    	this.date     = date;
     	this.secId    = secId;
-    	this.isin     = isin;
     	this.currency = currency;
-    	this.fundName = fundName;
+    	this.value    = value;
     }
     
-    public String getSecId() {
-    	return secId;
+    public String getDate() {
+    	return date;
     }
     
     @Override
     public String toString() {
-    	return String.format("{%s %s %s %s}", secId, isin.isEmpty() ? "-" : isin, currency, fundName);
+    	return String.format("{%s %s %s %s}", date, secId, currency, value.toPlainString());
     }
-    
 	@Override
-	public int compareTo(Fund that) {
-		return this.secId.compareTo(that.secId);
+	public int compareTo(Dividend that) {
+		int ret = this.secId.compareTo(that.secId);
+		if (ret == 0) ret = this.date.compareTo(that.date);
+		return ret;
 	}
 }
