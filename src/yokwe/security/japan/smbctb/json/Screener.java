@@ -23,36 +23,19 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  *******************************************************************************/
-package yokwe.security.japan.smbctb;
+package yokwe.security.japan.smbctb.json;
+
+import java.math.BigDecimal;
 
 import yokwe.util.StringUtil;
 import yokwe.util.json.JSON.Name;
 
 public final class Screener {
-	public enum CurrencyId {
-		AUD("CU$$$$$AUD"),
-		EUR("CU$$$$$EUR"),
-		JPY("CU$$$$$JPY"),
-		USD("CU$$$$$USD");
-		
-		public final String value;
-		
-		CurrencyId(String value) {
-			this.value = value;
-		}
-		
-		@Override
-		public String toString() {
-			return value;
-		}
-	}
-	
     public static final class Rows {
-        public @Name("secId")                       String     secId;
-        public @Name("isin")                        String     isin;
-        public @Name("currencyId")                  CurrencyId currencyId;
-        public @Name("customInstitutionSecurityId") String     customSecurityId;
-        public @Name("customFundName")              String     customFundName;
+        public @Name("currencyId")     String currencyId;     // STRING STRING
+        public @Name("customFundName") String customFundName; // STRING STRING
+        public @Name("isin")           String isin;           // STRING STRING
+        public @Name("secId")          String secId;          // STRING STRING
 
         @Override
         public String toString() {
@@ -60,10 +43,10 @@ public final class Screener {
         }
     }
 
-    public @Name("total")    int    total;
-    public @Name("page")     int    page;
-    public @Name("pageSize") int    pageSize;
-    public @Name("rows")     Rows[] rows;
+    public @Name("page")     BigDecimal page;     // NUMBER INT
+    public @Name("pageSize") BigDecimal pageSize; // NUMBER INT
+    public @Name("rows")     Rows[]     rows;     // ARRAY 168
+    public @Name("total")    BigDecimal total;    // NUMBER INT
 
     @Override
     public String toString() {

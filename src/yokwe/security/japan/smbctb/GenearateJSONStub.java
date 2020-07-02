@@ -667,10 +667,9 @@ public class GenearateJSONStub {
 	public static void main(String[] args) {
     	logger.info("START");
 
-    	genSourceFile("yokwe.security.japan.smbctb.json", "Security", "tmp/F000005MIQ.json");
     	genSourceFile("yokwe.security.japan.smbctb.json", "Screener", "tmp/screener.json");
-    	
-    	genSourceFile("yokwe.security.japan.smbctb.json", "Price", "tmp/F000000MU9-price.json");
+    	genSourceFile("yokwe.security.japan.smbctb.json", "Security", "tmp/F000005MIQ.json");
+    	genSourceFile("yokwe.security.japan.smbctb.json", "Price",    "tmp/F000000MU9-price.json");
     	genSourceFile("yokwe.security.japan.smbctb.json", "Dividend", "tmp/F000000MU9-div.json");
         
     	logger.info("STOP");
