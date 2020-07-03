@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -68,8 +69,19 @@ public class GenearateJSONStub {
 	static {
 		javaKeywordSet.add("return");
 	}
+	
+	private static Pattern PAT_JAVA_VARIABLE = Pattern.compile("([A-Z]+?)([A-Z][a-z0-9_$][A-Za-z0-9_$]+)");
 	public static String toJavaVariableName(String name) {
-		String ret = name.substring(0, 1).toLowerCase() + name.substring(1);
+		Matcher m = PAT_JAVA_VARIABLE.matcher(name);
+		String ret;
+		if (m.matches()) {
+			String g1 = m.group(1);
+			String g2 = m.group(2);
+			
+			ret = g1.toLowerCase() + g2;
+		} else {
+			ret = name.substring(0, 1).toLowerCase() + name.substring(1);
+		}
 		if (javaKeywordSet.contains(ret)) {
 			return ret + "_";
 		}
