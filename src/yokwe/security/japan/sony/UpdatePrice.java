@@ -11,10 +11,6 @@ import javax.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.sony.price.Day;
-import yokwe.security.japan.sony.price.Month;
-import yokwe.security.japan.sony.price.MorningstarXML;
-import yokwe.security.japan.sony.price.Year;
 import yokwe.util.FileUtil;
 import yokwe.util.http.HttpUtil;
 
@@ -61,11 +57,11 @@ public class UpdatePrice {
 			
 			List<Price> priceList = new ArrayList<>();
 			{
-				MorningstarXML morningstarXML = JAXB.unmarshal(new ByteArrayInputStream(byteArray), MorningstarXML.class);
+				yokwe.security.japan.sony.xml.ChartFundData morningstarXML = JAXB.unmarshal(new ByteArrayInputStream(byteArray), yokwe.security.japan.sony.xml.ChartFundData.class);
 //				logger.info("morningstarXML {}", StringUtil.toString(morningstarXML));
-				for(Year year: morningstarXML.fund.yearList) {
-					for(Month month: year.monthList) {
-						for(Day day: month.dayList) {
+				for(yokwe.security.japan.sony.xml.ChartFundData.Fund.Year year: morningstarXML.fund.yearList) {
+					for(yokwe.security.japan.sony.xml.ChartFundData.Fund.Year.Month month: year.monthList) {
+						for(yokwe.security.japan.sony.xml.ChartFundData.Fund.Year.Month.Day day: month.dayList) {
 							if (day.price.isEmpty())  continue;
 							if (day.volume.isEmpty()) continue;
 
