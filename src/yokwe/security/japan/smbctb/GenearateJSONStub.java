@@ -25,6 +25,7 @@
  *******************************************************************************/
 package yokwe.security.japan.smbctb;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -586,25 +587,17 @@ public class GenearateJSONStub {
 		List<Field> fieldList = fieldObject.list;
 		genClass(out, fieldMap, fieldList, className, classIsStatic);
 	}
-	private static void genSourceFile(String packageName, String className, String jsonPath) {
+	
+	public static void generate(String packageName, String className, String jsonString) {
 		logger.info("====");
 		logger.info("packageName {}", packageName);
 		logger.info("className   {}", className);
-		logger.info("jsonPath    {}", jsonPath);
+		logger.info("jsonString  {}", jsonString.length());
 		
     	String sourcePath = String.format("src/%s/%s.java", packageName.replace(".", "/"), className);
 		logger.info("sourcePath  {}", sourcePath);
 
-    	final JsonReader jsonReader;
-    	{
-        	String string = FileUtil.read().file(jsonPath);
-        	if (string == null) {
-        		logger.error("cannot read file");
-        		logger.error("  path {}", jsonPath);    		
-        		throw new UnexpectedException("cannot read file");
-        	}
-        	jsonReader = Json.createReader(new StringReader(string));
-    	}
+    	final JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
     	
     	FieldMap fieldMap = new FieldMap();
     	
@@ -664,15 +657,13 @@ public class GenearateJSONStub {
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
-	public static void main(String[] args) {
-    	logger.info("START");
-
-    	genSourceFile("yokwe.security.japan.smbctb.json", "Screener", "tmp/screener.json");
-    	genSourceFile("yokwe.security.japan.smbctb.json", "Security", "tmp/F000005MIQ.json");
-    	genSourceFile("yokwe.security.japan.smbctb.json", "Price",    "tmp/F000000MU9-price.json");
-    	genSourceFile("yokwe.security.japan.smbctb.json", "Dividend", "tmp/F000000MU9-div.json");
-        
-    	logger.info("STOP");
-    }
-
+	public static void generate(String packageName, String className, File jsonFile) {
+    	String jsonString = FileUtil.read().file(jsonFile);
+    	if (jsonString == null) {
+    		logger.error("cannot read file");
+    		logger.error("  path {}", jsonFile);    		
+    		throw new UnexpectedException("cannot read file");
+    	}
+    	generate(packageName, className, jsonString);
+	}
 }
