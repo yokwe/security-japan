@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.DataBindingException;
 import javax.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
@@ -34,32 +35,49 @@ public class UpdatePrice {
 	public static void main(String[] arsg) {
 		logger.info("START");
 
-		for(FundInfo e: FundInfo.getList()) {
-			String msFundCode = e.msFundCode;
+		for(FundInfo fundInfo: FundInfo.getList()) {
+			String msFundCode = fundInfo.msFundCode;
 			if (msFundCode.isEmpty()) continue;
 			
-			logger.info("{} {}", e.isinCode, msFundCode);
+			logger.info("{} {} {}", fundInfo.isinCode, msFundCode, fundInfo.fundName);
 			
-			byte[] byteArray;
+			final yokwe.security.japan.sony.xml.ChartFundData chartFundData;
 			{
-				String path = getPath(msFundCode);
-				File file = new File(path);
-				if (file.exists()) {
-					byteArray = FileUtil.rawRead().file(file);
-				} else {
-					String url = getURL(msFundCode);
-					logger.info("  download {}", url);
-					HttpUtil.Result result = HttpUtil.getInstance().withRawData(true).download(url);
-					byteArray = result.rawData;
-					FileUtil.rawWrite().file(file, byteArray);
+				File file = new File(getPath(msFundCode));
+				
+				try {
+					byte[] byteArray;
+					{
+						if (file.exists()) {
+							byteArray = FileUtil.rawRead().file(file);
+						} else {
+							String url = getURL(msFundCode);
+							logger.info("  download {}", url);
+							HttpUtil.Result result = HttpUtil.getInstance().withRawData(true).download(url);
+							byteArray = result.rawData;
+							FileUtil.rawWrite().file(file, byteArray);
+							logger.info("  save {} {}", byteArray.length, file.getPath());
+						}
+					}
+
+					chartFundData = JAXB.unmarshal(new ByteArrayInputStream(byteArray), yokwe.security.japan.sony.xml.ChartFundData.class);
+
+				} catch(DataBindingException e) {
+					logger.warn("DataBindingException");
+					String exceptionName = e.getClass().getSimpleName();
+					logger.error("{} {}", exceptionName, e);
+
+					logger.warn("  delete file {}", file.getPath());
+					// delete file for rerun
+					file.delete();
+					continue;
 				}
 			}
 			
 			List<Price> priceList = new ArrayList<>();
 			{
-				yokwe.security.japan.sony.xml.ChartFundData morningstarXML = JAXB.unmarshal(new ByteArrayInputStream(byteArray), yokwe.security.japan.sony.xml.ChartFundData.class);
-//				logger.info("morningstarXML {}", StringUtil.toString(morningstarXML));
-				for(yokwe.security.japan.sony.xml.ChartFundData.Fund.Year year: morningstarXML.fund.yearList) {
+//				logger.info("chartFundData {}", StringUtil.toString(chartFundData));
+				for(yokwe.security.japan.sony.xml.ChartFundData.Fund.Year year: chartFundData.fund.yearList) {
 					for(yokwe.security.japan.sony.xml.ChartFundData.Fund.Year.Month month: year.monthList) {
 						for(yokwe.security.japan.sony.xml.ChartFundData.Fund.Year.Month.Day day: month.dayList) {
 							if (day.price.isEmpty())  continue;
@@ -69,13 +87,13 @@ public class UpdatePrice {
 							LocalDate  date = LocalDate.parse(String.format("%s-%s-%s", day.year, day.month, day.value));
 							BigDecimal value = new BigDecimal(day.price);
 							long       volume = Long.parseLong(day.volume);
-							Price price = new Price(date, e.isinCode, e.currency, value, volume);
+							Price price = new Price(date, fundInfo.isinCode, fundInfo.currency, value, volume);
 							priceList.add(price);
 						}
 					}
 				}
 			}
-			logger.info("  save {} {}", priceList.size(), Price.getPath(e.isinCode));
+			logger.info("  save {} {}", priceList.size(), Price.getPath(fundInfo.isinCode));
 			Price.save(priceList);
 		}
 
