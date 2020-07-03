@@ -6,9 +6,8 @@ import javax.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.security.japan.sony.basic.Root;
-import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.http.HttpUtil;
 
 public class Basic {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Basic.class);
@@ -16,11 +15,15 @@ public class Basic {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		byte[] byetArray = FileUtil.rawRead().file("tmp/basic_2013121001.xml");
+		String url = "https://apl.morningstar.co.jp/webasp/funddataxml/basic/basic_201306280D.xml";
+		HttpUtil.Result result = HttpUtil.getInstance().withRawData(true).download(url);
+		logger.info("result {} {} {} {}", result.code, result.reasonPhrase, result.version, result.rawData.length);
+
+		byte[] byetArray = result.rawData;
 		logger.info("byetArray {}!", byetArray.length);
 		
-		Root root = JAXB.unmarshal(new ByteArrayInputStream(byetArray), Root.class);
-		logger.info("root {}", StringUtil.toString(root));
+		yokwe.security.japan.sony.xml.Basic basic = JAXB.unmarshal(new ByteArrayInputStream(byetArray), yokwe.security.japan.sony.xml.Basic.class);
+		logger.info("basic {}", StringUtil.toString(basic));
 		
 		logger.info("STOP");
 	}
