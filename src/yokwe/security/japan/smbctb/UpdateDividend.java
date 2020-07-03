@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.UnexpectedException;
 import yokwe.security.japan.smbctb.json.Dividend.Security.DividendSeries;
-import yokwe.util.FileUtil;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
@@ -59,7 +58,6 @@ public class UpdateDividend {
 			String url = getURL(e.secId);
 			HttpUtil.Result result = HttpUtil.getInstance().download(url);
 //			logger.info("result {} {} {} {}", result.code, result.reasonPhrase, result.version, result.rawData.length);
-			FileUtil.write().file("tmp/a", result.result); // FIXMEE
 			
 			yokwe.security.japan.smbctb.json.Dividend jsonDividend = JSON.unmarshal(yokwe.security.japan.smbctb.json.Dividend.class, result.result);
 			
