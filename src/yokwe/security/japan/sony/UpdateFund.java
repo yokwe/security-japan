@@ -13,105 +13,15 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 import yokwe.security.japan.sony.Fund.Region;
 import yokwe.security.japan.sony.Fund.Target;
+import yokwe.security.japan.sony.json.FundData;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
-import yokwe.util.json.JSON.Name;
 
 public class UpdateFund {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFund.class);
 
-	public static class RawFundData {
-	    @Name("BunpaiKinriFM")       public String bunpaiKinriFM;      // 14.97%
-	    @Name("BunpaiKinriRank")     public String bunpaiKinriRank;    // 6
-	    @Name("CategoryMeisyo")      public String categoryMeisyo;     // 国際REIT型
-	    @Name("FlgFromSSeimei")      public String flgFromSSeimei;     // 0
-	    @Name("FlgHanbaiteisi")      public String flgHanbaiteisi;     // 0
-	    @Name("FlgHRiskFund")        public String flgHRiskFund;       // 0
-	    @Name("FlgSWOnly")           public String flgSWOnly;          // 0
-	    @Name("FundAisyo")           public String fundAisyo;          // −
-	    @Name("FundMei")             public String fundMei;            // ワールド・リート・オープン（毎月決算型）
-	    @Name("FundRyaku")           public String fundRyaku;          // ワールド・リート・オープン（毎月決算型）
-	    @Name("HanbaigakuFM")        public String hanbaigakuFM;       // 4,359,962円
-	    @Name("HanbaigakuRanking")   public String hanbaigakuRanking;  // 127
-	    @Name("HanbaiTesuryo")       public String hanbaiTesuryo;      // -
-	    @Name("HanbaiTesuryoFM")     public String hanbaiTesuryoFM;    // なし
-	    @Name("HyokaKijyunbi")       public String hyokaKijyunbi;      // 2020年03月
-	    @Name("JyunsisanEn")         public String jyunsisanEn;        // 142588
-	    @Name("JyunsisanEnFM")       public String jyunsisanEnFM;      // 142,588
-	    @Name("JyunsisanRank")       public String jyunsisanRank;      // 15
-	    @Name("KanaCode")            public String kanaCode;           // 081
-	    @Name("KessanHindo")         public String kessanHindo;        // 12
-	    @Name("KessanHindoFM")       public String kessanHindoFM;      // 毎月
-	    @Name("KijyunKagaku")        public String kijyunKagaku;       // 1403
-	    @Name("KijyunKagakuFM")      public String kijyunKagakuFM;     // 1,403円
-	    @Name("MSCategoryCodeDai")   public String msCategoryCodeDai;  // 13
-	    @Name("NISAHanbaigakuFM")    public String nisaHanbaigakuFM;   // 696,961円
-	    @Name("NISAHanbaigakuRank")  public String nisaHanbaigakuRank; // 97
-	    @Name("ReturnRank")          public String returnRank;         // 221
-	    @Name("SBFundCode")          public String sbFundCode;         // 09111041
-	    @Name("SintakHosyu")         public String sintakHosyu;        // 1.705
-	    @Name("SintakHosyuFM")       public String sintakHosyuFM;      // 1.705%
-	    @Name("SougouRating")        public String sougouRating;       // 2
-	    @Name("SougouRatingFM")      public String sougouRatingFM;     // ★★
-	    @Name("ToshiArea")           public String toshiArea;          // 01
-	    @Name("ToshiTarget")         public String toshiTarget;        // 20
-	    @Name("TotalReturn")         public String totalReturn;        // -33.36
-	    @Name("TotalReturnFM")       public String totalReturnFM;      // -33.36%
-	    @Name("TukaCode")            public String tukaCode;           // JPY
-	    @Name("TumitateKensu")       public String tumitateKensu;      // 96
-	    @Name("TumitateKensuRank")   public String tumitateKensuRank;  // 77
-	    @Name("TumitatePlan")        public String tumitatePlan;       // 1
-	    @Name("TumitatePlanFM")      public String tumitatePlanFM;     // ○
-	    @Name("ZenjituhiFM")         public String zenjituhiFM;        // -47円
-
-		public RawFundData() {
-		    this.bunpaiKinriFM      = null;
-		    this.bunpaiKinriRank    = null;
-		    this.categoryMeisyo     = null;
-		    this.flgFromSSeimei     = null;
-		    this.flgHanbaiteisi     = null;
-		    this.flgHRiskFund       = null;
-		    this.flgSWOnly          = null;
-		    this.fundAisyo          = null;
-		    this.fundMei            = null;
-		    this.fundRyaku          = null;
-		    this.hanbaigakuFM       = null;
-		    this.hanbaigakuRanking  = null;
-		    this.hanbaiTesuryo      = null;
-		    this.hanbaiTesuryoFM    = null;
-		    this.hyokaKijyunbi      = null;
-		    this.jyunsisanEn        = null;
-		    this.jyunsisanEnFM      = null;
-		    this.jyunsisanRank      = null;
-		    this.kanaCode           = null;
-		    this.kessanHindo        = null;
-		    this.kessanHindoFM      = null;
-		    this.kijyunKagaku       = null;
-		    this.kijyunKagakuFM     = null;
-		    this.msCategoryCodeDai  = null;
-		    this.nisaHanbaigakuFM   = null;
-		    this.nisaHanbaigakuRank = null;
-		    this.returnRank         = null;
-		    this.sbFundCode         = null;
-		    this.sintakHosyu        = null;
-		    this.sintakHosyuFM      = null;
-		    this.sougouRating       = null;
-		    this.sougouRatingFM     = null;
-		    this.toshiArea          = null;
-		    this.toshiTarget        = null;
-		    this.totalReturn        = null;
-		    this.totalReturnFM      = null;
-		    this.tukaCode           = null;
-		    this.tumitateKensu      = null;
-		    this.tumitateKensuRank  = null;
-		    this.tumitatePlan       = null;
-		    this.tumitatePlanFM     = null;
-		    this.zenjituhiFM        = null;
-		}
-	}
-	
 	public static class RawData {
-		public Map<String, RawFundData> map;
+		public Map<String, FundData.JP90C00002U0> map;
 		
 		public RawData() {
 			map = null;
@@ -122,7 +32,7 @@ public class UpdateFund {
 //		return value.compareTo(BigDecimal.ZERO) == 0 ? "0" : value.toPlainString();
 //	}
 	
-	public static Fund getInstance(LocalDateTime dateTime, String isinCode, RawFundData raw) {
+	public static Fund getInstance(LocalDateTime dateTime, String isinCode, FundData.JP90C00002U0 raw) {
 		Fund ret = new Fund();
         ret.dateTime           = dateTime;
         ret.isinCode           = isinCode;
@@ -216,12 +126,12 @@ public class UpdateFund {
 		RawData rawData = JSON.unmarshal(RawData.class, jsonString);
 
 		List<Fund> list = new ArrayList<>();
-		for(Map.Entry<String, RawFundData> entry: rawData.map.entrySet()) {
-			String      isinCode = entry.getKey();
-			RawFundData raw      = entry.getValue();
-			list.add(getInstance(dateTime, isinCode, raw));
+		for(Map.Entry<String, FundData.JP90C00002U0> entry: rawData.map.entrySet()) {
+			String                isinCode = entry.getKey();
+			FundData.JP90C00002U0 fundData = entry.getValue();
+			list.add(getInstance(dateTime, isinCode, fundData));
 		}
-				
+		
 		return list;
 	}
 
