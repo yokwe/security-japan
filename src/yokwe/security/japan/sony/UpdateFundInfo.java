@@ -544,7 +544,7 @@ public class UpdateFundInfo {
 		{
 			for(Fund e: Fund.getList()) {
 				String isinCode = e.isinCode;
-				logger.info("{}", isinCode);
+				logger.info("{} {}", isinCode, e.fundName);
 				
 				String page;
 				{
