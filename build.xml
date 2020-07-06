@@ -62,26 +62,6 @@
                  </java>
         </target>
 
-        <target name="download-ufocatch">
-                <java classname="yokwe.security.japan.ufocatch.DownloadUFOCatch" fork="true">
-                        <classpath location="${jar.security-japan}" />
-                        <classpath refid="ext.jar" />
-                        <classpath location="${dir.libreoffice}"/>
-                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
-                        <sysproperty key="stopAtSkip" value="true"/>
-                </java>
-        </target>
-
-        <target name="download-ufocatch-all">
-                <java classname="yokwe.security.japan.ufocatch.DownloadUFOCatch" fork="true">
-                        <classpath location="${jar.security-japan}" />
-                        <classpath refid="ext.jar" />
-                        <classpath location="${dir.libreoffice}"/>
-                        <sysproperty key="logback.configurationFile" value="${dir.src}/logback.xml"/>
-                        <sysproperty key="stopAtSkip" value="false"/>
-                 </java>
-        </target>
-
         <target name="update-stock-report">
                 <java classname="yokwe.security.japan.data.UpdateStockReport" fork="true">
                         <classpath location="${jar.security-japan}" />

@@ -48,17 +48,6 @@ update-stock-price:
 
 
 #
-# tdnet.touch
-#   "ant download-ufocatch" download file, it will touch tmp/data/tdnet.touch
-#
-download-ufocatch:
-	ant download-ufocatch
-
-download-ufocatch-all:
-	ant download-ufocatch-all
-
-
-#
 # release.csv and tmp/data/tdnet/*
 #   "ant download-release" download file, it will touch tmp/data/tdnet.touch
 #
