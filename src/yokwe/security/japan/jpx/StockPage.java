@@ -286,9 +286,9 @@ public class StockPage {
 			return ScrapeUtil.get(Issued.class, PAT, page);
 		}
 
-		public final long value;
+		public final Long value;
 		
-		public Issued(long value) {
+		public Issued(Long value) {
 			this.value = value;
 		}
 		
