@@ -174,7 +174,11 @@ public class ReportStatsJP {
 			ret.numberOfIssuedK = numberOfIssued.divide(kilo).longValue();
 			ret.marketCapM      = marketCap.longValue();
 			ret.tradeCapM       = trade.longValue();
-			ret.volPCT          = DoubleUtil.round((double)ret.vol / (double)stockInfo.issued, 3);
+			if (stockInfo.issued == 0) {
+				ret.volPCT          = 0;
+			} else {
+				ret.volPCT          = DoubleUtil.round((double)ret.vol / (double)stockInfo.issued, 3);
+			}
 		}
 		
 		// feb17pct
