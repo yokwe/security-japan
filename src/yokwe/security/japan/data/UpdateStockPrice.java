@@ -108,8 +108,15 @@ public class UpdateStockPrice {
 
 			// build stockInfoList
 			{
-				// String stockCode, String isin, int tradeUnit, long issued, String industry
-				StockInfo stockInfo = new StockInfo(stockCode, companyInfo.isin, tradeUnit.value, issued.value);
+				// String stockCode, String isin, int tradeUnit, long issued
+				long issuedValue;
+				if (issued.value == null) {
+					logger.warn("issued.value is null  {}", stockCode);
+					issuedValue = 0;
+				} else {
+					issuedValue = issued.value;
+				}
+				StockInfo stockInfo = new StockInfo(stockCode, companyInfo.isin, tradeUnit.value, issuedValue);
 				context.add(stockInfo);
 			}
 
