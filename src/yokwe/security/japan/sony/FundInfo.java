@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import yokwe.util.CSVUtil;
 import yokwe.util.StringUtil;
@@ -20,6 +22,17 @@ public class FundInfo implements Comparable<FundInfo> {
 			}
 		}
 		return list;
+	}
+	
+	private static Map<String, FundInfo> map = null;
+	public static Map<String, FundInfo> getMap() {
+		if (map == null) {
+			map = new TreeMap<>();
+			for(var e: getList()) {
+				map.put(e.isinCode, e);
+			}
+		}
+		return map;
 	}
 
 	public static void save(Collection<FundInfo> collection) {

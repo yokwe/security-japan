@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,17 @@ public class Fund implements Comparable<Fund> {
 			}
 		}
 		return list;
+	}
+	
+	private static Map<String, Fund> map = null;
+	public static Map<String, Fund> getMap() {
+		if (map == null) {
+			map = new TreeMap<>();
+			for(var e: getList()) {
+				map.put(e.isinCode, e);
+			}
+		}
+		return map;
 	}
 
 	public static void save(Collection<Fund> collection) {
