@@ -27,7 +27,7 @@ save-ods:
 	cp ~/Dropbox/Trade/TEMPLATE_STATS_JP.ods ~/Dropbox/Trade/SAVE/TEMPLATE_STATS_JP_$$(date +%Y%m%d).ods
 
 delete-save:
-	find tmp/save -mtime 7 -delete
+	find tmp/save -mtime +30 -delete
 
 #
 # stock.csv
