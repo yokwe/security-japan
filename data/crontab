@@ -1,0 +1,55 @@
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+# 
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+# 
+SHELL=/bin/bash
+MAILTO=hasegawa
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Use english languguage
+LANG=en_US.UTF-8
+LANGUAGE=en_US:en
+ 
+# stock-report
+#m   h     dom mon dow   command
+50   11    *   *   1-5   cd /data1/home/hasegawa/git/stock-report;   (make update-forex monex-fx-tax)                          1>tmp/cron.log 2>&1
+
+# security-usa
+#m   h     dom mon dow   command
+02   14    *   *   2-6   cd /data1/home/hasegawa/git/security-usa;   (make update-stock update-price update-stats-us)          1>tmp/cron.log 2>&1
+02    1    *   *     *   cd /data1/home/hasegawa/git/security-usa;   (make delete-save)                                        1>tmp/cron.log 2>&1
+
+# security-japan
+# monthly update of stock.csv
+#m   h     dom mon dow   command
+20   17    3-7 *     *   cd /data1/home/hasegawa/git/security-japan; (make update-stock)                                       1>tmp/cron.log 2>&1
+# daily maintainance
+03    1    *   *     *   cd /data1/home/hasegawa/git/security-japan; (make delete-save)                                        1>tmp/cron.log 2>&1
+
+# update stock-price.csv stock-info.csv and price 09:00 - 11:30 12:30 - 15:00
+#*/05                  9-10  *   *   1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price)                1>tmp/cron.log 2>&1
+#00,05,10,15,20,25,30    11  *   *   1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price)                1>tmp/cron.log 2>&1
+#30,35,40,45,50,55       12  *   *   1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price)                1>tmp/cron.log 2>&1
+#*/05                 13-14  *   *   1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price)                1>tmp/cron.log 2>&1
+#00,05,10,15,20          15  *   *   1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price)                1>tmp/cron.log 2>&1
+20                     9-15  *   *   1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price)                1>tmp/cron.log 2>&1
+# generate report stats-jp-YYYYMMDD-HHMMSS.ods
+#m   h     dom mon dow   command
+22    9    *   *     1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price update-dividend report-stats-jp)  1>tmp/cron.log 2>&1
+52   11    *   *     1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price update-dividend report-stats-jp)  1>tmp/cron.log 2>&1
+52   12    *   *     1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price update-dividend report-stats-jp)  1>tmp/cron.log 2>&1
+22   15    *   *     1-5   cd /data1/home/hasegawa/git/security-japan; (make update-stock-price update-dividend report-stats-jp)  1>tmp/cron.log 2>&1
+# update tdnet and edinet data
+#m   h     dom mon dow   command
+07   8-23  *   *     *   cd /data1/home/hasegawa/git/security-japan; (make download-release)                                   1>tmp/cron.log 2>&1
+22   8-23  *   *     *   cd /data1/home/hasegawa/git/security-japan; (make update-edinet-document)                             1>tmp/cron.log 2>&1
+
+# clear log file
+03   0     *   *     1   cd /data1/home/hasegawa/git/security-japan; echo -n >tmp/security-japan.log
+04   0     *   *     1   cd /data1/home/hasegawa/git/security-usa;   echo -n >tmp/security-usa.log 
+05   0     *   *     1   cd /data1/home/hasegawa/git/stock-report;   echo -n >tmp/stock-report.log 
+
