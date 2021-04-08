@@ -1,7 +1,14 @@
 #
 #
 #
+ifneq ("$(wildcard /bin/bash)","")
 SHELL := /bin/bash
+endif
+
+ifneq ("$(wildcard /usr/local/bin/bash)","")
+SHELL := /usr/local/bin/bash
+endif
+
 
 all:
 	@echo all
@@ -20,7 +27,10 @@ copy-misc-lib-files:
 	cp ../misc-lib/data/market/*              data/market
 
 build-misc-lib:
-	pushd ../misc-lib/; ant build ; popd; make copy-misc-lib-files
+	pushd ../misc-lib/; ant build ; popd
+	cp ../misc-lib/tmp/build/jar/misc-lib.jar data/jar
+	cp ../misc-lib/data/jar/*                 data/jar
+	cp ../misc-lib/data/market/*              data/market
 
 save-ods:
 	cp ~/Dropbox/Trade/dividend-etf.ods      ~/Dropbox/Trade/SAVE/dividend-etf_$$(date +%Y%m%d).ods
