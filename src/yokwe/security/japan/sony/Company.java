@@ -26,6 +26,7 @@ public enum Company {
 	PICTE    ("063", "ピクテ"),
 	FIVESTAR ("065", "ファイブスター"),
 	FEDILITY ("067", "フィデリティ"),
+	FRANKLIN ("069", "フランクリン"),
 	BLACKROCK("070", "ブラックロック"),
 	MANULIFE ("077", "マニュライフ"),
 	SMDS     ("079", "三井住友DS"),
